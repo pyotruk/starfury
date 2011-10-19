@@ -20,15 +20,15 @@ void MainWindow::DrawFrameSlot(void   *pFrame,
                                int frameHeight)
 {
     uchar *ff = (uchar*)pFrame;
-    QRgb *pline;
-    for(int j = 0; j < frameHeight; j++)
+    QRgb *pLineStart, *pLineEnd;
+    for(int j = 0; j < frameHeight; ++j)
     {
-        pline = (QRgb*)(*FImg).scanLine(j);
-        for(int i = 0; i < frameWidth; i++)
+        pLineStart = (QRgb*)(*FImg).scanLine(j);
+        pLineEnd = pLineStart + frameWidth;
+        for(QRgb *pline = pLineStart; pline < pLineEnd; ++pline)
         {
-            *pline = qRgba(*ff, *ff, *ff, 0xff);
-            pline++;
-            ff++;
+            *pline = qRgba(*ff, *ff, *ff, 255);
+            ++ff;
         }
     }
     update();

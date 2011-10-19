@@ -57,13 +57,8 @@ SharedMem::~SharedMem()
 ///////////////////////////////////////////////////////////////////////////////////////
 void SharedMem::ReadBuf()
 {
-    uchar *pFrameEnd = FpFrame + FFrameSizes.width * FFrameSizes.height;
-    for(uchar *ff = FpFrame,
-              *pSharedBuf = (uchar*)FpSharedBuf + FFrameSizes.headerSize;
-        ff < pFrameEnd;
-        ff++,
-        pSharedBuf++)
-        *ff = *pSharedBuf;
+    uchar *pSharedBuf = (uchar*)FpSharedBuf + FFrameSizes.headerSize;
+    memcpy(FpFrame, pSharedBuf, FFrameSizes.width * FFrameSizes.height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void SharedMem::run()
