@@ -37,9 +37,9 @@ public:
               int frameHeight);
     ~SharedMem();
 signals:
-    void DrawFrameSignal(void   *pFrame,
+    void FrameProcSignal(void   *pFrame,
                          int frameWidth,
-                         int frameHeight); //сигнал на отрисовку картинки
+                         int frameHeight); //сигнал на оработку картинки
 };
 
 #endif // READSHAREDMEM_H

@@ -13,6 +13,10 @@ class FrameProc : public QObject
         void FrameProcSlot(void *pFrame,
                            int frameWidth,
                            int frameHeight);
+    signals:
+        void DrawFrameSignal(void *pFrame,
+                             int frameWidth,
+                             int frameHeight); //сигнал на отрисовку картинки
 };
 
 #endif // FRAMEPROC_H

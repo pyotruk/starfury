@@ -75,9 +75,9 @@ void SharedMem::run()
                 ReadBuf();
                 ReleaseMutex(FhMutex);
                 ResetEvent(FhEvent);
-                emit DrawFrameSignal((void*)FpFrame,
+                emit FrameProcSignal((void*)FpFrame,
                                      FFrameSizes.width,
-                                     FFrameSizes.height); //сигнал на отрисовку картинки
+                                     FFrameSizes.height); //сигнал на обработку картинки
             }
         }
     }

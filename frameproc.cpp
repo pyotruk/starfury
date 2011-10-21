@@ -4,8 +4,9 @@ void FrameProc::FrameProcSlot(void *pFrame,
                               int frameWidth,
                               int frameHeight)
 {
-    cv::Mat cvMat(frameHeight, frameWidth, CV_8UC1);
-    cvMat.data = (uchar*)pFrame;
+    cv::Mat cvMat(frameHeight, frameWidth, CV_8UC1, pFrame);
+    cv::blur(cvMat, cvMat, cv::Size(5,5));
+    emit DrawFrameSignal(pFrame, frameWidth, frameHeight);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
