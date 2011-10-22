@@ -21,7 +21,7 @@ HEADERS  += mainwindow.h \
 
 INCLUDEPATH += C:\opencv231\include
 
-LIBS += -L"c:\opencv231\lib" \
+LIBS += -L"C:\opencv231\lib" \
 -l"opencv_calib3d231" \
 -l"opencv_contrib231" -l"opencv_core231" -l"opencv_features2d231" -l"opencv_flann231" \
 -l"opencv_gpu231" -l"opencv_highgui231" -l"opencv_imgproc231" -l"opencv_legacy231" \

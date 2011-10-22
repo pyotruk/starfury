@@ -6,6 +6,8 @@
 #include <QImage>
 #include <QPainter>
 #include <QPoint>
+#include <QMouseEvent>
+
 
 typedef unsigned char uchar;
 
@@ -27,6 +29,9 @@ private slots:
     void DrawFrameSlot(void   *pFrame,
                        int frameWidth,
                        int frameHeight);
+signals:
+    void mousePressEvent(QMouseEvent *);
+    void StrobSizeChangedSignal(int pos);
 };
 
 #endif // MAINWINDOW_H

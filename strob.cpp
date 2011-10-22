@@ -21,22 +21,29 @@ void Strob::StrobSlot(void *pFrame,
                       int frameWidth,
                       int frameHeight)
 {
-    //предобработка
+    FFrameSize.setWidth(frameWidth);
+    FFrameSize.setHeight(frameHeight);
     cv::Mat mainImg(frameHeight, frameWidth, CV_8UC1, pFrame);
-    cv::blur(mainImg, mainImg, cv::Size(5,5));
 
     //создание, инициализация сигнального и фонового стробов
     int size2 = FSize / 2;
-    QPoint topLeft(FCenter.x() - size2, FCenter.y() - size2);
-    cv::Mat signalRoi(mainImg, cv::Rect(topLeft.x(),
-                                        topLeft.y(),
+    int foneStrobSize = (int)(floor(SQRT_2 * FSize + 0.5));
+    int foneStrobSize2 = foneStrobSize / 2;
+    QPoint signalRoiTopLeft(FCenter.x() - size2,
+                            FCenter.y() - size2);
+    QPoint foneRoiTopLeft(FCenter.x() - foneStrobSize2,
+                          FCenter.y() - foneStrobSize2);
+    cv::Mat signalRoi(mainImg, cv::Rect(signalRoiTopLeft.x(),
+                                        signalRoiTopLeft.y(),
                                         FSize,
                                         FSize));
-    int foneStrobSize = (int)(floor(SQRT_2 * FSize + 0.5));
-    cv::Mat foneRoi(mainImg, cv::Rect(topLeft.x(),
-                                      topLeft.y(),
+    cv::Mat foneRoi(mainImg, cv::Rect(foneRoiTopLeft.x(),
+                                      foneRoiTopLeft.y(),
                                       foneStrobSize,
                                       foneStrobSize));
+
+    //предобработка
+    cv::blur(foneRoi, foneRoi, cv::Size(5,5));
 
     //суммарная яркость в сигнальном стробе и в фоновом
     long int sumSignal = cv::sum(signalRoi)[0];
@@ -59,8 +66,8 @@ void Strob::StrobSlot(void *pFrame,
 
         //вычисление центра масс по сигнальному стробу
         cv::TermCriteria crit(cv::TermCriteria::COUNT + cv::TermCriteria::EPS, 2, 0.1);
-        cv::Rect trackingWindow(topLeft.x(),
-                                topLeft.y(),
+        cv::Rect trackingWindow(signalRoiTopLeft.x(),
+                                signalRoiTopLeft.y(),
                                 FSize,
                                 FSize);
         cv::meanShift(mainImg, trackingWindow, crit);
@@ -91,5 +98,20 @@ void Strob::CheckCenterRange(QPoint *center,
     if(center->x() > xMax)  center->setX(xMax);
     if(center->y() < yMin)  center->setY(yMin);
     if(center->y() > yMax)  center->setY(yMax);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::ClickTarget(QMouseEvent *mousePressEvent)
+{
+    FCenter.setX(mousePressEvent->x());
+    FCenter.setY(mousePressEvent->y());
+    CheckCenterRange(&FCenter,
+                     FFrameSize.width(),
+                     FFrameSize.height(),
+                     FSize);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::StrobChange(int pos)
+{
+    FSize = pos;
 }
 /////////////////////////////////////////////////////////////////////////////////////

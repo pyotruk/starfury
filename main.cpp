@@ -26,10 +26,15 @@ int main(int argc, char *argv[])
                         FRAME_HEIGHT);
     Strob strob(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
 
+    //connections
     QObject::connect(&sharedMem, SIGNAL(StrobSignal(void*, int, int)),
                      &strob, SLOT(StrobSlot(void*, int, int)));
     QObject::connect(&strob, SIGNAL(DrawFrameSignal(void*, int, int)),
                      &w, SLOT(DrawFrameSlot(void*, int, int)));
+    QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
+                     &strob, SLOT(ClickTarget(QMouseEvent *)));
+    QObject::connect(&w, SIGNAL(StrobSizeChangedSignal(int)),
+                     &strob, SLOT(StrobChange(int)));
 
     w.show();
     return a.exec();

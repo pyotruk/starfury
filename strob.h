@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QPoint>
 #include <math.h>
+#include <QMouseEvent>
+#include <QSize>
 
 typedef unsigned char uchar;
 
@@ -26,6 +28,7 @@ private:
     QPoint FCenter;
     int    FSize;
     double FStdDevThreshold;
+    QSize  FFrameSize;
     void CheckCenterRange(QPoint *center,
                           int frameWidth,
                           int frameHeight,
@@ -34,6 +37,8 @@ private slots:
     void StrobSlot(void *pFrame,
                    int frameWidth,
                    int frameHeight);
+    void ClickTarget(QMouseEvent *mousePressEvent);
+    void StrobChange(int pos);
 signals:
     void DrawFrameSignal(void *pFrame,
                          int frameWidth,

@@ -1,11 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(ui->scrollStrobSize, SIGNAL(sliderMoved(int)), this, SIGNAL(StrobSizeChangedSignal(int)));
     FImg = new QImage(640, 480, QImage::Format_RGB32);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,3 +42,4 @@ void MainWindow::paintEvent(QPaintEvent *)
     QPoint p(0, 0);
     painter.drawImage(p, *FImg);
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////
