@@ -17,17 +17,7 @@ struct FrameSizes
 
 class SharedMem : public QThread
 {
-Q_OBJECT
-private:
-    void       *FpSharedBuf;
-    HANDLE     FhMappedFile;
-    HANDLE     FhEvent;
-    HANDLE     FhMutex;
-    uchar      *FpFrame;
-    FrameSizes FFrameSizes;
-    void ReadBuf();
-protected:
-    void run();
+    Q_OBJECT
 public:
     SharedMem(LPCTSTR fileMapId,
               LPCTSTR eventId,
@@ -36,10 +26,20 @@ public:
               int frameWidth,
               int frameHeight);
     ~SharedMem();
+protected:
+    void run();
+private:
+    void       *FpSharedBuf;
+    HANDLE     FhMappedFile;
+    HANDLE     FhEvent;
+    HANDLE     FhMutex;
+    uchar      *FpFrame;
+    FrameSizes FFrameSizes;
+    void ReadBuf();
 signals:
-    void FrameProcSignal(void   *pFrame,
-                         int frameWidth,
-                         int frameHeight); //сигнал на оработку картинки
+    void StrobSignal(void   *pFrame,
+                     int frameWidth,
+                     int frameHeight); //сигнал на оработку картинки
 };
 
 #endif // READSHAREDMEM_H
