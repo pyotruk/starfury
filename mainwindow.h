@@ -21,18 +21,18 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void InitFace(int strobSize);
+    void initFace(int strobSize);
 private:
     Ui::MainWindow *ui;
     QImage *FImg;
 private slots:
     void paintEvent(QPaintEvent *);
-    void DrawFrameSlot(void   *pFrame,
-                       int frameWidth,
-                       int frameHeight);
+    void drawFrame(void *pFrame,
+                   int  frameWidth,
+                   int  frameHeight);
 signals:
     void mousePressEvent(QMouseEvent *);
-    void StrobSizeChangedSignal(int pos);
+    void changeStrobSize(int size);
 };
 
 #endif // MAINWINDOW_H

@@ -13,17 +13,17 @@ int main(int argc, char *argv[])
     Strob strob(FRAME_WIDTH / 2, FRAME_HEIGHT / 2, &settings);
 
     //form init
-    w.InitFace(strob.Size());
+    w.initFace(strob.size());
 
     //connections
-    QObject::connect(&sharedMem, SIGNAL(StrobSignal(void*, int, int)),
-                     &strob, SLOT(StrobSlot(void*, int, int)));
-    QObject::connect(&strob, SIGNAL(DrawFrameSignal(void*, int, int)),
-                     &w, SLOT(DrawFrameSlot(void*, int, int)));
+    QObject::connect(&sharedMem, SIGNAL(frameRecived(void*,int,int)),
+                     &strob, SLOT(makeTracking(void*,int,int)));
+    QObject::connect(&strob, SIGNAL(drawFrame(void*, int, int)),
+                     &w, SLOT(drawFrame(void*, int, int)));
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
-                     &strob, SLOT(ClickTarget(QMouseEvent *)));
-    QObject::connect(&w, SIGNAL(StrobSizeChangedSignal(int)),
-                     &strob, SLOT(StrobChange(int)));
+                     &strob, SLOT(clickTarget(QMouseEvent *)));
+    QObject::connect(&w, SIGNAL(changeStrobSize(int)),
+                     &strob, SLOT(setSize(int)));
 
     w.show();
     return a.exec();

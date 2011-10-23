@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->scrollStrobSize, SIGNAL(sliderMoved(int)), this, SIGNAL(StrobSizeChangedSignal(int)));
+    connect(ui->scrollStrobSize, SIGNAL(sliderMoved(int)), this, SIGNAL(changeStrobSize(int)));
     FImg = new QImage(640, 480, QImage::Format_RGB32);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,15 +17,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::InitFace(int strobSize)
+void MainWindow::initFace(int strobSize)
 {
     ui->scrollStrobSize->setValue(strobSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::DrawFrameSlot(void   *pFrame,
-                               int frameWidth,
-                               int frameHeight)
+void MainWindow::drawFrame(void *pFrame,
+                           int  frameWidth,
+                           int  frameHeight)
 {
     uchar *ff = (uchar*)pFrame;
     QRgb *pLineStart, *pLineEnd;

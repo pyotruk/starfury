@@ -6,7 +6,7 @@ SharedMem::SharedMem(int frameHeaderSize,
                      QSettings *settings)
 {
       FSharedSettings.settings = settings;
-      LoadSettings(FSharedSettings.settings);
+      loadSettings(FSharedSettings.settings);
       FFrameSizes.headerSize = frameHeaderSize;
       FFrameSizes.width = frameWidth;
       FFrameSizes.height = frameHeight;
@@ -53,10 +53,10 @@ SharedMem::~SharedMem()
     CloseHandle(FhEvent);
     CloseHandle(FhMutex);
     delete FpFrame;
-    SaveSettings(FSharedSettings.settings);
+    saveSettings(FSharedSettings.settings);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::LoadSettings(QSettings *settings)
+void SharedMem::loadSettings(QSettings *settings)
 {
     if(settings == 0)
     {
@@ -72,7 +72,7 @@ void SharedMem::LoadSettings(QSettings *settings)
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::SaveSettings(QSettings *settings)
+void SharedMem::saveSettings(QSettings *settings)
 {
     if(settings != 0)
     {
@@ -83,7 +83,7 @@ void SharedMem::SaveSettings(QSettings *settings)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::ReadBuf()
+void SharedMem::readBuf()
 {
     uchar *pSharedBuf = (uchar*)FpSharedBuf + FFrameSizes.headerSize;
     memcpy(FpFrame, pSharedBuf, FFrameSizes.width * FFrameSizes.height);
@@ -100,12 +100,12 @@ void SharedMem::run()
             waitRes = WaitForSingleObject(FhMutex, 20);
             if(waitRes == 0)
             {
-                ReadBuf();
+                readBuf();
                 ReleaseMutex(FhMutex);
                 ResetEvent(FhEvent);
-                emit StrobSignal((void*)FpFrame,
-                                 FFrameSizes.width,
-                                 FFrameSizes.height); //сигнал на обработку картинки
+                emit frameRecived((void*)FpFrame,
+                                  FFrameSizes.width,
+                                  FFrameSizes.height); //сигнал на обработку картинки
             }
         }
     }

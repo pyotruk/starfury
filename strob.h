@@ -25,7 +25,7 @@ public:
                    int refPointY,
                    QSettings * settings = 0);
     ~Strob();
-    int Size();
+    int size();
 private:
     static const double SQRT_2 = 1.4142135623730950488016887242097;
     static const int    DEFAULT_SIZE = 40;
@@ -36,22 +36,22 @@ private:
     int       FSize;
     double    FStdDevThreshold;
     QSize     FFrameSize;
-    void CheckCenterRange(QPoint *center,
+    void checkCenterRange(QPoint *center,
                           int frameWidth,
                           int frameHeight,
                           int roiSize);
-    void LoadSettings(QSettings *settings);
-    void SaveSettings(QSettings *settings);
+    void loadSettings(QSettings *settings);
+    void saveSettings(QSettings *settings);
 private slots:
-    void StrobSlot(void *pFrame,
-                   int frameWidth,
-                   int frameHeight);
-    void ClickTarget(QMouseEvent *mousePressEvent);
-    void StrobChange(int pos);
+    void makeTracking(void *pFrame,
+                      int frameWidth,
+                      int frameHeight);
+    void clickTarget(QMouseEvent *mousePressEvent);
+    void setSize(int size);
 signals:
-    void DrawFrameSignal(void *pFrame,
-                         int frameWidth,
-                         int frameHeight); //сигнал на отрисовку картинки
+    void drawFrame(void *pFrame,
+                   int frameWidth,
+                   int frameHeight); //сигнал на отрисовку картинки
 };
 
 #endif // STROB_H

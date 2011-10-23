@@ -52,13 +52,13 @@ private:
     HANDLE         FhMutex;
     uchar          *FpFrame;
     FrameSizes     FFrameSizes;
-    void ReadBuf();
-    void LoadSettings(QSettings *settings);
-    void SaveSettings(QSettings *settings);
+    void readBuf();
+    void loadSettings(QSettings *settings);
+    void saveSettings(QSettings *settings);
 signals:
-    void StrobSignal(void *pFrame,
-                     int  frameWidth,
-                     int  frameHeight); //сигнал на оработку картинки
+    void frameRecived(void *pFrame,
+                      int  frameWidth,
+                      int  frameHeight); //сигнал на оработку картинки
 };
 
 #endif // READSHAREDMEM_H

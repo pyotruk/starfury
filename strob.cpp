@@ -7,15 +7,15 @@ Strob::Strob(int refPointX,
 {    
     FCenter = FRefPoint;
     FSettings = settings;
-    LoadSettings(FSettings);
+    loadSettings(FSettings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::~Strob()
 {
-    SaveSettings(FSettings);
+    saveSettings(FSettings);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void Strob::LoadSettings(QSettings *settings)
+void Strob::loadSettings(QSettings *settings)
 {
     if(settings == 0)
     {
@@ -29,7 +29,7 @@ void Strob::LoadSettings(QSettings *settings)
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void Strob::SaveSettings(QSettings *settings)
+void Strob::saveSettings(QSettings *settings)
 {
     if(settings != 0)
     {
@@ -40,9 +40,9 @@ void Strob::SaveSettings(QSettings *settings)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::StrobSlot(void *pFrame,
-                      int frameWidth,
-                      int frameHeight)
+void Strob::makeTracking(void *pFrame,
+                         int frameWidth,
+                         int frameHeight)
 {
     FFrameSize.setWidth(frameWidth);
     FFrameSize.setHeight(frameHeight);
@@ -96,17 +96,17 @@ void Strob::StrobSlot(void *pFrame,
         cv::meanShift(mainImg, trackingWindow, crit);
         FCenter.setX(trackingWindow.x + size2);
         FCenter.setY(trackingWindow.y + size2);
-        CheckCenterRange(&FCenter,
+        checkCenterRange(&FCenter,
                          frameWidth,
                          frameHeight,
                          FSize);
     }
 
     //посылка сигнала на отрисовку картинки
-    emit DrawFrameSignal(pFrame, frameWidth, frameHeight);
+    emit drawFrame(pFrame, frameWidth, frameHeight);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::CheckCenterRange(QPoint *center,
+void Strob::checkCenterRange(QPoint *center,
                              int frameWidth,
                              int frameHeight,
                              int roiSize)
@@ -123,22 +123,22 @@ void Strob::CheckCenterRange(QPoint *center,
     if(center->y() > yMax)  center->setY(yMax);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::ClickTarget(QMouseEvent *mousePressEvent)
+void Strob::clickTarget(QMouseEvent *mousePressEvent)
 {
     FCenter.setX(mousePressEvent->x());
     FCenter.setY(mousePressEvent->y());
-    CheckCenterRange(&FCenter,
+    checkCenterRange(&FCenter,
                      FFrameSize.width(),
                      FFrameSize.height(),
                      FSize);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::StrobChange(int pos)
+void Strob::setSize(int size)
 {
-    FSize = pos;
+    FSize = size;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-int Strob::Size()
+int Strob::size()
 {
     return FSize;
 }
