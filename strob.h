@@ -8,8 +8,14 @@
 #include <math.h>
 #include <QMouseEvent>
 #include <QSize>
+#include <QSettings>
 
 typedef unsigned char uchar;
+
+//setting keys
+#define SKEY_STROB_SIZE       "/Strob/Size"
+#define SKEY_STDDEV_THRESHOLD "/Strob/StdDevThreshold"
+
 
 class Strob : public QObject
 {
@@ -17,22 +23,25 @@ class Strob : public QObject
 public:
     explicit Strob(int refPointX,
                    int refPointY,
-                   int fullSize = DEFAULT_SIZE,
-                   double stdDevThreshold = DEFAULT_STDDEV_THRESHOLD);
+                   QSettings * settings = 0);
     ~Strob();
+    int Size();
 private:
     static const double SQRT_2 = 1.4142135623730950488016887242097;
-    static const int DEFAULT_SIZE = 40;
+    static const int    DEFAULT_SIZE = 40;
     static const double DEFAULT_STDDEV_THRESHOLD = 1.0;
-    QPoint FRefPoint;
-    QPoint FCenter;
-    int    FSize;
-    double FStdDevThreshold;
-    QSize  FFrameSize;
+    QSettings *FSettings;
+    QPoint    FRefPoint;
+    QPoint    FCenter;
+    int       FSize;
+    double    FStdDevThreshold;
+    QSize     FFrameSize;
     void CheckCenterRange(QPoint *center,
                           int frameWidth,
                           int frameHeight,
                           int roiSize);
+    void LoadSettings(QSettings *settings);
+    void SaveSettings(QSettings *settings);
 private slots:
     void StrobSlot(void *pFrame,
                    int frameWidth,

@@ -1,30 +1,19 @@
-#include <QtGui/QApplication>
-#include <QString>
-#include <QObject>
-#include "mainwindow.h"
-#include "strob.h"
-#include "readsharedmem.h"
-
-#define FRAME_WIDTH  640
-#define FRAME_HEIGHT 480
-#define FRAME_HEADER_SIZE 32
-
+#include "main.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    QString fileId  = "{TVA2-MemoryID}";
-    QString eventId = "{TVA2-EventID}";
-    QString mutexId = "{TVA2-MutexID}";
+    QSettings settings("NIIPP", "astrobot");
 
-    SharedMem sharedMem((TCHAR*)fileId.data(),
-                        (TCHAR*)eventId.data(),
-                        (TCHAR*)mutexId.data(),
-                        FRAME_HEADER_SIZE,
+    SharedMem sharedMem(FRAME_HEADER_SIZE,
                         FRAME_WIDTH,
-                        FRAME_HEIGHT);
-    Strob strob(FRAME_WIDTH / 2, FRAME_HEIGHT / 2);
+                        FRAME_HEIGHT,
+                        &settings);
+    Strob strob(FRAME_WIDTH / 2, FRAME_HEIGHT / 2, &settings);
+
+    //form init
+    w.InitFace(strob.Size());
 
     //connections
     QObject::connect(&sharedMem, SIGNAL(StrobSignal(void*, int, int)),

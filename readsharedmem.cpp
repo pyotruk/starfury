@@ -1,12 +1,12 @@
 #include "readsharedmem.h"
 /////////////////////////////////////////////////////////////////////////////////////
-SharedMem::SharedMem(LPCTSTR fileMapId,
-                     LPCTSTR eventId,
-                     LPCTSTR mutexId,
-                     int frameHeaderSize,
+SharedMem::SharedMem(int frameHeaderSize,
                      int frameWidth,
-                     int frameHeight)
+                     int frameHeight,
+                     QSettings *settings)
 {
+      FSharedSettings.settings = settings;
+      LoadSettings(FSharedSettings.settings);
       FFrameSizes.headerSize = frameHeaderSize;
       FFrameSizes.width = frameWidth;
       FFrameSizes.height = frameHeight;
@@ -15,7 +15,7 @@ SharedMem::SharedMem(LPCTSTR fileMapId,
                                        PAGE_READWRITE,
                                        0,
                                        FFrameSizes.width * FFrameSizes.height + FFrameSizes.headerSize,
-                                       fileMapId);
+                                       (LPCTSTR)FSharedSettings.fileMapId.data());
       if(FhMappedFile == 0)
           qDebug() << "CreateFileMapping error";
 
@@ -30,13 +30,13 @@ SharedMem::SharedMem(LPCTSTR fileMapId,
       FhEvent = CreateEvent(NULL,
                             true,
                             false,
-                            eventId);
+                            (LPCTSTR)FSharedSettings.eventId.data());
       if(FhEvent == 0)
           qDebug() << "CreateEvent error";
 
       FhMutex = CreateMutex(NULL,
                             false,
-                            mutexId);
+                            (LPCTSTR)FSharedSettings.mutexId.data());
       if(FhMutex == 0)
           qDebug() << "CreateMutex error";      
 
@@ -53,7 +53,35 @@ SharedMem::~SharedMem()
     CloseHandle(FhEvent);
     CloseHandle(FhMutex);
     delete FpFrame;
+    SaveSettings(FSharedSettings.settings);
 }
+///////////////////////////////////////////////////////////////////////////////////////
+void SharedMem::LoadSettings(QSettings *settings)
+{
+    if(settings == 0)
+    {
+        FSharedSettings.fileMapId = DEFAULT_SHARED_MEM_ID;
+        FSharedSettings.eventId = DEFAULT_SHARED_EVENT_ID;
+        FSharedSettings.mutexId = DEFAULT_SHARED_MUTEX_ID;
+    }
+    else
+    {
+        FSharedSettings.fileMapId = settings->value(SKEY_SHARED_MEM_ID, DEFAULT_SHARED_MEM_ID).toString();
+        FSharedSettings.eventId = settings->value(SKEY_SHARED_EVENT_ID, DEFAULT_SHARED_EVENT_ID).toString();
+        FSharedSettings.mutexId = settings->value(SKEY_SHARED_MUTEX_ID, DEFAULT_SHARED_MUTEX_ID).toString();
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////
+void SharedMem::SaveSettings(QSettings *settings)
+{
+    if(settings != 0)
+    {
+        settings->setValue(SKEY_SHARED_MEM_ID, FSharedSettings.fileMapId);
+        settings->setValue(SKEY_SHARED_EVENT_ID, FSharedSettings.eventId);
+        settings->setValue(SKEY_SHARED_MUTEX_ID, FSharedSettings.mutexId);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 void SharedMem::ReadBuf()
 {

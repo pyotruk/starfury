@@ -2,20 +2,43 @@
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::Strob(int refPointX,
              int refPointY,
-             int fullSize,
-             double stdDevThreshold)
-    : FRefPoint(refPointX, refPointY),
-      FCenter()
-{
+             QSettings * settings)
+    : FRefPoint(refPointX, refPointY)
+{    
     FCenter = FRefPoint;
-    FSize = fullSize;
-    FStdDevThreshold = stdDevThreshold;
+    FSettings = settings;
+    LoadSettings(FSettings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::~Strob()
 {
-
+    SaveSettings(FSettings);
 }
+///////////////////////////////////////////////////////////////////////////////////////
+void Strob::LoadSettings(QSettings *settings)
+{
+    if(settings == 0)
+    {
+        FSize = DEFAULT_SIZE;
+        FStdDevThreshold = DEFAULT_STDDEV_THRESHOLD;
+    }
+    else
+    {
+        FSize = settings->value(SKEY_STROB_SIZE, DEFAULT_SIZE).toInt();
+        FStdDevThreshold = settings->value(SKEY_STDDEV_THRESHOLD, DEFAULT_STDDEV_THRESHOLD).toDouble();
+    }
+}
+///////////////////////////////////////////////////////////////////////////////////////
+void Strob::SaveSettings(QSettings *settings)
+{
+    if(settings != 0)
+    {
+        settings->setValue(SKEY_STROB_SIZE, FSize);
+        settings->setValue(SKEY_STDDEV_THRESHOLD, FStdDevThreshold);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::StrobSlot(void *pFrame,
                       int frameWidth,
@@ -114,4 +137,10 @@ void Strob::StrobChange(int pos)
 {
     FSize = pos;
 }
+/////////////////////////////////////////////////////////////////////////////////////
+int Strob::Size()
+{
+    return FSize;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////

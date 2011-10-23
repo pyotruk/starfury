@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void InitFace(int strobSize);
 private:
     Ui::MainWindow *ui;
     QImage *FImg;
