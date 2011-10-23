@@ -19,12 +19,12 @@ class SharedMem : public QThread
 {
     Q_OBJECT
 public:
-    SharedMem(LPCTSTR fileMapId,
-              LPCTSTR eventId,
-              LPCTSTR mutexId,
-              int frameHeaderSize,
-              int frameWidth,
-              int frameHeight);
+    explicit SharedMem(LPCTSTR fileMapId,
+                       LPCTSTR eventId,
+                       LPCTSTR mutexId,
+                       int frameHeaderSize,
+                       int frameWidth,
+                       int frameHeight);
     ~SharedMem();
 protected:
     void run();

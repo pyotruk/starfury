@@ -19,7 +19,7 @@ HEADERS  += mainwindow.h \
     readsharedmem.h \
     strob.h
 
-INCLUDEPATH += C:\opencv231\include
+INCLUDEPATH += "C:\opencv231\include"
 
 LIBS += -L"C:\opencv231\lib" \
 -l"opencv_calib3d231" \

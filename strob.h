@@ -15,10 +15,10 @@ class Strob : public QObject
 {
     Q_OBJECT
 public:
-    Strob(int refPointX,
-          int refPointY,
-          int fullSize = DEFAULT_SIZE,
-          double stdDevThreshold = DEFAULT_STDDEV_THRESHOLD);
+    explicit Strob(int refPointX,
+                   int refPointY,
+                   int fullSize = DEFAULT_SIZE,
+                   double stdDevThreshold = DEFAULT_STDDEV_THRESHOLD);
     ~Strob();
 private:
     static const double SQRT_2 = 1.4142135623730950488016887242097;
