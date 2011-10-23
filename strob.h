@@ -25,7 +25,8 @@ public:
                    int refPointY,
                    QSettings * settings = 0);
     ~Strob();
-    int size();
+    int    size();
+    double threshold();
 private:
     static const double SQRT_2 = 1.4142135623730950488016887242097;
     static const int    DEFAULT_SIZE = 40;
@@ -48,6 +49,7 @@ private slots:
                       int frameHeight);
     void clickTarget(QMouseEvent *mousePressEvent);
     void setSize(int size);
+    void setThreshold(int pos);
 signals:
     void drawFrame(void *pFrame,
                    int frameWidth,

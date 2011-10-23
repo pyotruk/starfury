@@ -7,8 +7,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->scrollStrobSize, SIGNAL(sliderMoved(int)), this, SIGNAL(changeStrobSize(int)));
-    FImg = new QImage(640, 480, QImage::Format_RGB32);
+
+    //GUI connections
+    connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
+            this, SIGNAL(changeStrobSize(int)));
+    connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
+            this, SLOT(updateFace()));
+    connect(ui->sliderTrackingThreshold, SIGNAL(sliderMoved(int)),
+            this, SIGNAL(changeTrackingThreshold(int)));
+    connect(ui->sliderTrackingThreshold, SIGNAL(sliderMoved(int)),
+            this, SLOT(updateFace()));
+
+    FImg = new QImage(640, 480, QImage::Format_RGB32); //magic numbers!!!
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::~MainWindow()
@@ -17,11 +27,21 @@ MainWindow::~MainWindow()
     delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::initFace(int strobSize)
+void MainWindow::initFace(int strobSize, int trackTresh)
 {
-    ui->scrollStrobSize->setValue(strobSize);
+    ui->sliderStrobSize->setValue(strobSize);
+    ui->sliderTrackingThreshold->setValue(trackTresh);
+    updateFace();
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::updateFace()
+{
+    QVariant content;
+    content = ui->sliderStrobSize->value();
+    ui->labelStrobSize->setText("size " + content.toString());
+    content = ui->sliderTrackingThreshold->value();
+    ui->labelThreshold->setText("thr " + content.toString());
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::drawFrame(void *pFrame,
                            int  frameWidth,

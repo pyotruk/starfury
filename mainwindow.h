@@ -21,7 +21,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void initFace(int strobSize);
+    void initFace(int strobSize,
+                  int trackTresh);
 private:
     Ui::MainWindow *ui;
     QImage *FImg;
@@ -30,9 +31,11 @@ private slots:
     void drawFrame(void *pFrame,
                    int  frameWidth,
                    int  frameHeight);
+    void updateFace();
 signals:
     void mousePressEvent(QMouseEvent *);
-    void changeStrobSize(int size);
+    void changeStrobSize(int pos);
+    void changeTrackingThreshold(int pos);
 };
 
 #endif // MAINWINDOW_H
