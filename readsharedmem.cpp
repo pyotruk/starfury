@@ -88,6 +88,6 @@ void SharedMem::getData(const FrameHeader &header,
 void SharedMem::getHeader(FrameHeader *header)
 {
     uchar *beginBuf = (uchar*)FSharedBuf;
-    memcpy((void*)header, (void*)beginBuf, 32/*sizeof(FrameHeader)*/);
+    memcpy((void*)header, (void*)beginBuf, sizeof(FrameHeader));
 }
 //////////////////////////////////////////////////////////////////////////////////////

@@ -9,8 +9,6 @@
 #include <QMouseEvent>
 
 
-typedef unsigned char uchar;
-
 namespace Ui {
     class MainWindow;
 }

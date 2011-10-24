@@ -1,8 +1,9 @@
 #include "rapidthread.h"
 /////////////////////////////////////////////////////////////////////////////////////
-RapidThread::RapidThread(QSettings *settings)
+RapidThread::RapidThread(QSettings *settings) :
+    FFrameSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT)
 {
-    FFrame = new uchar [DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT];
+    FFrame = new uchar [FFrameSize.width() * FFrameSize.height()];
     FSharedMem = new SharedMem(settings);
     start(QThread::NormalPriority);
 }
@@ -12,7 +13,7 @@ RapidThread::~RapidThread()
     exit();
     terminate();
     delete FSharedMem;
-    delete FFrame;
+    delete [] FFrame;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void RapidThread::run()
@@ -22,21 +23,27 @@ void RapidThread::run()
         if(FSharedMem->waitForData())
         {
             FSharedMem->getHeader(&FFrameHeader);
-            checkFrameSize(FFrameHeader, FFrame);
+
+            //variable frame size
+            if(!checkFrameSize(FFrameHeader, FFrameSize))
+            {
+                FFrameSize = QSize(FFrameHeader.width, FFrameHeader.height);
+                delete [] FFrame;
+                FFrame = new uchar [FFrameSize.width() * FFrameSize.height()];
+            }
+
             FSharedMem->getData(FFrameHeader, FFrame);
             emit frameReceived(FFrame, FFrameHeader.width, FFrameHeader.height);
         }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void RapidThread::checkFrameSize(const FrameHeader &header,
-                                 uchar *frame)
+bool RapidThread::checkFrameSize(const FrameHeader &header,
+                                 const QSize       &frameSize)
 {
-    if((header.width * header.height) != sizeof(*frame))
-    {
-        delete frame;
-        frame = new uchar [header.width * header.height];
-    }
+    QSize newSize(header.width, header.height);
+    if(frameSize == newSize)  return true;
+    else  return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

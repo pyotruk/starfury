@@ -3,9 +3,8 @@
 
 #include <QThread>
 #include <QSettings>
+#include <QSize>
 #include "readsharedmem.h"
-
-typedef unsigned char uchar;
 
 class RapidThread : public QThread
 {
@@ -21,8 +20,9 @@ private:
     SharedMem   *FSharedMem;
     uchar       *FFrame;
     FrameHeader FFrameHeader;
-    void checkFrameSize(const FrameHeader &header,
-                        uchar *frame);
+    QSize       FFrameSize;
+    bool checkFrameSize(const FrameHeader &header,
+                        const QSize       &frameSize);
 signals:
     void frameReceived(void *pFrame,
                        int  frameWidth,

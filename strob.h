@@ -10,8 +10,6 @@
 #include <QSize>
 #include <QSettings>
 
-typedef unsigned char uchar;
-
 //setting keys
 #define SKEY_STROB_SIZE       "/Strob/Size"
 #define SKEY_STDDEV_THRESHOLD "/Strob/StdDevThreshold"

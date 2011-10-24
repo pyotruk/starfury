@@ -15,19 +15,15 @@
 #define SKEY_SHARED_EVENT_ID "/SharedMem/EventID"
 #define SKEY_SHARED_MUTEX_ID "/SharedMem/MutexID"
 
-typedef unsigned char        uchar;
-typedef unsigned int         uint;
-typedef signed long long int int64;
-
 //////////////////////////////////////////////////////////////////////////////////////
 struct FrameHeader
 {
-  int64 timeID;
-  int64 timeFreq;
-  uint  dataSize;
-  uint  width;
-  uint  height;
-  uint  frameID;
+  qint64  timeID;
+  qint64  timeFreq;
+  quint32 dataSize;
+  quint32 width;
+  quint32 height;
+  quint32 frameID;
 };
 //////////////////////////////////////////////////////////////////////////////////////
 struct SharedSettings
