@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
     /* GUI connection in MainWidow::MainWindow() */
     QObject::connect(&sharedMem, SIGNAL(frameRecived(void*,int,int)),
                      &strob, SLOT(makeTracking(void*,int,int)));
-    QObject::connect(&strob, SIGNAL(drawFrame(void*, int, int)),
-                     &w, SLOT(drawFrame(void*, int, int)));
+    QObject::connect(&strob, SIGNAL(drawFrame(void*,int,int)),
+                     &w, SLOT(drawFrame(void*,int,int)));
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      &strob, SLOT(clickTarget(QMouseEvent *)));
     QObject::connect(&w, SIGNAL(changeStrobSize(int)),

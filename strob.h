@@ -52,8 +52,8 @@ private slots:
     void setThreshold(int pos);
 signals:
     void drawFrame(void *pFrame,
-                   int frameWidth,
-                   int frameHeight); //сигнал на отрисовку картинки
+                   int  frameWidth,
+                   int  frameHeight); //сигнал на отрисовку картинки
 };
 
 #endif // STROB_H

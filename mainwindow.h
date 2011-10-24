@@ -24,8 +24,11 @@ public:
     void initFace(int strobSize,
                   int trackTresh);
 private:
+    static const int DEFAULT_IMG_WIDTH  = 640;
+    static const int DEFAULT_IMG_HEIGHT = 480;
     Ui::MainWindow *ui;
     QImage *FImg;
+    void checkImgSize(const QSize &frameSize);
 private slots:
     void paintEvent(QPaintEvent *);
     void drawFrame(void *pFrame,

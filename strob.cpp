@@ -136,6 +136,10 @@ void Strob::clickTarget(QMouseEvent *mousePressEvent)
 void Strob::setSize(int size)
 {
     FSize = size;
+    checkCenterRange(&FCenter,
+                     FFrameSize.width(),
+                     FFrameSize.height(),
+                     FSize);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 int Strob::size()

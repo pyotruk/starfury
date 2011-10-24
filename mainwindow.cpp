@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->sliderTrackingThreshold, SIGNAL(sliderMoved(int)),
             this, SLOT(updateFace()));
 
-    FImg = new QImage(640, 480, QImage::Format_RGB32); //magic numbers!!!
+    FImg = new QImage(DEFAULT_IMG_WIDTH, DEFAULT_IMG_HEIGHT, QImage::Format_RGB32);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::~MainWindow()
@@ -47,6 +47,7 @@ void MainWindow::drawFrame(void *pFrame,
                            int  frameWidth,
                            int  frameHeight)
 {
+    checkImgSize(QSize(frameWidth, frameHeight));
     uchar *ff = (uchar*)pFrame;
     QRgb *pLineStart, *pLineEnd;
     for(int j = 0; j < frameHeight; ++j)
@@ -67,5 +68,14 @@ void MainWindow::paintEvent(QPaintEvent *)
     QPainter painter(this);
     QPoint p(0, 0);
     painter.drawImage(p, *FImg);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::checkImgSize(const QSize &frameSize)
+{
+    if(FImg->size() != frameSize)
+    {
+        delete FImg;
+        FImg = new QImage(frameSize, QImage::Format_RGB32);
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
