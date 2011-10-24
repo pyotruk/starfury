@@ -13,12 +13,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     readsharedmem.cpp \
-    strob.cpp
+    strob.cpp \
+    rapidthread.cpp
 
 HEADERS  += mainwindow.h \
     readsharedmem.h \
     strob.h \
-    main.h
+    main.h \
+    rapidthread.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -29,6 +31,8 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
 
 
 

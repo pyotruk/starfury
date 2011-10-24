@@ -19,12 +19,12 @@ SharedMem::SharedMem(int frameHeaderSize,
       if(FhMappedFile == 0)
           qDebug() << "CreateFileMapping error";
 
-      FpSharedBuf = MapViewOfFile(FhMappedFile,
-                                  FILE_MAP_ALL_ACCESS,
-                                  0,
-                                  0,
-                                  0);
-      if(FpSharedBuf == NULL)
+      FSharedBuf = MapViewOfFile(FhMappedFile,
+                                 FILE_MAP_ALL_ACCESS,
+                                 0,
+                                 0,
+                                 0);
+      if(FSharedBuf == NULL)
           qDebug() << "MapViewOfFile error";
 
       FhEvent = CreateEvent(NULL,
@@ -39,20 +39,14 @@ SharedMem::SharedMem(int frameHeaderSize,
                             (LPCTSTR)FSharedSettings.mutexId.data());
       if(FhMutex == 0)
           qDebug() << "CreateMutex error";      
-
-      FpFrame = new uchar [FFrameSizes.width * FFrameSizes.height];
-      start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 SharedMem::~SharedMem()
 {
-    exit(); //a-la suspend for TThread
-    terminate();
-    UnmapViewOfFile(FpSharedBuf);
+    UnmapViewOfFile(FSharedBuf);
     CloseHandle(FhMappedFile);
     CloseHandle(FhEvent);
     CloseHandle(FhMutex);
-    delete FpFrame;
     saveSettings(FSharedSettings.settings);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -83,31 +77,23 @@ void SharedMem::saveSettings(QSettings *settings)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::readBuf()
+bool SharedMem::waitForData()
 {
-    uchar *pSharedBuf = (uchar*)FpSharedBuf + FFrameSizes.headerSize;
-    memcpy(FpFrame, pSharedBuf, FFrameSizes.width * FFrameSizes.height);
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::run()
-{
-    DWORD waitRes;
-    while(isRunning())
+    bool res = false;
+    DWORD waitRes = WaitForSingleObject(FhEvent, 500);
+    if(waitRes == 0)
     {
-        waitRes = WaitForSingleObject(FhEvent, 500);
-        if(waitRes == 0)
-        {
-            waitRes = WaitForSingleObject(FhMutex, 20);
-            if(waitRes == 0)
-            {
-                readBuf();
-                ReleaseMutex(FhMutex);
-                ResetEvent(FhEvent);
-                emit frameRecived((void*)FpFrame,
-                                  FFrameSizes.width,
-                                  FFrameSizes.height); //сигнал на обработку картинки
-            }
-        }
+        waitRes = WaitForSingleObject(FhMutex, 20);
+        if(waitRes == 0)  res = true;
     }
+    return res;
+}
+//////////////////////////////////////////////////////////////////////////////////////
+void SharedMem::getData(void *data)
+{
+    uchar *sharedBuf = (uchar*)FSharedBuf + FFrameSizes.headerSize;
+    memcpy(data, (void*)sharedBuf, FFrameSizes.width * FFrameSizes.height);
+    ReleaseMutex(FhMutex);
+    ResetEvent(FhEvent);
 }
 //////////////////////////////////////////////////////////////////////////////////////

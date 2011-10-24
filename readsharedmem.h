@@ -2,7 +2,6 @@
 #define READSHAREDMEM_H
 
 #include <QDebug>
-#include <QThread>
 #include "windows.h"
 #include "qt_windows.h"
 #include <QSettings>
@@ -15,8 +14,9 @@
 #define SKEY_SHARED_MEM_ID   "/SharedMem/FileMapID"
 #define SKEY_SHARED_EVENT_ID "/SharedMem/EventID"
 #define SKEY_SHARED_MUTEX_ID "/SharedMem/MutexID"
-//////////////////////////////////////////////////////////////////////////////////////
+
 typedef unsigned char uchar;
+
 //////////////////////////////////////////////////////////////////////////////////////
 struct FrameSizes
 {
@@ -33,32 +33,25 @@ struct SharedSettings
     QSettings *settings;
 };
 //////////////////////////////////////////////////////////////////////////////////////
-class SharedMem : public QThread
+class SharedMem
 {
-    Q_OBJECT
 public:
     explicit SharedMem(int frameHeaderSize,
                        int frameWidth,
                        int frameHeight,
                        QSettings *settings = 0);
     ~SharedMem();
-protected:
-    void run();
+    bool waitForData();
+    void getData(void *data);
 private:
     SharedSettings FSharedSettings;
-    void           *FpSharedBuf;
+    void           *FSharedBuf;
     HANDLE         FhMappedFile;
     HANDLE         FhEvent;
     HANDLE         FhMutex;
-    uchar          *FpFrame;
     FrameSizes     FFrameSizes;
-    void readBuf();
     void loadSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
-signals:
-    void frameRecived(void *pFrame,
-                      int  frameWidth,
-                      int  frameHeight); //сигнал на оработку картинки
 };
 
 #endif // READSHAREDMEM_H

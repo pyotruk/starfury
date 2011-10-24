@@ -6,18 +6,18 @@ int main(int argc, char *argv[])
     MainWindow w;
     QSettings settings("NIIPP", "astrobot");
 
-    SharedMem sharedMem(FRAME_HEADER_SIZE,
-                        FRAME_WIDTH,
-                        FRAME_HEIGHT,
-                        &settings);
     Strob strob(FRAME_WIDTH / 2, FRAME_HEIGHT / 2, &settings);
+    RapidThread rapidThread(FRAME_HEADER_SIZE,
+                            FRAME_WIDTH,
+                            FRAME_HEIGHT,
+                            &settings);
 
     //form init
     w.initFace(strob.size(), (int)(strob.threshold()));
 
     //objects connections
     /* GUI connection in MainWidow::MainWindow() */
-    QObject::connect(&sharedMem, SIGNAL(frameRecived(void*,int,int)),
+    QObject::connect(&rapidThread, SIGNAL(frameReceived(void*,int,int)),
                      &strob, SLOT(makeTracking(void*,int,int)));
     QObject::connect(&strob, SIGNAL(drawFrame(void*,int,int)),
                      &w, SLOT(drawFrame(void*,int,int)));

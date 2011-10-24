@@ -111,7 +111,7 @@ void Strob::checkCenterRange(QPoint *center,
                              int frameHeight,
                              int roiSize)
 {
-    int k = 1;
+    const double k = 0.75;
     roiSize *= k;
     int xMin = 0 + roiSize;
     int xMax = frameWidth - roiSize;

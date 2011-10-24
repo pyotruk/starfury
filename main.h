@@ -2,6 +2,7 @@
 #define MAIN_H
 
 #include "mainwindow.h"
+#include "rapidthread.h"
 #include "strob.h"
 #include "readsharedmem.h"
 #include <QtGui/QApplication>
