@@ -7,10 +7,7 @@ int main(int argc, char *argv[])
     QSettings settings("NIIPP", "astrobot");
 
     Strob strob(FRAME_WIDTH / 2, FRAME_HEIGHT / 2, &settings);
-    RapidThread rapidThread(FRAME_HEADER_SIZE,
-                            FRAME_WIDTH,
-                            FRAME_HEIGHT,
-                            &settings);
+    RapidThread rapidThread(&settings);
 
     //form init
     w.initFace(strob.size(), (int)(strob.threshold()));

@@ -1,44 +1,31 @@
 #include "readsharedmem.h"
 /////////////////////////////////////////////////////////////////////////////////////
-SharedMem::SharedMem(int frameHeaderSize,
-                     int frameWidth,
-                     int frameHeight,
-                     QSettings *settings)
+SharedMem::SharedMem(QSettings *settings)
 {
       FSharedSettings.settings = settings;
       loadSettings(FSharedSettings.settings);
-      FFrameSizes.headerSize = frameHeaderSize;
-      FFrameSizes.width = frameWidth;
-      FFrameSizes.height = frameHeight;
-      FhMappedFile = CreateFileMapping(INVALID_HANDLE_VALUE,
-                                       NULL,
-                                       PAGE_READWRITE,
-                                       0,
-                                       FFrameSizes.width * FFrameSizes.height + FFrameSizes.headerSize,
-                                       (LPCTSTR)FSharedSettings.fileMapId.data());
-      if(FhMappedFile == 0)
-          qDebug() << "CreateFileMapping error";
+
+      FhMappedFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,
+                                     false,
+                                     (LPCTSTR)FSharedSettings.fileMapId.data());
+      if(FhMappedFile == 0)  qDebug() << "OpenFileMapping error";
 
       FSharedBuf = MapViewOfFile(FhMappedFile,
                                  FILE_MAP_ALL_ACCESS,
                                  0,
                                  0,
                                  0);
-      if(FSharedBuf == NULL)
-          qDebug() << "MapViewOfFile error";
+      if(FSharedBuf == NULL)  qDebug() << "MapViewOfFile error";
 
-      FhEvent = CreateEvent(NULL,
-                            true,
-                            false,
-                            (LPCTSTR)FSharedSettings.eventId.data());
-      if(FhEvent == 0)
-          qDebug() << "CreateEvent error";
+      FhEvent = OpenEvent(SYNCHRONIZE,
+                          false,
+                          (LPCTSTR)FSharedSettings.eventId.data());
+      if(FhEvent == 0)  qDebug() << "OpenEvent error";
 
-      FhMutex = CreateMutex(NULL,
-                            false,
-                            (LPCTSTR)FSharedSettings.mutexId.data());
-      if(FhMutex == 0)
-          qDebug() << "CreateMutex error";      
+      FhMutex = OpenMutex(SYNCHRONIZE,
+                          false,
+                          (LPCTSTR)FSharedSettings.mutexId.data());
+      if(FhMutex == 0)  qDebug() << "OpenMutex error";
 }
 /////////////////////////////////////////////////////////////////////////////////////
 SharedMem::~SharedMem()
@@ -89,11 +76,18 @@ bool SharedMem::waitForData()
     return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::getData(void *data)
+void SharedMem::getData(const FrameHeader &header,
+                        void  *data)
 {
-    uchar *sharedBuf = (uchar*)FSharedBuf + FFrameSizes.headerSize;
-    memcpy(data, (void*)sharedBuf, FFrameSizes.width * FFrameSizes.height);
+    uchar *beginBuf = (uchar*)FSharedBuf + sizeof(FrameHeader);
+    memcpy(data, (void*)beginBuf, header.width * header.height);
     ReleaseMutex(FhMutex);
     ResetEvent(FhEvent);
+}
+//////////////////////////////////////////////////////////////////////////////////////
+void SharedMem::getHeader(FrameHeader *header)
+{
+    uchar *beginBuf = (uchar*)FSharedBuf;
+    memcpy((void*)header, (void*)beginBuf, 32/*sizeof(FrameHeader)*/);
 }
 //////////////////////////////////////////////////////////////////////////////////////

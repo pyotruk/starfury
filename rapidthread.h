@@ -11,16 +11,18 @@ class RapidThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit RapidThread(const int frameHeaderSize,
-                         const int frameWidth,
-                         const int frameHeight,
-                         QSettings *settings = 0);
+    explicit RapidThread(QSettings *settings = 0);
     ~RapidThread();
 protected:
     void run();
 private:
-    SharedMem *FSharedMem;
-    uchar     *FFrame;
+    static const int DEFAULT_FRAME_WIDTH  = 640;
+    static const int DEFAULT_FRAME_HEIGHT = 480;
+    SharedMem   *FSharedMem;
+    uchar       *FFrame;
+    FrameHeader FFrameHeader;
+    void checkFrameSize(const FrameHeader &header,
+                        uchar *frame);
 signals:
     void frameReceived(void *pFrame,
                        int  frameWidth,

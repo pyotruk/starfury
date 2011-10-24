@@ -1,15 +1,9 @@
 #include "rapidthread.h"
 /////////////////////////////////////////////////////////////////////////////////////
-RapidThread::RapidThread(const int frameHeaderSize,
-                         const int frameWidth,
-                         const int frameHeight,
-                         QSettings *settings)
+RapidThread::RapidThread(QSettings *settings)
 {
-    FFrame = new uchar [frameWidth * frameHeight];
-    FSharedMem = new SharedMem(frameHeaderSize,
-                               frameWidth,
-                               frameHeight,
-                               settings);
+    FFrame = new uchar [DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT];
+    FSharedMem = new SharedMem(settings);
     start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -27,11 +21,22 @@ void RapidThread::run()
     {
         if(FSharedMem->waitForData())
         {
-            FSharedMem->getData(FFrame);
-            emit frameReceived(FFrame, 640, 480);
+            FSharedMem->getHeader(&FFrameHeader);
+            checkFrameSize(FFrameHeader, FFrame);
+            FSharedMem->getData(FFrameHeader, FFrame);
+            emit frameReceived(FFrame, FFrameHeader.width, FFrameHeader.height);
         }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void RapidThread::checkFrameSize(const FrameHeader &header,
+                                 uchar *frame)
+{
+    if((header.width * header.height) != sizeof(*frame))
+    {
+        delete frame;
+        frame = new uchar [header.width * header.height];
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -15,14 +15,19 @@
 #define SKEY_SHARED_EVENT_ID "/SharedMem/EventID"
 #define SKEY_SHARED_MUTEX_ID "/SharedMem/MutexID"
 
-typedef unsigned char uchar;
+typedef unsigned char        uchar;
+typedef unsigned int         uint;
+typedef signed long long int int64;
 
 //////////////////////////////////////////////////////////////////////////////////////
-struct FrameSizes
+struct FrameHeader
 {
-    int headerSize;
-    int width;
-    int height;
+  int64 timeID;
+  int64 timeFreq;
+  uint  dataSize;
+  uint  width;
+  uint  height;
+  uint  frameID;
 };
 //////////////////////////////////////////////////////////////////////////////////////
 struct SharedSettings
@@ -36,20 +41,18 @@ struct SharedSettings
 class SharedMem
 {
 public:
-    explicit SharedMem(int frameHeaderSize,
-                       int frameWidth,
-                       int frameHeight,
-                       QSettings *settings = 0);
+    explicit SharedMem(QSettings *settings = 0);
     ~SharedMem();
     bool waitForData();
-    void getData(void *data);
+    void getHeader(FrameHeader *header);
+    void getData(const FrameHeader &header,
+                 void  *data);
 private:
     SharedSettings FSharedSettings;
     void           *FSharedBuf;
     HANDLE         FhMappedFile;
     HANDLE         FhEvent;
     HANDLE         FhMutex;
-    FrameSizes     FFrameSizes;
     void loadSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 };
