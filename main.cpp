@@ -12,12 +12,15 @@ int main(int argc, char *argv[])
     //form init
     w.initFace(strob.size(), (int)(strob.threshold()));
 
-    //objects connections
-    /* GUI connection in MainWidow::MainWindow() */
-    QObject::connect(&rapidThread, SIGNAL(frameReceived(void*,int,int)),
+    //object <--> object connections
+    QObject::connect(&rapidThread, SIGNAL(frame4RapidThread(void*,int,int)),
                      &strob, SLOT(makeTracking(void*,int,int)));
-    QObject::connect(&strob, SIGNAL(drawFrame(void*,int,int)),
+    QObject::connect(&rapidThread, SIGNAL(frame4SlowThread(void*,int,int)),
                      &w, SLOT(drawFrame(void*,int,int)));
+
+    //gui --> object connections
+    QObject::connect(&w, SIGNAL(unlockSlowBuf()),
+                     rapidThread.getDoubleBuf(), SLOT(unlockSlowBuf()));
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      &strob, SLOT(clickTarget(QMouseEvent *)));
     QObject::connect(&w, SIGNAL(changeStrobSize(int)),

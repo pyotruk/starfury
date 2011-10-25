@@ -4,11 +4,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    FImg(new QImage(DEFAULT_IMG_WIDTH, DEFAULT_IMG_HEIGHT, QImage::Format_RGB32))
 {
     ui->setupUi(this);
 
-    //GUI connections
+    //gui <--> gui connections
     connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
             this, SIGNAL(changeStrobSize(int)));
     connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
@@ -17,8 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(changeTrackingThreshold(int)));
     connect(ui->sliderTrackingThreshold, SIGNAL(sliderMoved(int)),
             this, SLOT(updateFace()));
-
-    FImg = new QImage(DEFAULT_IMG_WIDTH, DEFAULT_IMG_HEIGHT, QImage::Format_RGB32);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::~MainWindow()
@@ -60,6 +59,7 @@ void MainWindow::drawFrame(void *pFrame,
             ++ff;
         }
     }
+    unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,11 +2,11 @@
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::Strob(int refPointX,
              int refPointY,
-             QSettings * settings)
-    : FRefPoint(refPointX, refPointY)
+             QSettings * settings) :
+    FRefPoint(refPointX, refPointY),
+    FCenter(FRefPoint),
+    FSettings(settings)
 {    
-    FCenter = FRefPoint;
-    FSettings = settings;
     loadSettings(FSettings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -101,9 +101,6 @@ void Strob::makeTracking(void *pFrame,
                          frameHeight,
                          FSize);
     }
-
-    //посылка сигнала на отрисовку картинки
-    emit drawFrame(pFrame, frameWidth, frameHeight);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::checkCenterRange(QPoint *center,

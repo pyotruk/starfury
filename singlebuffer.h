@@ -1,0 +1,21 @@
+#ifndef SINGLEBUFFER_H
+#define SINGLEBUFFER_H
+/////////////////////////////////////////////////////////////////////////////////////
+#include <QtGlobal>
+/////////////////////////////////////////////////////////////////////////////////////
+class SingleBuffer
+{
+public:
+    explicit SingleBuffer(const qint64 &size);
+    ~SingleBuffer();
+    void lock();
+    void unlock();
+    bool isLocked();
+    void *getData();
+    void setSize(const qint64 &size);
+private:
+    uchar *FData;
+    bool  FLocked;
+};
+/////////////////////////////////////////////////////////////////////////////////////
+#endif // SINGLEBUFFER_H

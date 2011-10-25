@@ -37,6 +37,7 @@ signals:
     void mousePressEvent(QMouseEvent *);
     void changeStrobSize(int pos);
     void changeTrackingThreshold(int pos);
+    void unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
 };
 
 #endif // MAINWINDOW_H

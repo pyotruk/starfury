@@ -1,10 +1,10 @@
 #include "rapidthread.h"
 /////////////////////////////////////////////////////////////////////////////////////
 RapidThread::RapidThread(QSettings *settings) :
-    FFrameSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT)
+    FFrameSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT),
+    FDoubleBuf(new DoubleBuffer()),
+    FSharedMem(new SharedMem(settings))
 {
-    FFrame = new uchar [FFrameSize.width() * FFrameSize.height()];
-    FSharedMem = new SharedMem(settings);
     start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@ RapidThread::~RapidThread()
     exit();
     terminate();
     delete FSharedMem;
-    delete [] FFrame;
+    delete FDoubleBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void RapidThread::run()
@@ -23,27 +23,25 @@ void RapidThread::run()
         if(FSharedMem->waitForData())
         {
             FSharedMem->getHeader(&FFrameHeader);
-
-            //variable frame size
-            if(!checkFrameSize(FFrameHeader, FFrameSize))
+            FDoubleBuf->setSize(FFrameHeader.width * FFrameHeader.height);
+            FSharedMem->getData(FFrameHeader, FDoubleBuf->getRapidBuf()->getData());
+            emit frame4RapidThread(FDoubleBuf->getRapidBuf()->getData(),
+                                   FFrameHeader.width,
+                                   FFrameHeader.height);
+            if(! FDoubleBuf->getSlowBuf()->isLocked())
             {
-                FFrameSize = QSize(FFrameHeader.width, FFrameHeader.height);
-                delete [] FFrame;
-                FFrame = new uchar [FFrameSize.width() * FFrameSize.height()];
+                FDoubleBuf->switchBuffers();
+                FDoubleBuf->getSlowBuf()->lock();
+                emit frame4SlowThread(FDoubleBuf->getSlowBuf()->getData(),
+                                      FFrameHeader.width,
+                                      FFrameHeader.height);
             }
-
-            FSharedMem->getData(FFrameHeader, FFrame);
-            emit frameReceived(FFrame, FFrameHeader.width, FFrameHeader.height);
         }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-bool RapidThread::checkFrameSize(const FrameHeader &header,
-                                 const QSize       &frameSize)
+DoubleBuffer *RapidThread::getDoubleBuf()
 {
-    QSize newSize(header.width, header.height);
-    if(frameSize == newSize)  return true;
-    else  return false;
+    return FDoubleBuf;
 }
-/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

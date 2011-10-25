@@ -29,9 +29,9 @@ private:
     static const double SQRT_2 = 1.4142135623730950488016887242097;
     static const int    DEFAULT_SIZE = 40;
     static const double DEFAULT_STDDEV_THRESHOLD = 1.0;
-    QSettings *FSettings;
     QPoint    FRefPoint;
     QPoint    FCenter;
+    QSettings *FSettings;
     int       FSize;
     double    FStdDevThreshold;
     QSize     FFrameSize;
@@ -48,10 +48,6 @@ private slots:
     void clickTarget(QMouseEvent *mousePressEvent);
     void setSize(int size);
     void setThreshold(int pos);
-signals:
-    void drawFrame(void *pFrame,
-                   int  frameWidth,
-                   int  frameHeight); //сигнал на отрисовку картинки
 };
 
 #endif // STROB_H
