@@ -5,7 +5,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    FImg(new QImage(DEFAULT_IMG_WIDTH, DEFAULT_IMG_HEIGHT, QImage::Format_RGB32))
+    _img(new QImage(_defaultImgWidth, _defaultImgHeight, QImage::Format_RGB32))
 {
     ui->setupUi(this);
 
@@ -22,11 +22,12 @@ MainWindow::MainWindow(QWidget *parent) :
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::~MainWindow()
 {
-    delete FImg;
+    delete _img;
     delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::initFace(int strobSize, int trackTresh)
+void MainWindow::initFace(const int strobSize,
+                          const int trackTresh)
 {
     ui->sliderStrobSize->setValue(strobSize);
     ui->sliderTrackingThreshold->setValue(trackTresh);
@@ -42,16 +43,16 @@ void MainWindow::updateFace()
     ui->labelThreshold->setText("thr " + content.toString());
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawFrame(void *pFrame,
-                           int  frameWidth,
-                           int  frameHeight)
+void MainWindow::drawFrame(const void *frame,
+                           const int  frameWidth,
+                           const int  frameHeight)
 {
-    checkImgSize(QSize(frameWidth, frameHeight));
-    uchar *ff = (uchar*)pFrame;
+    setImgSize(QSize(frameWidth, frameHeight));
+    uchar *ff = (uchar*)frame;
     QRgb *pLineStart, *pLineEnd;
     for(int j = 0; j < frameHeight; ++j)
     {
-        pLineStart = (QRgb*)(*FImg).scanLine(j);
+        pLineStart = (QRgb*)_img->scanLine(j);
         pLineEnd = pLineStart + frameWidth;
         for(QRgb *pline = pLineStart; pline < pLineEnd; ++pline)
         {
@@ -67,15 +68,15 @@ void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     QPoint p(0, 0);
-    painter.drawImage(p, *FImg);
+    painter.drawImage(p, *_img);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::checkImgSize(const QSize &frameSize)
+void MainWindow::setImgSize(const QSize &frameSize)
 {
-    if(FImg->size() != frameSize)
+    if(_img->size() != frameSize)
     {
-        delete FImg;
-        FImg = new QImage(frameSize, QImage::Format_RGB32);
+        delete _img;
+        _img = new QImage(frameSize, QImage::Format_RGB32);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

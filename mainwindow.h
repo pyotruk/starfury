@@ -19,24 +19,24 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void initFace(int strobSize,
-                  int trackTresh);
+    void initFace(const int strobSize,
+                  const int trackTresh);
 private:
-    static const int DEFAULT_IMG_WIDTH  = 640;
-    static const int DEFAULT_IMG_HEIGHT = 480;
+    static const int _defaultImgWidth  = 640;
+    static const int _defaultImgHeight = 480;
     Ui::MainWindow *ui;
-    QImage *FImg;
-    void checkImgSize(const QSize &frameSize);
+    QImage *_img;
+    void setImgSize(const QSize &frameSize);
 private slots:
     void paintEvent(QPaintEvent *);
-    void drawFrame(void *pFrame,
-                   int  frameWidth,
-                   int  frameHeight);
+    void drawFrame(const void *frame,
+                   const int  frameWidth,
+                   const int  frameHeight);
     void updateFace();
 signals:
     void mousePressEvent(QMouseEvent *);
-    void changeStrobSize(int pos);
-    void changeTrackingThreshold(int pos);
+    void changeStrobSize(const int pos);
+    void changeTrackingThreshold(const int pos);
     void unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
 };
 

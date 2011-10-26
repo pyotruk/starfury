@@ -1,46 +1,46 @@
 #include "doublebuffer.h"
 /////////////////////////////////////////////////////////////////////////////////////
-DoubleBuffer::DoubleBuffer(const qint64 &singleBufSize) :
-    FSize(singleBufSize),
-    FRapidBuf(new SingleBuffer(FSize)),
-    FSlowBuf(new SingleBuffer(FSize))
+DoubleBuffer::DoubleBuffer(const qint64 singleBufSize) :
+    _size(singleBufSize),
+    _rapidBuf(new SingleBuffer(_size)),
+    _slowBuf(new SingleBuffer(_size))
 { }
 /////////////////////////////////////////////////////////////////////////////////////
 DoubleBuffer::~DoubleBuffer()
 {
-    delete FRapidBuf;
-    delete FSlowBuf;
+    delete _rapidBuf;
+    delete _slowBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void DoubleBuffer::switchBuffers()
 {
-    SingleBuffer *foo = FRapidBuf;
-    FRapidBuf = FSlowBuf;
-    FSlowBuf = foo;
+    SingleBuffer *foo = _rapidBuf;
+    _rapidBuf = _slowBuf;
+    _slowBuf = foo;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 SingleBuffer *DoubleBuffer::getRapidBuf()
 {
-    return FRapidBuf;
+    return _rapidBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 SingleBuffer *DoubleBuffer::getSlowBuf()
 {
-    return FSlowBuf;
+    return _slowBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void DoubleBuffer::setSize(const qint64 &singleBufSize)
+void DoubleBuffer::setSize(const qint64 singleBufSize)
 {
-    if(FSize != singleBufSize)
+    if(_size != singleBufSize)
     {
-        FSize = singleBufSize;
-        FRapidBuf->setSize(FSize);
-        FSlowBuf->setSize(FSize);
+        _size = singleBufSize;
+        _rapidBuf->setSize(_size);
+        _slowBuf->setSize(_size);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void DoubleBuffer::unlockSlowBuf()
 {
-    FSlowBuf->unlock();
+    _slowBuf->unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////

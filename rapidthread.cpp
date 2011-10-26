@@ -1,9 +1,9 @@
 #include "rapidthread.h"
 /////////////////////////////////////////////////////////////////////////////////////
 RapidThread::RapidThread(QSettings *settings) :
-    FFrameSize(DEFAULT_FRAME_WIDTH, DEFAULT_FRAME_HEIGHT),
-    FDoubleBuf(new DoubleBuffer()),
-    FSharedMem(new SharedMem(settings))
+    _frameSize(_defaultFrameWidth, _defaultFrameHeight),
+    _doubleBuf(new DoubleBuffer()),
+    _sharedMem(new SharedMem(settings))
 {
     start(QThread::NormalPriority);
 }
@@ -12,29 +12,29 @@ RapidThread::~RapidThread()
 {
     exit();
     terminate();
-    delete FSharedMem;
-    delete FDoubleBuf;
+    delete _sharedMem;
+    delete _doubleBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void RapidThread::run()
 {
     while(isRunning())
     {
-        if(FSharedMem->waitForData())
+        if(_sharedMem->waitForData())
         {
-            FSharedMem->getHeader(&FFrameHeader);
-            FDoubleBuf->setSize(FFrameHeader.width * FFrameHeader.height);
-            FSharedMem->getData(FFrameHeader, FDoubleBuf->getRapidBuf()->getData());
-            emit frame4RapidThread(FDoubleBuf->getRapidBuf()->getData(),
-                                   FFrameHeader.width,
-                                   FFrameHeader.height);
-            if(! FDoubleBuf->getSlowBuf()->isLocked())
+            _sharedMem->readHeader(&_frameHeader);
+            _doubleBuf->setSize(_frameHeader.width * _frameHeader.height);
+            _sharedMem->readData(_frameHeader, _doubleBuf->getRapidBuf()->getData());
+            emit frame4RapidThread(_doubleBuf->getRapidBuf()->getData(),
+                                   _frameHeader.width,
+                                   _frameHeader.height);
+            if(! _doubleBuf->getSlowBuf()->isLocked())
             {
-                FDoubleBuf->switchBuffers();
-                FDoubleBuf->getSlowBuf()->lock();
-                emit frame4SlowThread(FDoubleBuf->getSlowBuf()->getData(),
-                                      FFrameHeader.width,
-                                      FFrameHeader.height);
+                _doubleBuf->switchBuffers();
+                _doubleBuf->getSlowBuf()->lock();
+                emit frame4SlowThread(_doubleBuf->getSlowBuf()->getData(),
+                                      _frameHeader.width,
+                                      _frameHeader.height);
             }
         }
     }
@@ -42,6 +42,6 @@ void RapidThread::run()
 /////////////////////////////////////////////////////////////////////////////////////
 DoubleBuffer *RapidThread::getDoubleBuf()
 {
-    return FDoubleBuf;
+    return _doubleBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -40,15 +40,15 @@ public:
     explicit SharedMem(QSettings *settings = 0);
     ~SharedMem();
     bool waitForData();
-    void getHeader(FrameHeader *header);
-    void getData(const FrameHeader &header,
-                 void  *data);
+    void readHeader(FrameHeader *header);
+    void readData(const FrameHeader &header,
+                  void  *data);
 private:
-    SharedSettings FSharedSettings;
-    void           *FSharedBuf;
-    HANDLE         FhMappedFile;
-    HANDLE         FhEvent;
-    HANDLE         FhMutex;
+    SharedSettings _sharedSettings;
+    void           *_sharedBuf;
+    HANDLE         _mappedFile;
+    HANDLE         _event;
+    HANDLE         _mutex;
     void loadSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 };

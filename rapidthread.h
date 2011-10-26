@@ -17,19 +17,19 @@ public:
 protected:
     void run();
 private:
-    static const int DEFAULT_FRAME_WIDTH  = 640;
-    static const int DEFAULT_FRAME_HEIGHT = 480;
-    QSize        FFrameSize;
-    DoubleBuffer *FDoubleBuf;
-    SharedMem    *FSharedMem;
-    FrameHeader  FFrameHeader;
+    static const int _defaultFrameWidth  = 640;
+    static const int _defaultFrameHeight = 480;
+    QSize        _frameSize;
+    DoubleBuffer *_doubleBuf;
+    SharedMem    *_sharedMem;
+    FrameHeader  _frameHeader;
 signals:
     void frame4RapidThread(void *frame,
-                           int  frameWidth,
-                           int  frameHeight); //сигнал для быстрого потока (оработка)
-    void frame4SlowThread(void *frame,
-                          int  frameWidth,
-                          int  frameHeight); //сигнал для медленного потока (отображение)
+                           const int frameWidth,
+                           const int frameHeight); //сигнал для быстрого потока (оработка)
+    void frame4SlowThread(const void *frame,
+                          const int  frameWidth,
+                          const int  frameHeight); //сигнал для медленного потока (отображение)
 };
 
 #endif // RAPIDTHREAD_H

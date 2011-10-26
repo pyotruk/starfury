@@ -2,54 +2,54 @@
 /////////////////////////////////////////////////////////////////////////////////////
 SharedMem::SharedMem(QSettings *settings)
 {
-      FSharedSettings.settings = settings;
-      loadSettings(FSharedSettings.settings);
+      _sharedSettings.settings = settings;
+      loadSettings(_sharedSettings.settings);
 
-      FhMappedFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,
-                                     false,
-                                     (LPCTSTR)FSharedSettings.fileMapId.data());
-      if(FhMappedFile == 0)  qDebug() << "OpenFileMapping error";
+      _mappedFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,
+                                    false,
+                                    (LPCTSTR)_sharedSettings.fileMapId.data());
+      if(_mappedFile == 0)  qDebug() << "OpenFileMapping error";
 
-      FSharedBuf = MapViewOfFile(FhMappedFile,
+      _sharedBuf = MapViewOfFile(_mappedFile,
                                  FILE_MAP_ALL_ACCESS,
                                  0,
                                  0,
                                  0);
-      if(FSharedBuf == NULL)  qDebug() << "MapViewOfFile error";
+      if(_sharedBuf == NULL)  qDebug() << "MapViewOfFile error";
 
-      FhEvent = OpenEvent(SYNCHRONIZE,
-                          false,
-                          (LPCTSTR)FSharedSettings.eventId.data());
-      if(FhEvent == 0)  qDebug() << "OpenEvent error";
+      _event = OpenEvent(SYNCHRONIZE,
+                         false,
+                         (LPCTSTR)_sharedSettings.eventId.data());
+      if(_event == 0)  qDebug() << "OpenEvent error";
 
-      FhMutex = OpenMutex(SYNCHRONIZE,
-                          false,
-                          (LPCTSTR)FSharedSettings.mutexId.data());
-      if(FhMutex == 0)  qDebug() << "OpenMutex error";
+      _mutex = OpenMutex(SYNCHRONIZE,
+                         false,
+                         (LPCTSTR)_sharedSettings.mutexId.data());
+      if(_mutex == 0)  qDebug() << "OpenMutex error";
 }
 /////////////////////////////////////////////////////////////////////////////////////
 SharedMem::~SharedMem()
 {
-    UnmapViewOfFile(FSharedBuf);
-    CloseHandle(FhMappedFile);
-    CloseHandle(FhEvent);
-    CloseHandle(FhMutex);
-    saveSettings(FSharedSettings.settings);
+    UnmapViewOfFile(_sharedBuf);
+    CloseHandle(_mappedFile);
+    CloseHandle(_event);
+    CloseHandle(_mutex);
+    saveSettings(_sharedSettings.settings);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void SharedMem::loadSettings(QSettings *settings)
 {
     if(settings == 0)
     {
-        FSharedSettings.fileMapId = DEFAULT_SHARED_MEM_ID;
-        FSharedSettings.eventId = DEFAULT_SHARED_EVENT_ID;
-        FSharedSettings.mutexId = DEFAULT_SHARED_MUTEX_ID;
+        _sharedSettings.fileMapId = DEFAULT_SHARED_MEM_ID;
+        _sharedSettings.eventId = DEFAULT_SHARED_EVENT_ID;
+        _sharedSettings.mutexId = DEFAULT_SHARED_MUTEX_ID;
     }
     else
     {
-        FSharedSettings.fileMapId = settings->value(SKEY_SHARED_MEM_ID, DEFAULT_SHARED_MEM_ID).toString();
-        FSharedSettings.eventId = settings->value(SKEY_SHARED_EVENT_ID, DEFAULT_SHARED_EVENT_ID).toString();
-        FSharedSettings.mutexId = settings->value(SKEY_SHARED_MUTEX_ID, DEFAULT_SHARED_MUTEX_ID).toString();
+        _sharedSettings.fileMapId = settings->value(SKEY_SHARED_MEM_ID, DEFAULT_SHARED_MEM_ID).toString();
+        _sharedSettings.eventId = settings->value(SKEY_SHARED_EVENT_ID, DEFAULT_SHARED_EVENT_ID).toString();
+        _sharedSettings.mutexId = settings->value(SKEY_SHARED_MUTEX_ID, DEFAULT_SHARED_MUTEX_ID).toString();
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@ void SharedMem::saveSettings(QSettings *settings)
 {
     if(settings != 0)
     {
-        settings->setValue(SKEY_SHARED_MEM_ID, FSharedSettings.fileMapId);
-        settings->setValue(SKEY_SHARED_EVENT_ID, FSharedSettings.eventId);
-        settings->setValue(SKEY_SHARED_MUTEX_ID, FSharedSettings.mutexId);
+        settings->setValue(SKEY_SHARED_MEM_ID, _sharedSettings.fileMapId);
+        settings->setValue(SKEY_SHARED_EVENT_ID, _sharedSettings.eventId);
+        settings->setValue(SKEY_SHARED_MUTEX_ID, _sharedSettings.mutexId);
     }
 }
 
@@ -67,27 +67,27 @@ void SharedMem::saveSettings(QSettings *settings)
 bool SharedMem::waitForData()
 {
     bool res = false;
-    DWORD waitRes = WaitForSingleObject(FhEvent, 500);
+    DWORD waitRes = WaitForSingleObject(_event, 500);
     if(waitRes == 0)
     {
-        waitRes = WaitForSingleObject(FhMutex, 20);
+        waitRes = WaitForSingleObject(_mutex, 20);
         if(waitRes == 0)  res = true;
     }
     return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::getData(const FrameHeader &header,
-                        void  *data)
+void SharedMem::readData(const FrameHeader &header,
+                         void  *data)
 {
-    uchar *beginBuf = (uchar*)FSharedBuf + sizeof(FrameHeader);
+    uchar *beginBuf = (uchar*)_sharedBuf + sizeof(FrameHeader);
     memcpy(data, (void*)beginBuf, header.width * header.height);
-    ReleaseMutex(FhMutex);
-    ResetEvent(FhEvent);
+    ReleaseMutex(_mutex);
+    ResetEvent(_event);
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::getHeader(FrameHeader *header)
+void SharedMem::readHeader(FrameHeader *header)
 {
-    uchar *beginBuf = (uchar*)FSharedBuf;
+    uchar *beginBuf = (uchar*)_sharedBuf;
     memcpy((void*)header, (void*)beginBuf, sizeof(FrameHeader));
 }
 //////////////////////////////////////////////////////////////////////////////////////

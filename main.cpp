@@ -6,27 +6,33 @@ int main(int argc, char *argv[])
     MainWindow w;
     QSettings settings("NIIPP", "astrobot");
 
-    Strob strob(FRAME_WIDTH / 2, FRAME_HEIGHT / 2, &settings);
+    Strob strob(&settings);
     RapidThread rapidThread(&settings);
 
     //form init
     w.initFace(strob.size(), (int)(strob.threshold()));
 
     //object <--> object connections
-    QObject::connect(&rapidThread, SIGNAL(frame4RapidThread(void*,int,int)),
-                     &strob, SLOT(makeTracking(void*,int,int)));
-    QObject::connect(&rapidThread, SIGNAL(frame4SlowThread(void*,int,int)),
-                     &w, SLOT(drawFrame(void*,int,int)));
+    QObject::connect(&rapidThread, SIGNAL(frame4RapidThread(void*,const int,const int)),
+                     &strob, SLOT(makeTracking(void*,const int,const int)),
+                     Qt::DirectConnection);
+    QObject::connect(&rapidThread, SIGNAL(frame4SlowThread(const void*,const int,const int)),
+                     &w, SLOT(drawFrame(const void*,const int,const int)),
+                     Qt::QueuedConnection);
 
     //gui --> object connections
     QObject::connect(&w, SIGNAL(unlockSlowBuf()),
-                     rapidThread.getDoubleBuf(), SLOT(unlockSlowBuf()));
+                     rapidThread.getDoubleBuf(), SLOT(unlockSlowBuf()),
+                     Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
-                     &strob, SLOT(clickTarget(QMouseEvent *)));
+                     &strob, SLOT(clickTarget(QMouseEvent *)),
+                     Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(changeStrobSize(int)),
-                     &strob, SLOT(setSize(int)));
+                     &strob, SLOT(setSize(int)),
+                     Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(changeTrackingThreshold(int)),
-                     &strob, SLOT(setThreshold(int)));
+                     &strob, SLOT(setThreshold(int)),
+                     Qt::QueuedConnection);
 
     w.show();
     return a.exec();

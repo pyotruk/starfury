@@ -1,31 +1,31 @@
 #include "strob.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Strob::Strob(int refPointX,
-             int refPointY,
-             QSettings * settings) :
-    FRefPoint(refPointX, refPointY),
-    FCenter(FRefPoint),
-    FSettings(settings)
+Strob::Strob(QSettings * settings,
+             const int refPointX,
+             const int refPointY) :
+    _refPoint(refPointX, refPointY),
+    _center(_refPoint),
+    _settings(settings)
 {    
-    loadSettings(FSettings);
+    loadSettings(_settings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::~Strob()
 {
-    saveSettings(FSettings);
+    saveSettings(_settings);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::loadSettings(QSettings *settings)
 {
     if(settings == 0)
     {
-        FSize = DEFAULT_SIZE;
-        FStdDevThreshold = DEFAULT_STDDEV_THRESHOLD;
+        _size = _defaultSize;
+        _threshold = _defaultThreshold;
     }
     else
     {
-        FSize = settings->value(SKEY_STROB_SIZE, DEFAULT_SIZE).toInt();
-        FStdDevThreshold = settings->value(SKEY_STDDEV_THRESHOLD, DEFAULT_STDDEV_THRESHOLD).toDouble();
+        _size = settings->value(SKEY_STROB_SIZE, _defaultSize).toInt();
+        _threshold = settings->value(SKEY_STDDEV_THRESHOLD, _defaultThreshold).toDouble();
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -33,33 +33,40 @@ void Strob::saveSettings(QSettings *settings)
 {
     if(settings != 0)
     {
-        settings->setValue(SKEY_STROB_SIZE, FSize);
-        settings->setValue(SKEY_STDDEV_THRESHOLD, FStdDevThreshold);
+        settings->setValue(SKEY_STROB_SIZE, _size);
+        settings->setValue(SKEY_STDDEV_THRESHOLD, _threshold);
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::makeTracking(void *pFrame,
-                         int frameWidth,
-                         int frameHeight)
+void Strob::makeTracking(void *frame,
+                         const int frameWidth,
+                         const int frameHeight)
 {
-    FFrameSize.setWidth(frameWidth);
-    FFrameSize.setHeight(frameHeight);
-    cv::Mat mainImg(frameHeight, frameWidth, CV_8UC1, pFrame);
+    _frameSize.setWidth(frameWidth);
+    _frameSize.setHeight(frameHeight);
+    checkCenterRange(_center,
+                     _frameSize.width(),
+                     _frameSize.height(),
+                     _size);
+    cv::Mat mainImg(_frameSize.height(),
+                    _frameSize.width(),
+                    CV_8UC1,
+                    frame);
 
     //создание, инициализация сигнального и фонового стробов
-    int size2 = FSize / 2;
-    int foneStrobSize = (int)(floor(SQRT_2 * FSize + 0.5));
+    int size2 = _size / 2;
+    int foneStrobSize = (int)(floor(_sqrt2 * _size + 0.5));
     int foneStrobSize2 = foneStrobSize / 2;
-    QPoint signalRoiTopLeft(FCenter.x() - size2,
-                            FCenter.y() - size2);
-    QPoint foneRoiTopLeft(FCenter.x() - foneStrobSize2,
-                          FCenter.y() - foneStrobSize2);
+    QPoint signalRoiTopLeft(_center.x() - size2,
+                            _center.y() - size2);
+    QPoint foneRoiTopLeft(_center.x() - foneStrobSize2,
+                          _center.y() - foneStrobSize2);
     cv::Mat signalRoi(mainImg, cv::Rect(signalRoiTopLeft.x(),
                                         signalRoiTopLeft.y(),
-                                        FSize,
-                                        FSize));
+                                        _size,
+                                        _size));
     cv::Mat foneRoi(mainImg, cv::Rect(foneRoiTopLeft.x(),
                                       foneRoiTopLeft.y(),
                                       foneStrobSize,
@@ -80,7 +87,7 @@ void Strob::makeTracking(void *pFrame,
         int borderPixNum = (foneRoi.total() - signalRoi.total());
         double fonePerPix = sumFone / borderPixNum;
         double stdDev = sqrt(sumFone) / borderPixNum;
-        int thresh = (int)floor(0.5 + fonePerPix + FStdDevThreshold * stdDev);
+        int thresh = (int)floor(0.5 + fonePerPix + _threshold * stdDev);
         cv::threshold(signalRoi,
                       signalRoi,
                       thresh,
@@ -91,21 +98,21 @@ void Strob::makeTracking(void *pFrame,
         cv::TermCriteria crit(cv::TermCriteria::COUNT, 1, 0.1);
         cv::Rect trackingWindow(signalRoiTopLeft.x(),
                                 signalRoiTopLeft.y(),
-                                FSize,
-                                FSize);
+                                _size,
+                                _size);
         cv::meanShift(mainImg, trackingWindow, crit);
-        FCenter.setX(trackingWindow.x + size2);
-        FCenter.setY(trackingWindow.y + size2);
-        checkCenterRange(&FCenter,
-                         frameWidth,
-                         frameHeight,
-                         FSize);
+        _center.setX(trackingWindow.x + size2);
+        _center.setY(trackingWindow.y + size2);
+        checkCenterRange(_center,
+                         _frameSize.width(),
+                         _frameSize.height(),
+                         _size);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::checkCenterRange(QPoint *center,
-                             int frameWidth,
-                             int frameHeight,
+void Strob::checkCenterRange(QPoint &center,
+                             const int frameWidth,
+                             const int frameHeight,
                              int roiSize)
 {
     const double k = 0.75;
@@ -114,44 +121,44 @@ void Strob::checkCenterRange(QPoint *center,
     int xMax = frameWidth - roiSize;
     int yMin = 0 + roiSize;
     int yMax = frameHeight - roiSize;
-    if(center->x() < xMin)  center->setX(xMin);
-    if(center->x() > xMax)  center->setX(xMax);
-    if(center->y() < yMin)  center->setY(yMin);
-    if(center->y() > yMax)  center->setY(yMax);
+    if(center.x() < xMin)  center.setX(xMin);
+    if(center.x() > xMax)  center.setX(xMax);
+    if(center.y() < yMin)  center.setY(yMin);
+    if(center.y() > yMax)  center.setY(yMax);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::clickTarget(QMouseEvent *mousePressEvent)
 {
-    FCenter.setX(mousePressEvent->x());
-    FCenter.setY(mousePressEvent->y());
-    checkCenterRange(&FCenter,
-                     FFrameSize.width(),
-                     FFrameSize.height(),
-                     FSize);
+    _center.setX(mousePressEvent->x());
+    _center.setY(mousePressEvent->y());
+    checkCenterRange(_center,
+                     _frameSize.width(),
+                     _frameSize.height(),
+                     _size);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::setSize(int size)
+void Strob::setSize(const int size)
 {
-    FSize = size;
-    checkCenterRange(&FCenter,
-                     FFrameSize.width(),
-                     FFrameSize.height(),
-                     FSize);
+    _size = size;
+    checkCenterRange(_center,
+                     _frameSize.width(),
+                     _frameSize.height(),
+                     _size);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 int Strob::size()
 {
-    return FSize;
+    return _size;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::setThreshold(int pos)
+void Strob::setThreshold(const int pos)
 {
-    FStdDevThreshold = (double)pos;
+    _threshold = (double)pos;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 double Strob::threshold()
 {
-    return FStdDevThreshold;
+    return _threshold;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

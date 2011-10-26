@@ -19,35 +19,35 @@ class Strob : public QObject
 {
     Q_OBJECT
 public:
-    explicit Strob(int refPointX,
-                   int refPointY,
-                   QSettings * settings = 0);
+    explicit Strob(QSettings *settings = 0,
+                   const int refPointX = 0,
+                   const int refPointY = 0);
     ~Strob();
     int    size();
     double threshold();
 private:
-    static const double SQRT_2 = 1.4142135623730950488016887242097;
-    static const int    DEFAULT_SIZE = 40;
-    static const double DEFAULT_STDDEV_THRESHOLD = 1.0;
-    QPoint    FRefPoint;
-    QPoint    FCenter;
-    QSettings *FSettings;
-    int       FSize;
-    double    FStdDevThreshold;
-    QSize     FFrameSize;
-    void checkCenterRange(QPoint *center,
-                          int frameWidth,
-                          int frameHeight,
+    static const double _sqrt2 = 1.4142135623730950488016887242097;
+    static const int    _defaultSize = 40;
+    static const double _defaultThreshold = 1.0; //в единицах СКО
+    QPoint    _refPoint;
+    QPoint    _center;
+    QSettings *_settings;
+    int       _size;
+    double    _threshold;
+    QSize     _frameSize;
+    void checkCenterRange(QPoint &center,
+                          const int frameWidth,
+                          const int frameHeight,
                           int roiSize);
     void loadSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 private slots:
-    void makeTracking(void *pFrame,
-                      int frameWidth,
-                      int frameHeight);
+    void makeTracking(void *frame,
+                      const int frameWidth,
+                      const int frameHeight);
     void clickTarget(QMouseEvent *mousePressEvent);
-    void setSize(int size);
-    void setThreshold(int pos);
+    void setSize(const int size);
+    void setThreshold(const int pos);
 };
 
 #endif // STROB_H

@@ -6,16 +6,16 @@
 class SingleBuffer
 {
 public:
-    explicit SingleBuffer(const qint64 &size);
+    explicit SingleBuffer(const qint64 size);
     ~SingleBuffer();
     void lock();
     void unlock();
     bool isLocked();
     void *getData();
-    void setSize(const qint64 &size);
+    void setSize(const qint64 size);
 private:
-    uchar *FData;
-    bool  FLocked;
+    uchar *_data;
+    bool  _locked;
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // SINGLEBUFFER_H

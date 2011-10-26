@@ -8,17 +8,17 @@ class DoubleBuffer : public QObject
 {
     Q_OBJECT
 public:
-    explicit DoubleBuffer(const qint64 &singleBufSize = DEFAULT_SINGLE_DATA_SIZE);
+    explicit DoubleBuffer(const qint64 singleBufSize = _defaultSingleDataSize);
     ~DoubleBuffer();
     void switchBuffers();
     SingleBuffer *getRapidBuf();
     SingleBuffer *getSlowBuf();
-    void setSize(const qint64 &singleBufSize);
+    void setSize(const qint64 singleBufSize);
 private:
-    static const int DEFAULT_SINGLE_DATA_SIZE = 307200;
-    qint64 FSize;
-    SingleBuffer *FRapidBuf;
-    SingleBuffer *FSlowBuf;
+    static const int _defaultSingleDataSize = 307200;
+    qint64 _size;
+    SingleBuffer *_rapidBuf;
+    SingleBuffer *_slowBuf;
 private slots:
     void unlockSlowBuf();
 };
