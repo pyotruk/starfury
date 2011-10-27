@@ -77,6 +77,18 @@ void MainWindow::setImgSize(const QSize &frameSize)
     {
         delete _img;
         _img = new QImage(frameSize, QImage::Format_RGB32);
+        adaptWindowSize(frameSize);
     }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::adaptWindowSize(const QSize &imgSize)
+{
+    QRect rect(this->geometry());
+    rect.setHeight(imgSize.height() + ui->groupBoxTracking->geometry().height() + 40);
+    rect.setWidth(imgSize.width());
+    this->setGeometry(rect);
+    rect = ui->groupBoxTracking->geometry();
+    rect.moveTop(imgSize.height());
+    ui->groupBoxTracking->setGeometry(rect);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

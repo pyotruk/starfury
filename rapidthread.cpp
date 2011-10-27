@@ -23,8 +23,8 @@ void RapidThread::run()
         if(_sharedMem->waitForData())
         {
             _sharedMem->readHeader(&_frameHeader);
-            _doubleBuf->setSize(_frameHeader.width * _frameHeader.height);
-            _sharedMem->readData(_frameHeader, _doubleBuf->getRapidBuf()->getData());
+            _doubleBuf->setSize(_frameHeader.dataSize);
+            _sharedMem->readData(_doubleBuf->getRapidBuf()->getData());
             emit frame4RapidThread(_doubleBuf->getRapidBuf()->getData(),
                                    _frameHeader.width,
                                    _frameHeader.height);

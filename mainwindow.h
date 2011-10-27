@@ -27,6 +27,7 @@ private:
     Ui::MainWindow *ui;
     QImage *_img;
     void setImgSize(const QSize &frameSize);
+    void adaptWindowSize(const QSize &imgSize);
 private slots:
     void paintEvent(QPaintEvent *);
     void drawFrame(const void *frame,

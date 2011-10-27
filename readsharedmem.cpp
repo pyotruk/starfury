@@ -76,11 +76,10 @@ bool SharedMem::waitForData()
     return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::readData(const FrameHeader &header,
-                         void  *data)
+void SharedMem::readData(void  *data)
 {
     uchar *beginBuf = (uchar*)_sharedBuf + sizeof(FrameHeader);
-    memcpy(data, (void*)beginBuf, header.width * header.height);
+    memcpy(data, (void*)beginBuf, _header.dataSize);
     ReleaseMutex(_mutex);
     ResetEvent(_event);
 }
@@ -89,5 +88,6 @@ void SharedMem::readHeader(FrameHeader *header)
 {
     uchar *beginBuf = (uchar*)_sharedBuf;
     memcpy((void*)header, (void*)beginBuf, sizeof(FrameHeader));
+    _header = *header;
 }
 //////////////////////////////////////////////////////////////////////////////////////

@@ -18,12 +18,13 @@
 //////////////////////////////////////////////////////////////////////////////////////
 struct FrameHeader
 {
-  qint64  timeID;
-  qint64  timeFreq;
-  quint32 dataSize;
-  quint32 width;
-  quint32 height;
-  quint32 frameID;
+    qint64  timeID;
+    quint32 frameID;
+    quint32 dataSize;
+    quint32 depth;
+    quint32 width;
+    quint32 height;
+    quint32 plug;
 };
 //////////////////////////////////////////////////////////////////////////////////////
 struct SharedSettings
@@ -40,11 +41,11 @@ public:
     explicit SharedMem(QSettings *settings = 0);
     ~SharedMem();
     bool waitForData();
-    void readHeader(FrameHeader *header);
-    void readData(const FrameHeader &header,
-                  void  *data);
+    void readHeader(FrameHeader *header); //сначала прочитать заголовок
+    void readData(void *data);            //потом прочитать данные (передать указатель, куда функция скопирует данные)
 private:
     SharedSettings _sharedSettings;
+    FrameHeader    _header;
     void           *_sharedBuf;
     HANDLE         _mappedFile;
     HANDLE         _event;
