@@ -23,11 +23,16 @@ public:
     double threshold();
     StrobGeometry &geometry();
 private:
-    static const double _defaultThreshold = 1.0; //в единицах СКО
+    static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
     StrobGeometry *_geometry;
-    double        _threshold;
+    double        _threshold; //порог обнаружения в единицах СКО
     QSize         _frameSize;
+    void calcThresholds(const cv::Mat &signalRoi,
+                        const cv::Mat &foneRoi,
+                        const double stdDevThreshold,
+                        double &sumThreshold,
+                        int    &pixThreshold);
     void loadSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 private slots:

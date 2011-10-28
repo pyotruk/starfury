@@ -50,25 +50,24 @@ void Strob::makeTracking(void *frame,
     qtRect2cvRect(_geometry->outerRect(), outerRect);
     cv::Mat signalRoi(mainImg, innerRect);
     cv::Mat foneRoi(mainImg, outerRect);
-    //предобработка
+
+    //фильтрация
     cv::blur(foneRoi, foneRoi, cv::Size(5,5));
 
-    //суммарная яркость в сигнальном стробе и в фоновом
-    long int sumSignal = cv::sum(signalRoi)[0];
-    long int sumFone = cv::sum(foneRoi)[0];
-    sumFone -= sumSignal;
+    double sumThreshold; /*порог по суммарным значениям яркости
+                         в сигнальном и фоновом стробах*/
+    int pixThreshold; //порог, приведённый к одному пикселу
+    calcThresholds(signalRoi,
+                   foneRoi,
+                   _threshold,
+                   sumThreshold,
+                   pixThreshold);
 
-    //проверка условия слежения
-    if(sumSignal > (sumFone + sqrt(sumFone)))
+    if(sumThreshold > 0)    //проверка условия слежения
     {
-        //пороговая бинаризация в сигнальном стробе
-        int borderPixNum = (foneRoi.total() - signalRoi.total());
-        double fonePerPix = sumFone / borderPixNum;
-        double stdDev = sqrt(sumFone) / borderPixNum;
-        int thresh = (int)floor(0.5 + fonePerPix + _threshold * stdDev);
-        cv::threshold(signalRoi,
+        cv::threshold(signalRoi, //пороговая бинаризация в сигнальном стробе
                       signalRoi,
-                      thresh,
+                      pixThreshold,
                       0xFF * signalRoi.channels(),
                       cv::THRESH_TOZERO);
 
@@ -79,6 +78,24 @@ void Strob::makeTracking(void *frame,
         cvRect2qtRect(innerRect, newInnerRect);
         _geometry->setRect(newInnerRect);
     }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::calcThresholds(const cv::Mat &signalRoi,
+                           const cv::Mat &foneRoi,
+                           const double stdDevThreshold,
+                           double &sumThreshold,
+                           int    &pixThreshold)
+{
+    double sumSignal = cv::sum(signalRoi)[0]; //сумма яркости пикселей по сигнальному стробу
+    double sumFone = cv::sum(foneRoi)[0]; //по фоновому стробу
+    sumFone -= sumSignal; //на рамке
+    double sumStdDev = sqrt(sumFone); //CKO
+    sumThreshold = sumSignal - sumFone; /*порог по суммарным значениям яркости
+                                          в сигнальном и фоновом стробах*/
+    int borderPixNum = (foneRoi.total() - signalRoi.total()); //кол-во пикселей на рамке
+    double fonePerPix = sumFone / borderPixNum;
+    double stdDevPerPix = sumStdDev / borderPixNum;
+    pixThreshold = (int)floor(0.5 + fonePerPix + stdDevThreshold * stdDevPerPix); //порог, приведённый к одному пикселу
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::clickTarget(QMouseEvent *mousePressEvent)
