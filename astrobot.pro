@@ -16,7 +16,9 @@ SOURCES += main.cpp\
     strob.cpp \
     rapidthread.cpp \
     doublebuffer.cpp \
-    singlebuffer.cpp
+    singlebuffer.cpp \
+    strobgeometry.cpp \
+    cvhelpfun.cpp
 
 HEADERS  += mainwindow.h \
     readsharedmem.h \
@@ -24,7 +26,9 @@ HEADERS  += mainwindow.h \
     main.h \
     rapidthread.h \
     doublebuffer.h \
-    singlebuffer.h
+    singlebuffer.h \
+    strobgeometry.h \
+    cvhelpfun.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -35,6 +39,10 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
+
+
 
 
 

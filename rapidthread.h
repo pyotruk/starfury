@@ -4,6 +4,8 @@
 #include <QThread>
 #include <QSettings>
 #include <QSize>
+#include <QTime>
+#include <QDebug>
 #include "readsharedmem.h"
 #include "doublebuffer.h"
 
@@ -24,12 +26,12 @@ private:
     SharedMem    *_sharedMem;
     FrameHeader  _frameHeader;
 signals:
-    void frame4RapidThread(void *frame,
-                           const int frameWidth,
-                           const int frameHeight); //сигнал для быстрого потока (оработка)
-    void frame4SlowThread(const void *frame,
-                          const int  frameWidth,
-                          const int  frameHeight); //сигнал для медленного потока (отображение)
+    void frame4Strob(void *frame,
+                     const int frameWidth,
+                     const int frameHeight); //слежение (строб)
+    void frame4Gui(const void *frame,
+                   const int  frameWidth,
+                   const int  frameHeight); //отображение (gui)
 };
 
 #endif // RAPIDTHREAD_H
