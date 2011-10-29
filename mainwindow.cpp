@@ -43,17 +43,15 @@ void MainWindow::updateFace()
     ui->labelThreshold->setText("thr " + content.toString());
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawFrame(const void *frame,
-                           const int  frameWidth,
-                           const int  frameHeight)
+void MainWindow::drawFrame(Frame *frame)
 {
-    setImgSize(QSize(frameWidth, frameHeight));
-    uchar *ff = (uchar*)frame;
+    setImgSize(QSize(frame->header().width, frame->header().height));
+    uchar *ff = frame->data();
     QRgb *pLineStart, *pLineEnd;
-    for(int j = 0; j < frameHeight; ++j)
+    for(uint j = 0; j < frame->header().height; ++j)
     {
         pLineStart = (QRgb*)_img->scanLine(j);
-        pLineEnd = pLineStart + frameWidth;
+        pLineEnd = pLineStart + frame->header().width;
         for(QRgb *pline = pLineStart; pline < pLineEnd; ++pline)
         {
             *pline = qRgba(*ff, *ff, *ff, 255);

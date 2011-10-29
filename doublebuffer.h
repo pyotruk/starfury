@@ -2,23 +2,20 @@
 #define DOUBLEBUFFER_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QObject>
-#include "singlebuffer.h"
+#include "frame.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class DoubleBuffer : public QObject
 {
     Q_OBJECT
 public:
-    explicit DoubleBuffer(const qint64 singleBufSize = _defaultSingleDataSize);
+    explicit DoubleBuffer();
     ~DoubleBuffer();
     void switchBuffers();
-    SingleBuffer *getRapidBuf();
-    SingleBuffer *getSlowBuf();
-    void setSize(const qint64 singleBufSize);
+    Frame *rapidBuf();
+    Frame *slowBuf();
 private:
-    static const int _defaultSingleDataSize = 307200;
-    qint64 _size;
-    SingleBuffer *_rapidBuf;
-    SingleBuffer *_slowBuf;
+    Frame *_rapidBuf;
+    Frame *_slowBuf;
 private slots:
     void unlockSlowBuf();
 };

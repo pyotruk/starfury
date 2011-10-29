@@ -10,6 +10,7 @@
 #include <QSettings>
 #include "strobgeometry.h"
 #include "cvhelpfun.h"
+#include "frame.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 #define SKEY_STROB_STDDEV_THRESHOLD "/Strob/StdDevThreshold"
@@ -27,7 +28,6 @@ private:
     QSettings     *_settings;
     StrobGeometry *_geometry;
     double        _threshold; //порог обнаружения в единицах СКО
-    QSize         _frameSize;
     void calcThresholds(const cv::Mat &signalRoi,
                         const cv::Mat &foneRoi,
                         const double stdDevThreshold,
@@ -36,9 +36,7 @@ private:
     void loadSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
 private slots:
-    void makeTracking(void *frame,
-                      const int frameWidth,
-                      const int frameHeight);
+    void makeTracking(Frame *frame);
     void clickTarget(QMouseEvent *mousePressEvent);
     void setThreshold(const int pos);
 };

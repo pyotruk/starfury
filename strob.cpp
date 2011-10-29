@@ -33,17 +33,14 @@ void Strob::saveSettings(QSettings *settings)
     }
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void Strob::makeTracking(void *frame,
-                         const int frameWidth,
-                         const int frameHeight)
+void Strob::makeTracking(Frame *frame)
 {
-    _frameSize = QSize(frameWidth, frameHeight);
-    cv::Mat mainImg(_frameSize.height(),
-                    _frameSize.width(),
+    cv::Mat mainImg(frame->header().height,
+                    frame->header().width,
                     CV_8UC1,
-                    frame);
+                    frame->data());
     //создание, инициализация сигнального и фонового стробов
-    _geometry->checkRange(_frameSize);
+    _geometry->checkRange(QSize(frame->header().width, frame->header().height));
     cv::Rect innerRect;
     cv::Rect outerRect;
     qtRect2cvRect(_geometry->innerRect(), innerRect);
@@ -51,15 +48,14 @@ void Strob::makeTracking(void *frame,
     cv::Mat signalRoi(mainImg, innerRect);
     cv::Mat foneRoi(mainImg, outerRect);
 
-    //фильтрация
-    cv::blur(foneRoi, foneRoi, cv::Size(5,5));
+    cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтрация
 
     double sumThreshold; /*порог по суммарным значениям яркости
                          в сигнальном и фоновом стробах*/
     int pixThreshold; //порог, приведённый к одному пикселу
     calcThresholds(signalRoi,
                    foneRoi,
-                   _threshold,
+                   _threshold, //порог в единицах СКО
                    sumThreshold,
                    pixThreshold);
 

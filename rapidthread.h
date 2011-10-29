@@ -1,6 +1,6 @@
 #ifndef RAPIDTHREAD_H
 #define RAPIDTHREAD_H
-
+/////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
 #include <QSettings>
 #include <QSize>
@@ -8,14 +8,15 @@
 #include <QDebug>
 #include "readsharedmem.h"
 #include "doublebuffer.h"
-
+#include "frame.h"
+/////////////////////////////////////////////////////////////////////////////////////
 class RapidThread : public QThread
 {
     Q_OBJECT
 public:
     explicit RapidThread(QSettings *settings = 0);
     ~RapidThread();
-    DoubleBuffer *getDoubleBuf();
+    DoubleBuffer *doubleBuf();
 protected:
     void run();
 private:
@@ -26,12 +27,8 @@ private:
     SharedMem    *_sharedMem;
     FrameHeader  _frameHeader;
 signals:
-    void frame4Strob(void *frame,
-                     const int frameWidth,
-                     const int frameHeight); //слежение (строб)
-    void frame4Gui(const void *frame,
-                   const int  frameWidth,
-                   const int  frameHeight); //отображение (gui)
+    void frame4Strob(Frame *frame); //слежение (строб)
+    void frame4Gui(Frame *frame); //отображение (gui)
 };
-
+/////////////////////////////////////////////////////////////////////////////////////
 #endif // RAPIDTHREAD_H

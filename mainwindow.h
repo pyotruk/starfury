@@ -1,18 +1,19 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+/////////////////////////////////////////////////////////////////////////////////////
 #include <QMainWindow>
 #include <QDebug>
 #include <QImage>
 #include <QPainter>
 #include <QPoint>
 #include <QMouseEvent>
-
+#include "frame.h"
+/////////////////////////////////////////////////////////////////////////////////////
 
 namespace Ui {
     class MainWindow;
 }
-
+/////////////////////////////////////////////////////////////////////////////////////
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -30,9 +31,7 @@ private:
     void adaptWindowSize(const QSize &imgSize);
 private slots:
     void paintEvent(QPaintEvent *);
-    void drawFrame(const void *frame,
-                   const int  frameWidth,
-                   const int  frameHeight);
+    void drawFrame(Frame *frame);
     void updateFace();
 signals:
     void mousePressEvent(QMouseEvent *);
@@ -40,5 +39,5 @@ signals:
     void changeTrackingThreshold(const int pos);
     void unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
 };
-
+/////////////////////////////////////////////////////////////////////////////////////
 #endif // MAINWINDOW_H

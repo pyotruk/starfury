@@ -76,18 +76,18 @@ bool SharedMem::waitForData()
     return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::readData(void  *data)
-{
-    uchar *beginBuf = (uchar*)_sharedBuf + sizeof(FrameHeader);
-    memcpy(data, (void*)beginBuf, _header.dataSize);
-    ReleaseMutex(_mutex);
-    ResetEvent(_event);
-}
-//////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::readHeader(FrameHeader *header)
+void SharedMem::readFrame(Frame &frame)
 {
     uchar *beginBuf = (uchar*)_sharedBuf;
+    FrameHeader *header = new FrameHeader;
     memcpy((void*)header, (void*)beginBuf, sizeof(FrameHeader));
-    _header = *header;
+    beginBuf += sizeof(FrameHeader);
+    Frame f;
+    f.attachRawData(*header, beginBuf);
+    frame = f;
+    f.unattachRawData();
+    delete header;
+    ReleaseMutex(_mutex);
+    ResetEvent(_event);
 }
 //////////////////////////////////////////////////////////////////////////////////////

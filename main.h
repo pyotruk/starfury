@@ -5,6 +5,7 @@
 #include "rapidthread.h"
 #include "strob.h"
 #include "readsharedmem.h"
+#include "frame.h"
 #include <QtGui/QApplication>
 #include <QString>
 #include <QObject>

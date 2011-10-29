@@ -22,25 +22,19 @@ void RapidThread::run()
     {
         if(_sharedMem->waitForData())
         {
-            _sharedMem->readHeader(&_frameHeader);
-            _doubleBuf->setSize(_frameHeader.dataSize);
-            _sharedMem->readData(_doubleBuf->getRapidBuf()->getData());
-            emit frame4Strob(_doubleBuf->getRapidBuf()->getData(),
-                             _frameHeader.width,
-                             _frameHeader.height);
-            if(! _doubleBuf->getSlowBuf()->isLocked())
+            _sharedMem->readFrame(*(_doubleBuf->rapidBuf()));
+            emit frame4Strob(_doubleBuf->rapidBuf());
+            if(! _doubleBuf->slowBuf()->isLocked())
             {
                 _doubleBuf->switchBuffers();
-                _doubleBuf->getSlowBuf()->lock();
-                emit frame4Gui(_doubleBuf->getSlowBuf()->getData(),
-                               _frameHeader.width,
-                               _frameHeader.height);
+                _doubleBuf->slowBuf()->lock();
+                emit frame4Gui(_doubleBuf->slowBuf());
             }
         }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-DoubleBuffer *RapidThread::getDoubleBuf()
+DoubleBuffer *RapidThread::doubleBuf()
 {
     return _doubleBuf;
 }

@@ -1,9 +1,8 @@
 #include "doublebuffer.h"
 /////////////////////////////////////////////////////////////////////////////////////
-DoubleBuffer::DoubleBuffer(const qint64 singleBufSize) :
-    _size(singleBufSize),
-    _rapidBuf(new SingleBuffer(_size)),
-    _slowBuf(new SingleBuffer(_size))
+DoubleBuffer::DoubleBuffer() :
+    _rapidBuf(new Frame),
+    _slowBuf(new Frame)
 { }
 /////////////////////////////////////////////////////////////////////////////////////
 DoubleBuffer::~DoubleBuffer()
@@ -14,29 +13,19 @@ DoubleBuffer::~DoubleBuffer()
 /////////////////////////////////////////////////////////////////////////////////////
 void DoubleBuffer::switchBuffers()
 {
-    SingleBuffer *foo = _rapidBuf;
+    Frame *foo = _rapidBuf;
     _rapidBuf = _slowBuf;
     _slowBuf = foo;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-SingleBuffer *DoubleBuffer::getRapidBuf()
+Frame *DoubleBuffer::rapidBuf()
 {
     return _rapidBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-SingleBuffer *DoubleBuffer::getSlowBuf()
+Frame *DoubleBuffer::slowBuf()
 {
     return _slowBuf;
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void DoubleBuffer::setSize(const qint64 singleBufSize)
-{
-    if(_size != singleBufSize)
-    {
-        _size = singleBufSize;
-        _rapidBuf->setSize(_size);
-        _slowBuf->setSize(_size);
-    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void DoubleBuffer::unlockSlowBuf()
