@@ -35,18 +35,14 @@ void Strob::saveSettings(QSettings *settings)
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::makeTracking(Frame *frame)
 {
-    cv::Mat mainImg(frame->header().height,
-                    frame->header().width,
-                    CV_8UC1,
-                    frame->data());
     //создание, инициализация сигнального и фонового стробов
     _geometry->checkRange(QSize(frame->header().width, frame->header().height));
     cv::Rect innerRect;
     cv::Rect outerRect;
     qtRect2cvRect(_geometry->innerRect(), innerRect);
     qtRect2cvRect(_geometry->outerRect(), outerRect);
-    cv::Mat signalRoi(mainImg, innerRect);
-    cv::Mat foneRoi(mainImg, outerRect);
+    cv::Mat signalRoi(frame->asCvMat(), innerRect);
+    cv::Mat foneRoi(frame->asCvMat(), outerRect);
 
     cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтрация
 
@@ -69,7 +65,7 @@ void Strob::makeTracking(Frame *frame)
 
         //вычисление центра масс по сигнальному стробу
         cv::TermCriteria crit(cv::TermCriteria::COUNT, 1, 0.1);
-        cv::meanShift(mainImg, innerRect, crit);
+        cv::meanShift(frame->asCvMat(), innerRect, crit);
         QRect newInnerRect;
         cvRect2qtRect(innerRect, newInnerRect);
         _geometry->setRect(newInnerRect);

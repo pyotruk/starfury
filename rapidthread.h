@@ -20,9 +20,6 @@ public:
 protected:
     void run();
 private:
-    static const int _defaultFrameWidth  = 640;
-    static const int _defaultFrameHeight = 480;
-    QSize        _frameSize;
     DoubleBuffer *_doubleBuf;
     SharedMem    *_sharedMem;
     FrameHeader  _frameHeader;

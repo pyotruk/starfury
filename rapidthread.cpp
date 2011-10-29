@@ -1,7 +1,6 @@
 #include "rapidthread.h"
 /////////////////////////////////////////////////////////////////////////////////////
 RapidThread::RapidThread(QSettings *settings) :
-    _frameSize(_defaultFrameWidth, _defaultFrameHeight),
     _doubleBuf(new DoubleBuffer()),
     _sharedMem(new SharedMem(settings))
 {

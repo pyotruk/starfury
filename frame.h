@@ -4,6 +4,7 @@
 #include <QtGlobal>
 #include <string.h>
 #include <QImage>
+#include <QDebug>
 #include "opencv.hpp"
 /////////////////////////////////////////////////////////////////////////////////////
 struct FrameHeader
@@ -32,10 +33,14 @@ public:
     bool isLocked();
     uchar* data();
     const FrameHeader& header();
+    cv::Mat& asCvMat();
+    QImage& asQImage();
 private:
     uchar        *_data;
     FrameHeader _header;
     bool  _locked;
+    cv::Mat _cvmat;
+    QImage _qimg;
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

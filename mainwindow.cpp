@@ -4,8 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    _img(new QImage(_defaultImgWidth, _defaultImgHeight, QImage::Format_RGB32))
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -22,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 MainWindow::~MainWindow()
 {
-    delete _img;
     delete ui;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,19 +43,12 @@ void MainWindow::updateFace()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::drawFrame(Frame *frame)
 {
-    setImgSize(QSize(frame->header().width, frame->header().height));
-    uchar *ff = frame->data();
-    QRgb *pLineStart, *pLineEnd;
-    for(uint j = 0; j < frame->header().height; ++j)
+    QSize frameSize(frame->header().width, frame->header().height);
+    if(_img.size() != frameSize)
     {
-        pLineStart = (QRgb*)_img->scanLine(j);
-        pLineEnd = pLineStart + frame->header().width;
-        for(QRgb *pline = pLineStart; pline < pLineEnd; ++pline)
-        {
-            *pline = qRgba(*ff, *ff, *ff, 255);
-            ++ff;
-        }
+        adaptWindowSize(frameSize);
     }
+    _img = frame->asQImage();
     unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
     update();
 }
@@ -66,17 +57,7 @@ void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     QPoint p(0, 0);
-    painter.drawImage(p, *_img);
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::setImgSize(const QSize &frameSize)
-{
-    if(_img->size() != frameSize)
-    {
-        delete _img;
-        _img = new QImage(frameSize, QImage::Format_RGB32);
-        adaptWindowSize(frameSize);
-    }
+    painter.drawImage(p, _img);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::adaptWindowSize(const QSize &imgSize)

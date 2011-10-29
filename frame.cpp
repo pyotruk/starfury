@@ -67,6 +67,33 @@ const FrameHeader& Frame::header()
     return _header;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+cv::Mat& Frame::asCvMat()
+{
+    _cvmat = cv::Mat(_header.height,
+                     _header.width,
+                     CV_8UC1,
+                     _data);
+    return _cvmat;
+}
 /////////////////////////////////////////////////////////////////////////////////////
+QImage& Frame::asQImage()
+{
+    _qimg = QImage(_header.width,
+                   _header.height,
+                   QImage::Format_RGB32);
+    uchar *ff = _data;
+    QRgb *pLineStart, *pLineEnd;
+    for(uint j = 0; j < _header.height; ++j)
+    {
+        pLineStart = (QRgb*)_qimg.scanLine(j);
+        pLineEnd = pLineStart + _header.width;
+        for(QRgb *pline = pLineStart; pline < pLineEnd; ++pline)
+        {
+            *pline = qRgba(*ff, *ff, *ff, 255);
+            ++ff;
+        }
+    }
+    return _qimg;
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
