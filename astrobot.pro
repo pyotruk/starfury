@@ -4,8 +4,8 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
-
+QT       += core gui \
+         network
 TARGET = astrobot
 TEMPLATE = app
 
@@ -18,17 +18,24 @@ SOURCES += main.cpp\
     doublebuffer.cpp \
     strobgeometry.cpp \
     cvhelpfun.cpp \
-    frame.cpp
+    frame.cpp \
+    angmeas.cpp \
+    starcat.cpp \
+    udpserver.cpp \
+    framereceiver.cpp
 
 HEADERS  += mainwindow.h \
     readsharedmem.h \
     strob.h \
-    main.h \
     rapidthread.h \
     doublebuffer.h \
     strobgeometry.h \
     cvhelpfun.h \
-    frame.h
+    frame.h \
+    angmeas.h \
+    starcat.h \
+    udpserver.h \
+    framereceiver.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -39,6 +46,15 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
+
+
+
+
+
+
+
 
 
 

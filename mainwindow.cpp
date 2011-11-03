@@ -49,7 +49,7 @@ void MainWindow::drawFrame(Frame *frame)
         adaptWindowSize(frameSize);
     }
     _img = frame->asQImage();
-    unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
+    emit unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

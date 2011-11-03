@@ -1,10 +1,14 @@
 #include "strob.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Strob::Strob(QSettings * settings) :
+Strob::Strob(QSettings *settings,
+             QThread *parent) :
     _settings(settings),
     _geometry(new StrobGeometry(_settings))
 {    
     loadSettings(_settings);
+    this->moveToThread(parent);
+    _geometry->moveToThread(parent);
+    qDebug() << "strob->_geometry thread:" << _geometry->thread();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::~Strob()

@@ -5,6 +5,7 @@
 #include "windows.h"
 #include "qt_windows.h"
 #include <QSettings>
+#include <QObject>
 #include <frame.h>
 //////////////////////////////////////////////////////////////////////////////////////
 //default values
@@ -24,7 +25,7 @@ struct SharedSettings
     QSettings *settings;
 };
 //////////////////////////////////////////////////////////////////////////////////////
-class SharedMem
+class SharedMem : public QObject
 {
 public:
     explicit SharedMem(QSettings *settings = 0);

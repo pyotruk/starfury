@@ -19,7 +19,8 @@ class Strob : public QObject
 {
     Q_OBJECT
 public:
-    explicit Strob(QSettings *settings = 0);
+    explicit Strob(QSettings *settings = 0,
+                   QThread *parent = 0);
     ~Strob();
     double threshold();
     StrobGeometry &geometry();
@@ -35,7 +36,7 @@ private:
                         int    &pixThreshold);
     void loadSettings(QSettings *settings);
     void saveSettings(QSettings *settings);
-private slots:
+public slots:
     void makeTracking(Frame *frame);
     void clickTarget(QMouseEvent *mousePressEvent);
     void setThreshold(const int pos);
