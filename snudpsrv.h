@@ -4,9 +4,9 @@
 #include <QtGlobal>
 #include <QtNetwork/QUdpSocket>
 #include <QSettings>
-#include <QThread>
-#include <QDebug>
+#include <QObject>
 #include <QMutex>
+#include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #define SKEY_UDPSERVER_PORT "/UdpServer/Port"
 #define TVA_UDPPACK_ID      0x44C5EB64038F4462 //8bytes
@@ -28,14 +28,12 @@ struct TelescopeVector
     double LST;
 };
 ////////////////////////////////////////////////////////////////////////////////////
-class SnUdpSrv : public QThread
+class SnUdpSrv : public QObject
 {
     Q_OBJECT
 public:
     explicit SnUdpSrv(QSettings *settings = 0);
     ~SnUdpSrv();
-protected:
-    void run();
 private:
     static const quint16 _defaultPort = 4444;
     static const int _timeout = 10;
@@ -43,11 +41,11 @@ private:
     quint16          _port;
     QUdpSocket      *_socket;
     TelescopeVector *_tvector;
-    QMutex     *_mutex;
+    QMutex          *_mutex;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
 private slots:
-    //void read();
+    void read();
 signals:
     void dataReady(TelescopeVector*, QMutex*);
 };

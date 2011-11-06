@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     RapidThread rapidThread(&settings);
     FrameReceiver frameReceiver(&settings);
     AngMeas angMeas(&settings);
-    //StarCat starCat(&settings);
+    StarCat starCat(&settings);
     SnUdpSrv snServer(&settings);
 
     qDebug() << "QApplication a thread: " << a.thread();
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     qDebug() << "rapidThread thread: " << rapidThread.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
     qDebug() << "angMeas thread:" << angMeas.thread();
-    //qDebug() << "starCat thread: " << starCat.thread();
+    qDebug() << "starCat thread: " << starCat.thread();
     qDebug() << "snServer thread: " << snServer.thread();
 
     //form init
@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
     QObject::connect(&rapidThread, SIGNAL(frameOut2(Frame*, QMutex*)),
                      &w, SLOT(drawFrame(Frame*, QMutex*)),
                      Qt::QueuedConnection);
-//    QObject::connect(&snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
-//                     &starCat, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
-//                     Qt::QueuedConnection);
+    QObject::connect(&snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
+                     &starCat, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
+                     Qt::QueuedConnection);
 
     //gui --> object connections
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),

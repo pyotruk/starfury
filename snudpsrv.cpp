@@ -5,24 +5,18 @@ SnUdpSrv::SnUdpSrv(QSettings *settings) :
     _tvector(new TelescopeVector),
     _mutex(new QMutex)
 {
-    this->moveToThread(this);
     loadSettings(_settings);
-    _socket = new QUdpSocket(this);
-    //_socket->moveToThread(this);
+    _socket = new QUdpSocket;
     qDebug() << "QUdpSocket thread: " << _socket->thread();
-//    connect(_socket, SIGNAL(readyRead()),
-//            this, SLOT(read()),
-//            Qt::AutoConnection);
+    connect(_socket, SIGNAL(readyRead()),
+            this, SLOT(read()),
+            Qt::AutoConnection);
     if(! _socket->bind(QHostAddress::LocalHost, _port))
         qDebug() << "bind failed";
-
-    this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 SnUdpSrv::~SnUdpSrv()
 {
-    this->quit();
-    this->terminate();
     saveSettings(_settings);
     delete _socket;
     delete _mutex;
@@ -49,24 +43,16 @@ void SnUdpSrv::saveSettings(QSettings *settings)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-//void SnUdpSrv::run()
-//{
-
-//}
-/////////////////////////////////////////////////////////////////////////////////////
-void SnUdpSrv::run()
+void SnUdpSrv::read()
 {
-    if(_socket->hasPendingDatagrams())
-    {
     if(_socket->pendingDatagramSize() == sizeof(TelescopeVector))
     {
         if(_mutex->tryLock(_timeout))
         {
             _socket->readDatagram((char*)_tvector, sizeof(TelescopeVector));
             _mutex->unlock();
+            emit dataReady(_tvector, _mutex);
         }
-        emit dataReady(_tvector, _mutex);
-    }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

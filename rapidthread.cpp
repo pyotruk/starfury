@@ -22,6 +22,13 @@ RapidThread::~RapidThread()
 void RapidThread::urgentProcessing(Frame *frame)
 {
     _strob->makeTracking(frame);
+    cv::adaptiveThreshold(frame->asCvMat(),
+                          frame->asCvMat(),
+                          0xFF,
+                          cv::ADAPTIVE_THRESH_MEAN_C,
+                          cv::THRESH_BINARY,
+                          7,
+                          2);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void RapidThread::frameIn(Frame *frame,
