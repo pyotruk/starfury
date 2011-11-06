@@ -1,7 +1,38 @@
 #include "framereceiver.h"
 /////////////////////////////////////////////////////////////////////////////////////
+FrameReceiver::FrameReceiver(QSettings *settings) :
+    _settings(settings),
+    _sharedMem(new SharedMem(_settings)),
+    _frame(new Frame),
+    _mutex(new QMutex)
+{
+    this->moveToThread(this);
+    this->start(QThread::NormalPriority);
+}
 /////////////////////////////////////////////////////////////////////////////////////
+FrameReceiver::~FrameReceiver()
+{
+    this->terminate();
+    delete _mutex;
+    delete _frame;
+    delete _sharedMem;
+}
 /////////////////////////////////////////////////////////////////////////////////////
+void FrameReceiver::run()
+{
+    while(this->isRunning())
+    {
+        if(_sharedMem->waitForData())
+        {
+            if(_mutex->tryLock(_timeout))
+            {
+                _sharedMem->readFrame(_frame);
+                _mutex->unlock();
+            }
+            emit frameReady(_frame, _mutex);
+        }
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -1,16 +1,11 @@
 #include "rapidthread.h"
 /////////////////////////////////////////////////////////////////////////////////////
 RapidThread::RapidThread(QSettings *settings) :
-    _doubleBuf(new DoubleBuffer()),
-    _sharedMem(new SharedMem(settings)),
-    _strob(new Strob(settings, this))
+    _frame(new Frame),
+    _strob(new Strob(settings, this)),
+    _mutex(new QMutex)
 {
     this->moveToThread(this);
-    _doubleBuf->moveToThread(this);
-    _sharedMem->moveToThread(this);
-    //_strob->moveToThread(this);
-    qDebug() << "rapidThread->_doubleBuf thread:" << _doubleBuf->thread();
-    qDebug() << "rapidThread->_sharedMem thread:" << _sharedMem->thread();
     qDebug() << "rapidThread->_strob thread:" << _strob->thread();
     this->start(QThread::NormalPriority);
 }
@@ -19,35 +14,27 @@ RapidThread::~RapidThread()
 {
     this->quit();
     this->terminate();
-    delete _sharedMem;
-    delete _doubleBuf;
+    delete _mutex;
     delete _strob;
+    delete _frame;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void RapidThread::run()
+void RapidThread::frameIn(Frame *frame,
+                          QMutex *mutex)
 {
-    while(this->isRunning())
+    if(mutex->tryLock(_timeout))
     {
-        if(_sharedMem->waitForData())
+        _strob->makeTracking(frame);
+        if(this->_mutex->tryLock(_timeout))
         {
-            _sharedMem->readFrame(*(_doubleBuf->rapidBuf()));
-            //emit frame4Strob(_doubleBuf->rapidBuf());
-            _strob->makeTracking(_doubleBuf->rapidBuf());
-            emit frame4AngMeas(_doubleBuf->rapidBuf());
-            if(! _doubleBuf->slowBuf()->isLocked())
-            {
-                _doubleBuf->switchBuffers();
-                _doubleBuf->slowBuf()->lock();
-                emit frame4Gui(_doubleBuf->slowBuf());
-            }
+            *_frame = *frame;
+            this->_mutex->unlock();
         }
+        mutex->unlock();
+        emit frameOut1(_frame, this->_mutex);
+        emit frameOut2(_frame, this->_mutex);
+        emit frameOut3(_frame, this->_mutex);
     }
-    //exec();
-}
-/////////////////////////////////////////////////////////////////////////////////////
-DoubleBuffer *RapidThread::doubleBuf()
-{
-    return _doubleBuf;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob *RapidThread::strob()

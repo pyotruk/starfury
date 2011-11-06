@@ -1,11 +1,10 @@
-#ifndef READSHAREDMEM_H
-#define READSHAREDMEM_H
+#ifndef SHAREDMEM_H
+#define SHAREDMEM_H
 //////////////////////////////////////////////////////////////////////////////////////
 #include <QDebug>
 #include "windows.h"
 #include "qt_windows.h"
 #include <QSettings>
-#include <QObject>
 #include <frame.h>
 //////////////////////////////////////////////////////////////////////////////////////
 //default values
@@ -25,13 +24,13 @@ struct SharedSettings
     QSettings *settings;
 };
 //////////////////////////////////////////////////////////////////////////////////////
-class SharedMem : public QObject
+class SharedMem
 {
 public:
     explicit SharedMem(QSettings *settings = 0);
     ~SharedMem();
     bool waitForData();
-    void readFrame(Frame &frame);
+    void readFrame(Frame *frame);
 private:
     SharedSettings _sharedSettings;
     void           *_sharedBuf;
@@ -42,4 +41,4 @@ private:
     void saveSettings(QSettings *settings);
 };
 
-#endif // READSHAREDMEM_H
+#endif // SHAREDMEM_H

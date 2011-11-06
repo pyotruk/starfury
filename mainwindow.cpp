@@ -41,15 +41,19 @@ void MainWindow::updateFace()
     ui->labelThreshold->setText("thr " + content.toString());
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawFrame(Frame *frame)
+void MainWindow::drawFrame(Frame *frame,
+                           QMutex *mutex)
 {
-    QSize frameSize(frame->header().width, frame->header().height);
-    if(_img.size() != frameSize)
+    if(mutex->tryLock(_timeout))
     {
-        adaptWindowSize(frameSize);
+        _img = frame->asQImage();
+        mutex->unlock();
     }
-    _img = frame->asQImage();
-    emit unlockSlowBuf(); //slowBuf unlocking (in rapidThread.doubleBuffer)
+    if(_img.size() != _imgSize)
+    {
+        adaptWindowSize(_img.size());
+        _imgSize = _img.size();
+    }
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

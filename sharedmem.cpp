@@ -1,4 +1,4 @@
-#include "readsharedmem.h"
+#include "sharedmem.h"
 /////////////////////////////////////////////////////////////////////////////////////
 SharedMem::SharedMem(QSettings *settings)
 {
@@ -76,18 +76,19 @@ bool SharedMem::waitForData()
     return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::readFrame(Frame &frame)
+void SharedMem::readFrame(Frame *frame)
 {
     uchar *beginBuf = (uchar*)_sharedBuf;
     FrameHeader *header = new FrameHeader;
     memcpy((void*)header, (void*)beginBuf, sizeof(FrameHeader));
     beginBuf += sizeof(FrameHeader);
-    Frame f;
-    f.attachRawData(*header, beginBuf);
-    frame = f;
-    f.unattachRawData();
-    delete header;
+    Frame *f = new Frame;
+    f->attachRawData(*header, beginBuf);
+    *frame = *f;
+    f->unattachRawData();
     ReleaseMutex(_mutex);
     ResetEvent(_event);
+    delete header;
+    delete f;
 }
 //////////////////////////////////////////////////////////////////////////////////////

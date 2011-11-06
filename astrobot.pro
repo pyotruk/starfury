@@ -12,30 +12,28 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    readsharedmem.cpp \
     strob.cpp \
     rapidthread.cpp \
-    doublebuffer.cpp \
     strobgeometry.cpp \
     cvhelpfun.cpp \
     frame.cpp \
     angmeas.cpp \
     starcat.cpp \
     udpserver.cpp \
-    framereceiver.cpp
+    framereceiver.cpp \
+    sharedmem.cpp
 
 HEADERS  += mainwindow.h \
-    readsharedmem.h \
     strob.h \
     rapidthread.h \
-    doublebuffer.h \
     strobgeometry.h \
     cvhelpfun.h \
     frame.h \
     angmeas.h \
     starcat.h \
     udpserver.h \
-    framereceiver.h
+    framereceiver.h \
+    sharedmem.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -46,6 +44,12 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
+
+
+
+
 
 
 

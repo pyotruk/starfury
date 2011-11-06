@@ -2,12 +2,11 @@
 #define RAPIDTHREAD_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
+#include <QMutex>
 #include <QSettings>
 #include <QSize>
 #include <QTime>
 #include <QDebug>
-#include "readsharedmem.h"
-#include "doublebuffer.h"
 #include "frame.h"
 #include "strob.h"
 /////////////////////////////////////////////////////////////////////////////////////
@@ -17,19 +16,18 @@ class RapidThread : public QThread
 public:
     explicit RapidThread(QSettings *settings = 0);
     ~RapidThread();
-    DoubleBuffer *doubleBuf();
     Strob *strob();
-protected:
-    void run();
 private:
-    DoubleBuffer *_doubleBuf;
-    SharedMem    *_sharedMem;
-    FrameHeader   _frameHeader;
-    Strob        *_strob;
+    static const int _timeout = 10;
+    Frame  *_frame;
+    Strob  *_strob;
+    QMutex *_mutex;
+private slots:
+    void frameIn(Frame*, QMutex*);
 signals:
-    void frame4Strob(Frame *frame); //слежение (строб)
-    void frame4Gui(Frame *frame); //отображение (gui)
-    void frame4AngMeas(Frame *frame); //угловые измерения
+    void frameOut1(Frame*, QMutex*);
+    void frameOut2(Frame*, QMutex*);
+    void frameOut3(Frame*, QMutex*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // RAPIDTHREAD_H
