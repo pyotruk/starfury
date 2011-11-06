@@ -4,7 +4,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QSettings>
-#include "udpserver.h"
+#include "snudpsrv.h"
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -14,15 +14,13 @@ class StarCat : public QThread
 public:
     explicit StarCat(QSettings *settings = 0);
     ~StarCat();
-protected:
-    void run();
 private:
     static const int _timeout = 40;
-    QSettings  *_settings;
-    PackFromSN  _snPack;
-    QMutex      _mutex;
+    QSettings       *_settings;
+    TelescopeVector *_tvector;
+    void processing();
 private slots:
-    void inputDataFromSN(PackFromSN *pack);
+    void telescopeVectorIn(TelescopeVector*, QMutex*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

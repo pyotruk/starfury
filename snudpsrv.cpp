@@ -1,27 +1,35 @@
-#include "udpserver.h"
+#include "snudpsrv.h"
 /////////////////////////////////////////////////////////////////////////////////////
-UdpServer::UdpServer(QSettings *settings) :
+SnUdpSrv::SnUdpSrv(QSettings *settings) :
     _settings(settings),
-    _socket(new QUdpSocket(this))
+    _tvector(new TelescopeVector),
+    _mutex(new QMutex)
 {
+    this->moveToThread(this);
     loadSettings(_settings);
+    _socket = new QUdpSocket(this);
+    //_socket->moveToThread(this);
+    qDebug() << "QUdpSocket thread: " << _socket->thread();
 //    connect(_socket, SIGNAL(readyRead()),
 //            this, SLOT(read()),
-//            Qt::DirectConnection);
-    qDebug() << "UdpServer thread: " << this->thread();
-    qDebug() << "QUdpSocket thread: " << _socket->thread();
-    if(_socket->bind(QHostAddress::LocalHost, _port))   this->start(QThread::NormalPriority);
-    else    qDebug() << "bind failed";
+//            Qt::AutoConnection);
+    if(! _socket->bind(QHostAddress::LocalHost, _port))
+        qDebug() << "bind failed";
+
+    this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-UdpServer::~UdpServer()
+SnUdpSrv::~SnUdpSrv()
 {
+    this->quit();
     this->terminate();
     saveSettings(_settings);
     delete _socket;
+    delete _mutex;
+    delete _tvector;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void UdpServer::loadSettings(QSettings *settings)
+void SnUdpSrv::loadSettings(QSettings *settings)
 {
     if(settings == 0)
     {
@@ -33,7 +41,7 @@ void UdpServer::loadSettings(QSettings *settings)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void UdpServer::saveSettings(QSettings *settings)
+void SnUdpSrv::saveSettings(QSettings *settings)
 {
     if(settings != 0)
     {
@@ -41,20 +49,24 @@ void UdpServer::saveSettings(QSettings *settings)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void UdpServer::run()
+//void SnUdpSrv::run()
+//{
+
+//}
+/////////////////////////////////////////////////////////////////////////////////////
+void SnUdpSrv::run()
 {
-    if(this->isRunning())
+    if(_socket->hasPendingDatagrams())
     {
-        if(_socket->hasPendingDatagrams())
+    if(_socket->pendingDatagramSize() == sizeof(TelescopeVector))
+    {
+        if(_mutex->tryLock(_timeout))
         {
-            if(_socket->pendingDatagramSize() == sizeof(PackFromSN))
-            {
-                _socket->readDatagram((char*)&_pack, sizeof(PackFromSN));
-                qDebug() << "udpServer: forwardData signal will be emit";
-                emit forwardData(&_pack);
-                qDebug() << "udpServer: forwardData signal has been emitted";
-            }
+            _socket->readDatagram((char*)_tvector, sizeof(TelescopeVector));
+            _mutex->unlock();
         }
+        emit dataReady(_tvector, _mutex);
+    }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

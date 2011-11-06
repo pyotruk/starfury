@@ -13,17 +13,13 @@ class AngMeas : public QThread
 public:
     explicit AngMeas(QSettings *settings = 0);
     ~AngMeas();
-protected:
-    void run();
 private:
-    static const int _timeout = 40;
+    static const int _timeout = 10;
     QSettings *_settings;
-    Frame     _frame;
-    QMutex    _mutex;
+    Frame     *_frame;
+    void processing(Frame*);
 private slots:
-    void inputFrame(Frame *frame);
-signals:
-    //void frame4Gui(Frame *frame); //отображение (gui)
+    void frameIn(Frame*, QMutex*);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

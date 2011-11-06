@@ -1,5 +1,5 @@
-#ifndef FRAMERECEIVER_H
-#define FRAMERECEIVER_H
+#ifndef FRAMEREC_H
+#define FRAMEREC_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
 #include <QMutex>

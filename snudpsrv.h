@@ -1,16 +1,17 @@
-#ifndef UDPSERVER_H
-#define UDPSERVER_H
+#ifndef SNUDPSRV_H
+#define SNUDPSRV_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QtGlobal>
 #include <QtNetwork/QUdpSocket>
 #include <QSettings>
 #include <QThread>
 #include <QDebug>
+#include <QMutex>
 /////////////////////////////////////////////////////////////////////////////////////
 #define SKEY_UDPSERVER_PORT "/UdpServer/Port"
 #define TVA_UDPPACK_ID      0x44C5EB64038F4462 //8bytes
 /////////////////////////////////////////////////////////////////////////////////////
-struct PackFromSN
+struct TelescopeVector
 {
     qint64 packID;
     qint64 timeUTC;
@@ -27,28 +28,32 @@ struct PackFromSN
     double LST;
 };
 ////////////////////////////////////////////////////////////////////////////////////
-class UdpServer : public QThread
+class SnUdpSrv : public QThread
 {
     Q_OBJECT
 public:
-    explicit UdpServer(QSettings *settings = 0);
-    ~UdpServer();
+    explicit SnUdpSrv(QSettings *settings = 0);
+    ~SnUdpSrv();
 protected:
     void run();
 private:
     static const quint16 _defaultPort = 4444;
-    QSettings  *_settings;
-    QUdpSocket *_socket;
-    quint16    _port;
-    PackFromSN _pack;
-    void loadSettings(QSettings *settings);
-    void saveSettings(QSettings *settings);
+    static const int _timeout = 10;
+    QSettings       *_settings;
+    quint16          _port;
+    QUdpSocket      *_socket;
+    TelescopeVector *_tvector;
+    QMutex     *_mutex;
+    void loadSettings(QSettings*);
+    void saveSettings(QSettings*);
+private slots:
+    //void read();
 signals:
-    void forwardData(PackFromSN *pack);
+    void dataReady(TelescopeVector*, QMutex*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-#endif // UDPSERVER_H
+#endif // SNUDPSRV_H

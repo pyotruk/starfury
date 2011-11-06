@@ -19,9 +19,9 @@ SOURCES += main.cpp\
     frame.cpp \
     angmeas.cpp \
     starcat.cpp \
-    udpserver.cpp \
-    framereceiver.cpp \
-    sharedmem.cpp
+    sharedmem.cpp \
+    framerec.cpp \
+    snudpsrv.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -31,9 +31,9 @@ HEADERS  += mainwindow.h \
     frame.h \
     angmeas.h \
     starcat.h \
-    udpserver.h \
-    framereceiver.h \
-    sharedmem.h
+    sharedmem.h \
+    framerec.h \
+    snudpsrv.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -44,6 +44,18 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

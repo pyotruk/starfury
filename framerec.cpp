@@ -1,4 +1,4 @@
-#include "framereceiver.h"
+#include "framerec.h"
 /////////////////////////////////////////////////////////////////////////////////////
 FrameReceiver::FrameReceiver(QSettings *settings) :
     _settings(settings),

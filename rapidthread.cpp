@@ -19,12 +19,17 @@ RapidThread::~RapidThread()
     delete _frame;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void RapidThread::urgentProcessing(Frame *frame)
+{
+    _strob->makeTracking(frame);
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void RapidThread::frameIn(Frame *frame,
                           QMutex *mutex)
 {
     if(mutex->tryLock(_timeout))
     {
-        _strob->makeTracking(frame);
+        urgentProcessing(frame);
         if(this->_mutex->tryLock(_timeout))
         {
             *_frame = *frame;

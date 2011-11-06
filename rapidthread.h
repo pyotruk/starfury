@@ -22,6 +22,7 @@ private:
     Frame  *_frame;
     Strob  *_strob;
     QMutex *_mutex;
+    void urgentProcessing(Frame*);
 private slots:
     void frameIn(Frame*, QMutex*);
 signals:
