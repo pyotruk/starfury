@@ -19,24 +19,29 @@ AngMeas::~AngMeas()
     delete _frame;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void AngMeas::frameIn(Frame  *frame,
-                      QMutex *mutex)
+void AngMeas::frameIn(Frame *frame,
+                      QMutex *mutex,
+                      int xTarget,
+                      int yTarget)
 {
+    _target = QPoint(xTarget, yTarget);
     if(mutex->tryLock(_timeout))
     {
         *_frame = *frame;
         mutex->unlock();
 
+        this->filtering(_frame);
         if(this->_mutex->tryLock(_timeout))
         {
-            processing(_frame);
+            this->findArtifacts(_frame, _artVec, _magnThresh);
+            this->deleteTarget(*_artVec, _target);
             this->_mutex->unlock();
             emit artifactsOut(_artVec, _mutex);
         }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void AngMeas::processing(Frame *frame)
+void AngMeas::filtering(Frame *frame)
 {
     cv::blur(frame->asCvMat(),
              frame->asCvMat(),
@@ -46,15 +51,15 @@ void AngMeas::processing(Frame *frame)
                   0,
                   0xFF,
                   cv::THRESH_OTSU);
-    this->findArtifacts(frame);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void AngMeas::findArtifacts(Frame *frame)
+void AngMeas::findArtifacts(Frame *frame,
+                            ArtifactVector *artVec,
+                            double thresh)
 {
-    _artVec->clear();
+    artVec->clear();
     quint32 floodColor = 0x7F;
-    uchar *p0 = frame->data();
-    uchar *pix;
+    double magn;
     cv::Rect rect;
     QPoint center;
     cv::Mat cvmat = frame->asCvMat();
@@ -62,6 +67,8 @@ void AngMeas::findArtifacts(Frame *frame)
     int width  = frame->header().width;
     int height = frame->header().height;
     int depth  = frame->header().depth;
+    uchar *p0 = frame->data();
+    uchar *pix;
     for(int y=0; y < height; ++y)
     {
         for(int x=0; x < width; ++x)
@@ -70,19 +77,40 @@ void AngMeas::findArtifacts(Frame *frame)
             if(*pix > floodColor)
             {
                 cv::floodFill(cvmat, cv::Point(x, y), floodColor, &rect);
-                if(rect.width > _magnThresh)
+                magn = (double)rect.width;
+                if(magn > thresh)
                 {
                     calcRectCenter(rect, center);
                     art.setCenter(center);
-                    art.setMagnitude((double&)rect.width);
-                    _artVec->push_back(art);
+                    art.setMagnitude(magn);
+                    artVec->push_back(art);
                 }
             }
         }
     }
-    qSort(*_artVec);
+    qSort(*artVec);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void AngMeas::deleteTarget(ArtifactVector &artVec,
+                           QPoint &target)
+{
+    const double eps = 2;
+    double dist;
+    double minDist = 1000000;
+    int targetIndex;
+    ArtifactVector::iterator it = artVec.begin();
+    for(int i=0; it != artVec.end(); ++it, ++i)
+    {
+        dist = calcDistance(target, it->center());
+        if(dist < minDist)
+        {
+            minDist = dist;
+            targetIndex = i;
+            if(minDist < eps)   break;
+        }
+    }
+    artVec.remove(targetIndex);
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

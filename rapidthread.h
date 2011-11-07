@@ -18,7 +18,7 @@ public:
     ~RapidThread();
     Strob *strob();
 private:
-    static const int _timeout = 10;
+    static const int _timeout = 20;
     Frame  *_frame;
     Strob  *_strob;
     QMutex *_mutex;
@@ -26,7 +26,7 @@ private:
 private slots:
     void frameIn(Frame*, QMutex*);
 signals:
-    void frameOut1(Frame*, QMutex*);
+    void frameOut1(Frame*, QMutex*, int xTarget, int yTarget);
     void frameOut2(Frame*, QMutex*);
     void frameOut3(Frame*, QMutex*);
 };

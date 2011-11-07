@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frameReady(Frame*, QMutex*)),
                      &rapidThread, SLOT(frameIn(Frame*, QMutex*)),
                      Qt::QueuedConnection);
-    QObject::connect(&rapidThread, SIGNAL(frameOut1(Frame*,QMutex*)),
-                     &angMeas, SLOT(frameIn(Frame*,QMutex*)),
+    QObject::connect(&rapidThread, SIGNAL(frameOut1(Frame*,QMutex*,int,int)),
+                     &angMeas, SLOT(frameIn(Frame*,QMutex*,int,int)),
                      Qt::QueuedConnection);
     QObject::connect(&rapidThread, SIGNAL(frameOut2(Frame*, QMutex*)),
                      &w, SLOT(drawFrame(Frame*, QMutex*)),

@@ -7,10 +7,12 @@
 #include <QtAlgorithms>
 #include <QDebug>
 #include <QTime>
+#include <QPoint>
 #include "opencv.hpp"
 #include "cvhelpfun.h"
 #include "frame.h"
 #include "artifact.h"
+#include "calchelpfun.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class AngMeas : public QThread
 {
@@ -19,16 +21,21 @@ public:
     explicit AngMeas(QSettings *settings = 0);
     ~AngMeas();
 private:
-    static const int _timeout = 10;
+    static const int _timeout = 40;
     static const int _magnThresh = 2;
     QSettings      *_settings;
     Frame          *_frame;
     ArtifactVector *_artVec;
     QMutex         *_mutex;
-    void processing(Frame*);
-    void findArtifacts(Frame*);
+    QPoint          _target;
+    void filtering(Frame*);
+    void findArtifacts(Frame*,
+                       ArtifactVector*,
+                       double thresh);
+    void deleteTarget(ArtifactVector&,
+                      QPoint &target);
 private slots:
-    void frameIn(Frame*, QMutex*);
+    void frameIn(Frame*, QMutex*, int xTarget, int yTarget);
 signals:
     void artifactsOut(ArtifactVector*, QMutex*);
 };

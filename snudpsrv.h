@@ -36,7 +36,7 @@ public:
     ~SnUdpSrv();
 private:
     static const quint16 _defaultPort = 4444;
-    static const int _timeout = 10;
+    static const int _timeout = 20;
     QSettings       *_settings;
     quint16          _port;
     QUdpSocket      *_socket;

@@ -28,13 +28,14 @@ public:
     void initFace(const int strobSize,
                   const int trackTresh);
 private:
-    static const int _timeout = 10;
+    static const int _timeout = 20;
+    static const int _crossSide = 10;
     Ui::MainWindow *ui;
     QImage          _img;
     QSize           _imgSize;
     ArtifactVector  _artVec;
     void adaptWindowSize(const QSize&);
-    void markArtifacts();
+    void markArtifacts(QImage&);
 private slots:
     void drawFrame(Frame*, QMutex*);
     void artifactsIn(ArtifactVector*, QMutex*);

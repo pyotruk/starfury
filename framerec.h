@@ -17,7 +17,7 @@ public:
 protected:
     void run();
 private:
-    static const int _timeout = 10;
+    static const int _timeout = 20;
     QSettings *_settings;
     SharedMem *_sharedMem;
     Frame     *_frame;

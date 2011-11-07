@@ -34,7 +34,10 @@ void RapidThread::frameIn(Frame *frame,
         {
             *_frame = *frame;
             this->_mutex->unlock();
-            emit frameOut1(_frame, this->_mutex);
+            emit frameOut1(_frame,
+                           this->_mutex,
+                           _strob->geometry().center().x(),
+                           _strob->geometry().center().y());
             emit frameOut2(_frame, this->_mutex);
             emit frameOut3(_frame, this->_mutex);
         }

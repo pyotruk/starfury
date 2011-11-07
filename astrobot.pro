@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     framerec.cpp \
     snudpsrv.cpp \
     artifact.cpp \
-    drawhelpfun.cpp
+    drawhelpfun.cpp \
+    calchelpfun.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -37,7 +38,8 @@ HEADERS  += mainwindow.h \
     framerec.h \
     snudpsrv.h \
     artifact.h \
-    drawhelpfun.h
+    drawhelpfun.h \
+    calchelpfun.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -48,6 +50,8 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
 
 
 

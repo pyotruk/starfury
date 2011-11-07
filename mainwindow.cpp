@@ -59,12 +59,12 @@ void MainWindow::adaptWindowSize(const QSize &imgSize)
     ui->groupBoxTracking->setGeometry(rect);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::markArtifacts()
+void MainWindow::markArtifacts(QImage &img)
 {
     ArtifactVector::iterator it = _artVec.begin();
     for(; it != _artVec.end(); ++it)
     {
-        drawCross(_img, it->center(), 20/*(int)it->magnitude()*/);
+        drawCross(img, it->center(), _crossSide);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ void MainWindow::drawFrame(Frame *frame,
         adaptWindowSize(_img.size());
         _imgSize = _img.size();
     }
-    this->markArtifacts();
+    this->markArtifacts(_img);
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,6 @@ void MainWindow::artifactsIn(ArtifactVector *artVec,
 {
     if(mutex->tryLock(_timeout))
     {
-        _artVec.clear();
         _artVec.resize(artVec->size());
         qCopy(artVec->begin(), artVec->end(), _artVec.begin());
         mutex->unlock();
