@@ -23,12 +23,14 @@ public:
                    QThread *parent = 0);
     ~Strob();
     double threshold();
+    int    pixThreshold();
     StrobGeometry &geometry();
 private:
     static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
     StrobGeometry *_geometry;
     double        _threshold; //порог обнаружения в единицах СКО
+    int           _pixThreshold; //порог по яркости пиксела (используется для бинаризации cv::threshold)
     void calcThresholds(const cv::Mat &signalRoi,
                         const cv::Mat &foneRoi,
                         const double stdDevThreshold,

@@ -4,8 +4,13 @@
 #include <QThread>
 #include <QMutex>
 #include <QSettings>
+#include <QtAlgorithms>
+#include <QDebug>
+#include <QTime>
 #include "opencv.hpp"
+#include "cvhelpfun.h"
 #include "frame.h"
+#include "artifact.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class AngMeas : public QThread
 {
@@ -15,11 +20,17 @@ public:
     ~AngMeas();
 private:
     static const int _timeout = 10;
-    QSettings *_settings;
-    Frame     *_frame;
+    static const int _magnThresh = 2;
+    QSettings      *_settings;
+    Frame          *_frame;
+    ArtifactVector *_artVec;
+    QMutex         *_mutex;
     void processing(Frame*);
+    void findArtifacts(Frame*);
 private slots:
     void frameIn(Frame*, QMutex*);
+signals:
+    void artifactsOut(ArtifactVector*, QMutex*);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

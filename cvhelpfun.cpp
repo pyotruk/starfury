@@ -18,3 +18,24 @@ void cvRect2qtRect(const cv::Rect &cvRect,
                    cvRect.height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+bool isBelongToCvRect(const int x,
+                      const int y,
+                      const cv::Rect &rect)
+{
+    if((x > rect.tl().x) && (x < (rect.tl().x + rect.height)))
+    {
+        if((y > rect.tl().y) && (y < (rect.tl().y + rect.width)))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void calcRectCenter(const cv::Rect &rect,
+                    QPoint &center)
+{
+    center = QPoint(rect.tl().x + rect.width / 2,
+                    rect.tl().y + rect.height / 2);
+}
+/////////////////////////////////////////////////////////////////////////////////////

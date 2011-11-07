@@ -36,11 +36,11 @@ public:
     cv::Mat& asCvMat();
     QImage& asQImage();
 private:
-    uchar        *_data;
-    FrameHeader _header;
-    bool  _locked;
+    uchar       *_data;
+    FrameHeader  _header;
+    bool    _locked;
     cv::Mat _cvmat;
-    QImage _qimg;
+    QImage  _qimg;
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

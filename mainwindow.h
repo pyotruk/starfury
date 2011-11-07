@@ -8,7 +8,11 @@
 #include <QPoint>
 #include <QMouseEvent>
 #include <QMutex>
+#include <QVector>
+#include <QtAlgorithms>
 #include "frame.h"
+#include "artifact.h"
+#include "drawhelpfun.h"
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace Ui {
@@ -26,17 +30,20 @@ public:
 private:
     static const int _timeout = 10;
     Ui::MainWindow *ui;
-    QImage _img;
-    QSize  _imgSize;
-    void adaptWindowSize(const QSize &imgSize);
+    QImage          _img;
+    QSize           _imgSize;
+    ArtifactVector  _artVec;
+    void adaptWindowSize(const QSize&);
+    void markArtifacts();
 private slots:
-    void paintEvent(QPaintEvent *);
     void drawFrame(Frame*, QMutex*);
+    void artifactsIn(ArtifactVector*, QMutex*);
+    void paintEvent(QPaintEvent *);
     void updateFace();
 signals:
     void mousePressEvent(QMouseEvent *);
-    void changeStrobSize(const int pos);
-    void changeTrackingThreshold(const int pos);
+    void changeStrobSize(const int);
+    void changeTrackingThreshold(const int);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // MAINWINDOW_H

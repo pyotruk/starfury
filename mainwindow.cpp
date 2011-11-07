@@ -41,22 +41,6 @@ void MainWindow::updateFace()
     ui->labelThreshold->setText("thr " + content.toString());
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawFrame(Frame *frame,
-                           QMutex *mutex)
-{
-    if(mutex->tryLock(_timeout))
-    {
-        _img = frame->asQImage();
-        mutex->unlock();
-    }
-    if(_img.size() != _imgSize)
-    {
-        adaptWindowSize(_img.size());
-        _imgSize = _img.size();
-    }
-    update();
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
@@ -73,5 +57,43 @@ void MainWindow::adaptWindowSize(const QSize &imgSize)
     rect = ui->groupBoxTracking->geometry();
     rect.moveTop(imgSize.height());
     ui->groupBoxTracking->setGeometry(rect);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::markArtifacts()
+{
+    ArtifactVector::iterator it = _artVec.begin();
+    for(; it != _artVec.end(); ++it)
+    {
+        drawCross(_img, it->center(), 20/*(int)it->magnitude()*/);
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::drawFrame(Frame *frame,
+                           QMutex *mutex)
+{
+    if(mutex->tryLock(_timeout))
+    {
+        _img = frame->asQImage();
+        mutex->unlock();
+    }
+    if(_img.size() != _imgSize)
+    {
+        adaptWindowSize(_img.size());
+        _imgSize = _img.size();
+    }
+    this->markArtifacts();
+    update();
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::artifactsIn(ArtifactVector *artVec,
+                             QMutex *mutex)
+{
+    if(mutex->tryLock(_timeout))
+    {
+        _artVec.clear();
+        _artVec.resize(artVec->size());
+        qCopy(artVec->begin(), artVec->end(), _artVec.begin());
+        mutex->unlock();
+    }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

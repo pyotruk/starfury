@@ -21,7 +21,9 @@ SOURCES += main.cpp\
     starcat.cpp \
     sharedmem.cpp \
     framerec.cpp \
-    snudpsrv.cpp
+    snudpsrv.cpp \
+    artifact.cpp \
+    drawhelpfun.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -33,7 +35,9 @@ HEADERS  += mainwindow.h \
     starcat.h \
     sharedmem.h \
     framerec.h \
-    snudpsrv.h
+    snudpsrv.h \
+    artifact.h \
+    drawhelpfun.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -44,6 +48,10 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
+
+
 
 
 

@@ -52,19 +52,18 @@ void Strob::makeTracking(Frame *frame)
 
     double sumThreshold; /*порог по суммарным значениям яркости
                          в сигнальном и фоновом стробах*/
-    int pixThreshold; //порог, приведённый к одному пикселу
     calcThresholds(signalRoi,
                    foneRoi,
                    _threshold, //порог в единицах СКО
                    sumThreshold,
-                   pixThreshold);
+                   _pixThreshold);
 
     if(sumThreshold > 0)    //проверка условия слежения
     {
         cv::threshold(signalRoi, //пороговая бинаризация в сигнальном стробе
                       signalRoi,
-                      pixThreshold,
-                      0xFF * signalRoi.channels(),
+                      _pixThreshold,
+                      0xFF,
                       cv::THRESH_TOZERO);
 
         //вычисление центра масс по сигнальному стробу
@@ -107,6 +106,11 @@ void Strob::setThreshold(const int pos)
 double Strob::threshold()
 {
     return _threshold;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+int Strob::pixThreshold()
+{
+    return _pixThreshold;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 StrobGeometry &Strob::geometry()

@@ -49,6 +49,9 @@ int main(int argc, char *argv[])
     QObject::connect(&rapidThread, SIGNAL(frameOut2(Frame*, QMutex*)),
                      &w, SLOT(drawFrame(Frame*, QMutex*)),
                      Qt::QueuedConnection);
+    QObject::connect(&angMeas, SIGNAL(artifactsOut(ArtifactVector*,QMutex*)),
+                     &w, SLOT(artifactsIn(ArtifactVector*,QMutex*)),
+                     Qt::QueuedConnection);
     QObject::connect(&snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
                      &starCat, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
                      Qt::QueuedConnection);

@@ -22,13 +22,6 @@ RapidThread::~RapidThread()
 void RapidThread::urgentProcessing(Frame *frame)
 {
     _strob->makeTracking(frame);
-    cv::adaptiveThreshold(frame->asCvMat(),
-                          frame->asCvMat(),
-                          0xFF,
-                          cv::ADAPTIVE_THRESH_MEAN_C,
-                          cv::THRESH_BINARY,
-                          7,
-                          2);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void RapidThread::frameIn(Frame *frame,
@@ -41,11 +34,11 @@ void RapidThread::frameIn(Frame *frame,
         {
             *_frame = *frame;
             this->_mutex->unlock();
+            emit frameOut1(_frame, this->_mutex);
+            emit frameOut2(_frame, this->_mutex);
+            emit frameOut3(_frame, this->_mutex);
         }
         mutex->unlock();
-        emit frameOut1(_frame, this->_mutex);
-        emit frameOut2(_frame, this->_mutex);
-        emit frameOut3(_frame, this->_mutex);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
