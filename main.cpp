@@ -9,8 +9,9 @@
 #include "framerec.h"
 #include "frame.h"
 #include "angmeas.h"
-#include "starcat.h"
+#include "starcatscreen.h"
 #include "snudpsrv.h"
+#include "starcatreader.h"
 
 #define FRAME_HEADER_SIZE 32
 
@@ -24,16 +25,18 @@ int main(int argc, char *argv[])
     RapidThread rapidThread(&settings);
     FrameReceiver frameReceiver(&settings);
     AngMeas angMeas(&settings);
-    StarCat starCat(&settings);
+    StarcatScreen starcatScreen(&settings);
     SnUdpSrv snServer(&settings);
+    StarcatReader starcatReader(&settings);
 
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "MainWidow w thread: " << w.thread();
     qDebug() << "rapidThread thread: " << rapidThread.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
     qDebug() << "angMeas thread:" << angMeas.thread();
-    qDebug() << "starCat thread: " << starCat.thread();
+    qDebug() << "starcatScreen thread: " << starcatScreen.thread();
     qDebug() << "snServer thread: " << snServer.thread();
+    qDebug() << "starcatReader thread: " << starcatReader.thread();
 
     //form init
     w.initFace(rapidThread.strob()->geometry().innerSide(),
@@ -53,7 +56,10 @@ int main(int argc, char *argv[])
                      &w, SLOT(artifactsIn(ArtifactVector*,QMutex*)),
                      Qt::QueuedConnection);
     QObject::connect(&snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
-                     &starCat, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
+                     &starcatScreen, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
+                     Qt::QueuedConnection);
+    QObject::connect(&starcatScreen, SIGNAL(refreshStarcat(double,double)),
+                     &starcatReader, SLOT(refresh(double,double)),
                      Qt::QueuedConnection);
 
     //gui --> object connections

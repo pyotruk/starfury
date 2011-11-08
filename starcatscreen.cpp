@@ -1,6 +1,6 @@
-#include "starcat.h"
+#include "starcatscreen.h"
 /////////////////////////////////////////////////////////////////////////////////////
-StarCat::StarCat(QSettings *settings) :
+StarcatScreen::StarcatScreen(QSettings *settings) :
     _settings(settings),
     _tvector(new TelescopeVector)
 {
@@ -8,25 +8,26 @@ StarCat::StarCat(QSettings *settings) :
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-StarCat::~StarCat()
+StarcatScreen::~StarcatScreen()
 {
     this->quit();
     this->terminate();
     delete _tvector;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarCat::telescopeVectorIn(TelescopeVector *tvector,
+void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
                                 QMutex *mutex)
 {
     if(mutex->tryLock(_timeout))
     {
         *_tvector = *tvector;
         mutex->unlock();
+        emit refreshStarcat(_tvector->alpha, _tvector->delta);
         this->processing();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarCat::processing()
+void StarcatScreen::processing()
 {
     //ololo
 }

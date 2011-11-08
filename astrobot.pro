@@ -18,13 +18,17 @@ SOURCES += main.cpp\
     cvhelpfun.cpp \
     frame.cpp \
     angmeas.cpp \
-    starcat.cpp \
     sharedmem.cpp \
     framerec.cpp \
     snudpsrv.cpp \
     artifact.cpp \
     drawhelpfun.cpp \
-    calchelpfun.cpp
+    calchelpfun.cpp \
+    skysegment.cpp \
+    starcatreader.cpp \
+    star.cpp \
+    guidecodec.cpp \
+    starcatscreen.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -33,13 +37,17 @@ HEADERS  += mainwindow.h \
     cvhelpfun.h \
     frame.h \
     angmeas.h \
-    starcat.h \
     sharedmem.h \
     framerec.h \
     snudpsrv.h \
     artifact.h \
     drawhelpfun.h \
-    calchelpfun.h
+    calchelpfun.h \
+    skysegment.h \
+    starcatreader.h \
+    star.h \
+    guidecodec.h \
+    starcatscreen.h
 
 INCLUDEPATH += "C:\opencv231\include"
 
@@ -50,6 +58,24 @@ LIBS += -L"C:\opencv231\lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 FORMS    += mainwindow.ui
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

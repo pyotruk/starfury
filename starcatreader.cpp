@@ -1,0 +1,109 @@
+#include "starcatreader.h"
+/////////////////////////////////////////////////////////////////////////////////////
+StarcatReader::StarcatReader(QSettings *settings) :
+    _settings(settings),
+    _starVec0(new StarVector),
+    _starVec1(new StarVector),
+    _ready(false)
+{
+    this->moveToThread(this);
+    this->loadSettings(_settings);
+    _file = new QFile(_path);
+    if(!_file->open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Cannot open file for reading: "
+                 << qPrintable(_file->errorString());
+    }
+    this->start(QThread::NormalPriority);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+StarcatReader::~StarcatReader()
+{
+    this->quit();
+    this->terminate();
+    this->saveSettings(_settings);
+    _file->close();
+    delete _file;
+    delete []_starVec0;
+    delete []_starVec1;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StarcatReader::loadSettings(QSettings *settings)
+{
+    _path = settings->value(SKEY_STARCATREADER_PATH, DEFAULT_CATALOG_PATH).toString();
+    _magnLim = settings->value(SKEY_STARCATREADER_MAGNLIM, _defaultMagnLim).toDouble();
+    double fieldWidth = settings->value(SKEY_FIELD_WIDTH, _defaultFieldWidth).toDouble();
+    double fieldHeight = settings->value(SKEY_FIELD_HEIGHT, _defaultFieldHeight).toDouble();
+    double segmentSide = settings->value(SKEY_STARCATREADER_SEGMENTSIDE, _defaultSegmentSide).toDouble();
+    double segmentEdge = settings->value(SKEY_STARCATREADER_SEGMENTEDGE, _defaultSegmentEdge).toDouble();
+    _segment.setField(QSizeF(fieldWidth, fieldHeight));
+    _segment.setSide(segmentSide);
+    _segment.setEdge(segmentEdge);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StarcatReader::saveSettings(QSettings *settings)
+{
+    settings->setValue(SKEY_STARCATREADER_PATH, _path);
+    settings->setValue(SKEY_STARCATREADER_MAGNLIM, _magnLim);
+    settings->setValue(SKEY_FIELD_WIDTH, _segment.field().width());
+    settings->setValue(SKEY_FIELD_HEIGHT, _segment.field().height());
+    settings->setValue(SKEY_STARCATREADER_SEGMENTSIDE, _segment.side());
+    settings->setValue(SKEY_STARCATREADER_SEGMENTEDGE, _segment.edge());
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StarcatReader::refresh(double alpha, double delta)
+{
+    if(_ready)
+    {
+      _ready = false;
+      this->switchBuffers();
+    }
+    if(_segment.isOnEdge(alpha, delta))
+    {
+      _segment.generateNew(alpha, delta);
+      this->readNewSegment();
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StarcatReader::switchBuffers()
+{
+    _starVec1->resize(_starVec0->size());
+    StarVector *buf = _starVec0;
+    _starVec0 = _starVec1;
+    _starVec1 = buf;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StarcatReader::readNewSegment()
+{
+    qint64 startPos, finPos;
+    calcPositionRange(_file->size(),
+                      _segment.rect().botLeft.delta,
+                      _segment.rect().topRight.delta,
+                      _segment.field().height(),
+                      startPos,
+                      finPos);
+    _file->seek(startPos);
+    Star star;
+    char *data = new char[BYTES_PER_STAR];
+    while(_file->pos() < finPos)
+    {
+        _file->read(data, BYTES_PER_STAR);
+        decodeStar(star, data);
+        if(star.magnitude() <= _magnLim)
+        {
+            if(_segment.isBelong(star.alpha(), star.delta()))
+            {
+                _starVec0->push_back(star);
+            }
+        }
+    }
+    delete []data;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+StarVector* StarcatReader::stars()
+{
+    return _starVec1;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
