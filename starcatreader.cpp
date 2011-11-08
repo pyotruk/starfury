@@ -3,8 +3,7 @@
 StarcatReader::StarcatReader(QSettings *settings) :
     _settings(settings),
     _starVec0(new StarVector),
-    _starVec1(new StarVector),
-    _ready(false)
+    _starVec1(new StarVector)
 {
     this->moveToThread(this);
     this->loadSettings(_settings);
@@ -24,8 +23,8 @@ StarcatReader::~StarcatReader()
     this->saveSettings(_settings);
     _file->close();
     delete _file;
-    delete []_starVec0;
-    delete []_starVec1;
+    delete _starVec0;
+    delete _starVec1;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::loadSettings(QSettings *settings)
@@ -53,21 +52,30 @@ void StarcatReader::saveSettings(QSettings *settings)
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::refresh(double alpha, double delta)
 {
-    if(_ready)
-    {
-      _ready = false;
-      this->switchBuffers();
-    }
     if(_segment.isOnEdge(alpha, delta))
     {
+      QTime time;
+      time.start();
       _segment.generateNew(alpha, delta);
       this->readNewSegment();
+      this->switchBuffers();
+      _starVec0->clear();
+
+      //debug:///////////////////
+      Star star;
+      if(!_starVec1->isEmpty())     star = _starVec1->at(0);
+      qDebug() << "starcat work: " << time.elapsed() << " msec" << endl
+               << "vec0: " << _starVec0->size() << endl
+               << "vec1: " << _starVec1->size() << endl
+               << "star: " << "a" << star.alpha()
+               << " d" << star.delta()
+               << " m" << star.magnitude() << endl;
+      ///////////////////////////
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::switchBuffers()
 {
-    _starVec1->resize(_starVec0->size());
     StarVector *buf = _starVec0;
     _starVec0 = _starVec1;
     _starVec1 = buf;

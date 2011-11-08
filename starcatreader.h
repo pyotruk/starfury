@@ -40,8 +40,8 @@ public slots:
     void refresh(double alpha, double delta);
 private:
     static const double _defaultMagnLim = 15.0;
-    static const double _defaultFieldWidth  = 1 * DEG2RAD;
-    static const double _defaultFieldHeight = 3/4 * DEG2RAD;
+    static const double _defaultFieldWidth  = 0.025;
+    static const double _defaultFieldHeight = 0.025;
     static const int    _defaultSegmentSide = 4;
     static const double _defaultSegmentEdge = 0.75;
     QSettings  *_settings;
@@ -50,7 +50,6 @@ private:
     SkySegment  _segment;
     StarVector *_starVec0; //double buff
     StarVector *_starVec1;
-    bool        _ready;
     QFile       *_file;
     void readNewSegment();
     void switchBuffers();
