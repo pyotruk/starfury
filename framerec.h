@@ -14,14 +14,17 @@ class FrameReceiver : public QThread
 public:
     explicit FrameReceiver(QSettings *settings = 0);
     ~FrameReceiver();
+    void stop();
 protected:
     void run();
 private:
     static const int _timeout = 20;
+    static const unsigned long _termTimeout = 500;
     QSettings *_settings;
     SharedMem *_sharedMem;
     Frame     *_frame;
     QMutex    *_mutex;
+    volatile bool _stopped;
 signals:
     void frameReady(Frame*, QMutex*);
 };

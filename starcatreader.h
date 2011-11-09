@@ -31,14 +31,15 @@
 /////////////////////////////////////////////////////////////////////////////////////
 class StarcatReader : public QThread
 {
-    Q_OBJECT
 public:
     explicit StarcatReader(QSettings*);
     ~StarcatReader();
     StarVector* stars();
-public slots:
     void refresh(double alpha, double delta);
+protected:
+    void run();
 private:
+    static const unsigned long _termTimeout = 1000;
     static const double _defaultMagnLim = 15.0;
     static const double _defaultFieldWidth  = 0.025;
     static const double _defaultFieldHeight = 0.025;

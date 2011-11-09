@@ -8,10 +8,9 @@
 #include "rapidthread.h"
 #include "framerec.h"
 #include "frame.h"
-#include "angmeas.h"
+#include "stardetector.h"
 #include "starcatscreen.h"
 #include "snudpsrv.h"
-#include "starcatreader.h"
 
 #define FRAME_HEADER_SIZE 32
 
@@ -24,19 +23,17 @@ int main(int argc, char *argv[])
 
     RapidThread rapidThread(&settings);
     FrameReceiver frameReceiver(&settings);
-    AngMeas angMeas(&settings);
+    StarDetector starDetector(&settings);
     StarcatScreen starcatScreen(&settings);
     SnUdpSrv snServer(&settings);
-    StarcatReader starcatReader(&settings);
 
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "MainWidow w thread: " << w.thread();
     qDebug() << "rapidThread thread: " << rapidThread.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
-    qDebug() << "angMeas thread:" << angMeas.thread();
+    qDebug() << "starDetector thread:" << starDetector.thread();
     qDebug() << "starcatScreen thread: " << starcatScreen.thread();
     qDebug() << "snServer thread: " << snServer.thread();
-    qDebug() << "starcatReader thread: " << starcatReader.thread();
 
     //form init
     w.initFace(rapidThread.strob()->geometry().innerSide(),
@@ -47,19 +44,16 @@ int main(int argc, char *argv[])
                      &rapidThread, SLOT(frameIn(Frame*, QMutex*)),
                      Qt::QueuedConnection);
     QObject::connect(&rapidThread, SIGNAL(frameOut1(Frame*,QMutex*,int,int)),
-                     &angMeas, SLOT(frameIn(Frame*,QMutex*,int,int)),
+                     &starDetector, SLOT(frameIn(Frame*,QMutex*,int,int)),
                      Qt::QueuedConnection);
     QObject::connect(&rapidThread, SIGNAL(frameOut2(Frame*, QMutex*)),
                      &w, SLOT(drawFrame(Frame*, QMutex*)),
                      Qt::QueuedConnection);
-    QObject::connect(&angMeas, SIGNAL(artifactsOut(ArtifactVector*,QMutex*)),
+    QObject::connect(&starDetector, SIGNAL(artifactsOut(ArtifactVector*,QMutex*)),
                      &w, SLOT(artifactsIn(ArtifactVector*,QMutex*)),
                      Qt::QueuedConnection);
     QObject::connect(&snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
                      &starcatScreen, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
-                     Qt::QueuedConnection);
-    QObject::connect(&starcatScreen, SIGNAL(refreshStarcat(double,double)),
-                     &starcatReader, SLOT(refresh(double,double)),
                      Qt::QueuedConnection);
 
     //gui --> object connections

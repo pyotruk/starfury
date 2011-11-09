@@ -1,6 +1,6 @@
-#include "angmeas.h"
+#include "stardetector.h"
 /////////////////////////////////////////////////////////////////////////////////////
-AngMeas::AngMeas(QSettings *settings) :
+StarDetector::StarDetector(QSettings *settings) :
     _settings(settings),
     _frame(new Frame),
     _artVec(new ArtifactVector),
@@ -10,7 +10,7 @@ AngMeas::AngMeas(QSettings *settings) :
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-AngMeas::~AngMeas()
+StarDetector::~StarDetector()
 {
     this->exit();
     this->terminate();
@@ -19,7 +19,7 @@ AngMeas::~AngMeas()
     delete _frame;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void AngMeas::frameIn(Frame *frame,
+void StarDetector::frameIn(Frame *frame,
                       QMutex *mutex,
                       int xTarget,
                       int yTarget)
@@ -41,7 +41,7 @@ void AngMeas::frameIn(Frame *frame,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void AngMeas::filtering(Frame *frame)
+void StarDetector::filtering(Frame *frame)
 {
     cv::blur(frame->asCvMat(),
              frame->asCvMat(),
@@ -53,7 +53,7 @@ void AngMeas::filtering(Frame *frame)
                   cv::THRESH_OTSU);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void AngMeas::findArtifacts(Frame *frame,
+void StarDetector::findArtifacts(Frame *frame,
                             ArtifactVector *artVec,
                             double thresh)
 {
@@ -91,7 +91,7 @@ void AngMeas::findArtifacts(Frame *frame,
     qSort(*artVec);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void AngMeas::deleteTarget(ArtifactVector &artVec,
+void StarDetector::deleteTarget(ArtifactVector &artVec,
                            QPoint &target)
 {
     const double eps = 2;

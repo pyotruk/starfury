@@ -2,9 +2,11 @@
 /////////////////////////////////////////////////////////////////////////////////////
 StarcatScreen::StarcatScreen(QSettings *settings) :
     _settings(settings),
-    _tvector(new TelescopeVector)
+    _tvector(new TelescopeVector),
+    _starcatReader(new StarcatReader(_settings))
 {
     this->moveToThread(this);
+    qDebug() << "starcatScreen::_starcatReader thread: " << _starcatReader->thread();
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -12,6 +14,7 @@ StarcatScreen::~StarcatScreen()
 {
     this->quit();
     this->terminate();
+    delete _starcatReader;
     delete _tvector;
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +25,7 @@ void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
     {
         *_tvector = *tvector;
         mutex->unlock();
-        emit refreshStarcat(_tvector->alpha, _tvector->delta);
+        _starcatReader->refresh(_tvector->alpha, _tvector->delta);
         this->processing();
     }
 }

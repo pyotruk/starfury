@@ -29,28 +29,15 @@ void decodeStar(Star &star, char *data)
     star = Star(alpha, delta, magn);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-//QDataStream& operator <<(QDataStream &out,
-//                         Star &star)
-//{
-//    out << star.alpha() << star.delta() << star.magnitude();
-//    return out;
-//}
-/////////////////////////////////////////////////////////////////////////////////////
-//QDataStream& operator >>(QDataStream &in,
-//                         Star &star)
-//{
-//    uchar *block = new uchar[BYTES_PER_STAR];
-//    in >> *block;
-//    double alpha, delta, magn;
-//    decodeADM(alpha, delta, magn, block);
-//    star = Star(alpha, delta, magn);
-//    return in;
-//}
+qint64 calcWorkBlockSize(const double segmentHeight)
+{
+    int nBlocks = qCeil(segmentHeight / BLOCK_SIZE_DELTA); //кол-во блоков каталога
+    return qFloor(0.5 + nBlocks * BLOCK_SIZE_STARS * BYTES_PER_STAR * MARGIN_KOEF);
+}
 /////////////////////////////////////////////////////////////////////////////////////
 void calcPositionRange(const qint64 streamSize,
                        const double lowerDelta,
                        const double upperDelta,
-                       const double fieldHeight,
                        qint64 &startPos,
                        qint64 &finPos)
 {
@@ -63,23 +50,16 @@ void calcPositionRange(const qint64 streamSize,
     const double D1 = 2.0;
     const double A2 = -1.27e-7;
     const double B2 = 1.15;
-    double delta;
-    delta = (lowerDelta + upperDelta ) / 2;
+    double delta = (lowerDelta + upperDelta ) / 2;
     qint64 needPosition;
     if(delta > threshold)   needPosition = qFloor(0.5 + (delta - B1 - C1 * qSin(D1 * delta)) / A1);
     else                    needPosition = qFloor(0.5 + (delta - B2) / A2);
     needPosition *= BYTES_PER_STAR;
-    qint64 workBlockSize = calcWorkBlockSize(fieldHeight);
-    startPos = needPosition - workBlockSize;
+    qint64 workBlockSize = calcWorkBlockSize(upperDelta - lowerDelta);
+    startPos = needPosition - workBlockSize / 2;
     if(startPos < 0)     startPos = 0;
-    finPos = needPosition + workBlockSize;
+    finPos = needPosition + workBlockSize / 2;
     if(finPos > streamSize)     finPos = streamSize;
-}
-/////////////////////////////////////////////////////////////////////////////////////
-qint64 calcWorkBlockSize(const double fieldHeight)
-{
-    int nBlocks = qCeil(fieldHeight / BLOCK_SIZE_DELTA); //кол-во блоков каталога
-    return qFloor(0.5 + nBlocks * BLOCK_SIZE_STARS * BYTES_PER_STAR * MARGIN_KOEF);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

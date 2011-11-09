@@ -13,13 +13,11 @@ StarcatReader::StarcatReader(QSettings *settings) :
         qDebug() << "Cannot open file for reading: "
                  << qPrintable(_file->errorString());
     }
-    this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 StarcatReader::~StarcatReader()
 {
-    this->quit();
-    this->terminate();
+    if(!this->wait(_termTimeout))   this->terminate();
     this->saveSettings(_settings);
     _file->close();
     delete _file;
@@ -50,27 +48,31 @@ void StarcatReader::saveSettings(QSettings *settings)
     settings->setValue(SKEY_STARCATREADER_SEGMENTEDGE, _segment.edge());
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void StarcatReader::run()
+{
+    QTime time;
+    time.start();
+
+    this->readNewSegment();
+    this->switchBuffers();
+    _starVec0->clear();
+
+    Star star;
+    if(!_starVec1->isEmpty())     star = _starVec1->at(0);
+    qDebug() << "starcat work: " << time.elapsed() << " msec" << endl
+             << "vec0: " << _starVec0->size() << endl
+             << "vec1: " << _starVec1->size() << endl
+             << "star: " << "a" << star.alpha()
+             << " d" << star.delta()
+             << " m" << star.magnitude() << endl;
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::refresh(double alpha, double delta)
 {
     if(_segment.isOnEdge(alpha, delta))
     {
-      QTime time;
-      time.start();
-      _segment.generateNew(alpha, delta);
-      this->readNewSegment();
-      this->switchBuffers();
-      _starVec0->clear();
-
-      //debug:///////////////////
-      Star star;
-      if(!_starVec1->isEmpty())     star = _starVec1->at(0);
-      qDebug() << "starcat work: " << time.elapsed() << " msec" << endl
-               << "vec0: " << _starVec0->size() << endl
-               << "vec1: " << _starVec1->size() << endl
-               << "star: " << "a" << star.alpha()
-               << " d" << star.delta()
-               << " m" << star.magnitude() << endl;
-      ///////////////////////////
+        _segment.generateNew(alpha, delta);
+        this->start(QThread::NormalPriority);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +89,6 @@ void StarcatReader::readNewSegment()
     calcPositionRange(_file->size(),
                       _segment.rect().botLeft.delta,
                       _segment.rect().topRight.delta,
-                      _segment.field().height(),
                       startPos,
                       finPos);
     _file->seek(startPos);
@@ -97,7 +98,7 @@ void StarcatReader::readNewSegment()
     {
         _file->read(data, BYTES_PER_STAR);
         decodeStar(star, data);
-        if(star.magnitude() <= _magnLim)
+        if(qAbs(star.magnitude()) <= _magnLim)
         {
             if(_segment.isBelong(star.alpha(), star.delta()))
             {

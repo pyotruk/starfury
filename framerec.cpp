@@ -4,7 +4,8 @@ FrameReceiver::FrameReceiver(QSettings *settings) :
     _settings(settings),
     _sharedMem(new SharedMem(_settings)),
     _frame(new Frame),
-    _mutex(new QMutex)
+    _mutex(new QMutex),
+    _stopped(false)
 {
     this->moveToThread(this);
     this->start(QThread::NormalPriority);
@@ -12,7 +13,8 @@ FrameReceiver::FrameReceiver(QSettings *settings) :
 /////////////////////////////////////////////////////////////////////////////////////
 FrameReceiver::~FrameReceiver()
 {
-    this->terminate();
+    this->stop();
+    if(!this->wait(_termTimeout))   this->terminate();
     delete _mutex;
     delete _frame;
     delete _sharedMem;
@@ -20,7 +22,7 @@ FrameReceiver::~FrameReceiver()
 /////////////////////////////////////////////////////////////////////////////////////
 void FrameReceiver::run()
 {
-    while(this->isRunning())
+    while(!_stopped)
     {
         if(_sharedMem->waitForData())
         {
@@ -34,6 +36,10 @@ void FrameReceiver::run()
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void FrameReceiver::stop()
+{
+    _stopped = true;
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

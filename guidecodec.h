@@ -19,16 +19,11 @@ union Tib4
     uchar b[4];
 };
 /////////////////////////////////////////////////////////////////////////////////////
-//QDataStream &operator <<(QDataStream &out, Star &star);
-//QDataStream &operator >>(QDataStream &in,  Star &star);
-/////////////////////////////////////////////////////////////////////////////////////
 void decodeStar(Star &star, char *data);
 /////////////////////////////////////////////////////////////////////////////////////
-qint64 calcWorkBlockSize(const double fieldHeight);
 void   calcPositionRange(const qint64 streamSize,
                          const double lowerDelta,
                          const double upperDelta,
-                         const double fieldHeight,
                          qint64 &startPos,
                          qint64 &finPos);
 /////////////////////////////////////////////////////////////////////////////////////
