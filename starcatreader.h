@@ -16,9 +16,6 @@
 #include "star.h"
 #include "guidecodec.h"
 /////////////////////////////////////////////////////////////////////////////////////
-#define pi                      3.1415926535897932384626433832795
-#define DEG2RAD                 pi/180
-#define RAD2DEG                 180/pi
 #define DEFAULT_CATALOG_PATH    "D:/GuideCat/Guide.rez"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
@@ -39,6 +36,9 @@ public:
 protected:
     void run();
 private:
+    static const double __pi = 3.1415926535897932384626433832795;
+    static const double __deg2rad = 0.017453292519943295769236907684886;
+    static const double __rad2deg = 57.295779513082320876798154814105;
     static const unsigned long _termTimeout = 1000;
     static const double _defaultMagnLim = 15.0;
     static const double _defaultFieldWidth  = 0.025;
