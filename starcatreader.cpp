@@ -3,7 +3,8 @@
 StarcatReader::StarcatReader(QSettings *settings) :
     _settings(settings),
     _starVec0(new StarVector),
-    _starVec1(new StarVector)
+    _starVec1(new StarVector),
+    _mutex(new QMutex)
 {
     this->moveToThread(this);
     this->loadSettings(_settings);
@@ -19,6 +20,7 @@ StarcatReader::~StarcatReader()
 {
     if(!this->wait(_termTimeout))   this->terminate();
     this->saveSettings(_settings);
+    delete _mutex;
     _file->close();
     delete _file;
     delete _starVec0;
@@ -54,7 +56,11 @@ void StarcatReader::run()
     time.start();
 
     this->readNewSegment();
-    this->switchBuffers();
+    if(_mutex->tryLock(_timeout))
+    {
+        this->switchBuffers();
+        _mutex->unlock();
+    }
     _starVec0->clear();
 
     Star star;
@@ -109,10 +115,18 @@ void StarcatReader::readNewSegment()
     delete []data;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
 StarVector* StarcatReader::stars()
 {
     return _starVec1;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+SkySegment& StarcatReader::segment()
+{
+    return _segment;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+QMutex* StarcatReader::mutex()
+{
+    return _mutex;
+}
 /////////////////////////////////////////////////////////////////////////////////////

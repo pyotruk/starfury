@@ -12,7 +12,7 @@
 #include "cvhelpfun.h"
 #include "frame.h"
 #include "artifact.h"
-#include "calchelpfun.h"
+#include "astrocalc.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class StarDetector : public QThread
 {

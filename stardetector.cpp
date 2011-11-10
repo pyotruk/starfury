@@ -101,7 +101,7 @@ void StarDetector::deleteTarget(ArtifactVector &artVec,
     ArtifactVector::iterator it = artVec.begin();
     for(int i=0; it != artVec.end(); ++it, ++i)
     {
-        dist = calcDistance(target, it->center());
+        dist = ac::calcDistance(target, it->center());
         if(dist < minDist)
         {
             minDist = dist;

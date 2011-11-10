@@ -16,9 +16,9 @@ public:
     void setAlpha(const double);
     void setDelta(const double);
     void setMagnitude(const double);
-    double alpha(); //rad
-    double delta(); //rad
-    double magnitude();
+    const double alpha(); //rad
+    const double delta(); //rad
+    const double magnitude();
 private:
     double _alpha;
     double _delta;

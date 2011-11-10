@@ -22,7 +22,6 @@ SOURCES += main.cpp\
     snudpsrv.cpp \
     artifact.cpp \
     drawhelpfun.cpp \
-    calchelpfun.cpp \
     skysegment.cpp \
     starcatreader.cpp \
     star.cpp \
@@ -41,7 +40,6 @@ HEADERS  += mainwindow.h \
     snudpsrv.h \
     artifact.h \
     drawhelpfun.h \
-    calchelpfun.h \
     skysegment.h \
     starcatreader.h \
     star.h \
@@ -51,6 +49,7 @@ HEADERS  += mainwindow.h \
     astrocalc.h
 
 INCLUDEPATH += "C:/opencv231/include"
+INCLUDEPATH += "D:/arbeit/astrobot/astrobot/astrocalc"
 
 
 LIBS += -L"C:/opencv231/lib" \
@@ -59,10 +58,16 @@ LIBS += -L"C:/opencv231/lib" \
 -l"opencv_gpu231" -l"opencv_highgui231" -l"opencv_imgproc231" -l"opencv_legacy231" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
-LIBS += -L"D:/arbeit/astrobot/astrobot" \
+LIBS += -L"D:/arbeit/astrobot/astrobot/astrocalc/debug" \
 -l"astrocalc"
 
 FORMS    += mainwindow.ui
+
+
+
+
+
+
 
 
 

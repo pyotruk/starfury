@@ -17,8 +17,8 @@ public:
     bool operator <(const Artifact &a)  const {return this->_magnitude <  a._magnitude;}
     QPoint& center();
     double& magnitude();
-    void setCenter(QPoint&);
-    void setMagnitude(double&);
+    void setCenter(const QPoint&);
+    void setMagnitude(const double);
 private:
     QPoint _center;
     double _magnitude; //размер в усл.ед.

@@ -31,12 +31,12 @@ double& Artifact::magnitude()
     return _magnitude;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Artifact::setCenter(QPoint &p)
+void Artifact::setCenter(const QPoint &p)
 {
     _center = p;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Artifact::setMagnitude(double &m)
+void Artifact::setMagnitude(const double m)
 {
     _magnitude = m;
 }
