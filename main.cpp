@@ -11,6 +11,7 @@
 #include "stardetector.h"
 #include "starcatscreen.h"
 #include "snudpsrv.h"
+#include "equator.h"
 
 #define FRAME_HEADER_SIZE 32
 
@@ -21,10 +22,11 @@ int main(int argc, char *argv[])
     MainWindow w;
     QSettings settings("NIIPP", "astrobot");
 
-    RapidThread rapidThread(&settings);
+    RapidThread   rapidThread(&settings);
     FrameReceiver frameReceiver(&settings);
-    StarDetector starDetector(&settings);
+    StarDetector  starDetector(&settings);
     StarcatScreen starcatScreen(&settings);
+    Equator       equator(&settings);
 
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "MainWidow w thread: " << w.thread();
@@ -32,6 +34,7 @@ int main(int argc, char *argv[])
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
     qDebug() << "starDetector thread:" << starDetector.thread();
     qDebug() << "starcatScreen thread: " << starcatScreen.thread();
+    qDebug() << "equator thread: " << equator.thread();
 
     //form init
     w.initFace(rapidThread.strob()->geometry().innerSide(),
@@ -48,13 +51,16 @@ int main(int argc, char *argv[])
                      &w, SLOT(drawFrame(Frame*, QMutex*)),
                      Qt::QueuedConnection);
     QObject::connect(&starDetector, SIGNAL(artifactsOut(ArtifactVector*,QMutex*)),
-                     &w, SLOT(inputArtifacts(ArtifactVector*,QMutex*)),
+                     &equator, SLOT(inputArtifacts(ArtifactVector*,QMutex*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(starsReady(ArtifactVector*,QMutex*)),
-                     &w, SLOT(inputStars(ArtifactVector*,QMutex*)),
+                     &equator, SLOT(inputStars(ArtifactVector*,QMutex*)),
                      Qt::QueuedConnection);
 
-    //gui --> object connections
+    //gui <--> object connections
+    QObject::connect(&equator, SIGNAL(toGui(ArtifactVector*,ArtifactVector*,QMutex*)),
+                     &w, SLOT(fromEquator(ArtifactVector*,ArtifactVector*,QMutex*)),
+                     Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      rapidThread.strob(), SLOT(clickTarget(QMouseEvent *)),
                      Qt::QueuedConnection);

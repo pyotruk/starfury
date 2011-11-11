@@ -19,10 +19,19 @@ public:
     explicit Equator(QSettings *settings = 0);
     ~Equator();
 private:
+    static const int _timeout = 20;
+    static const unsigned long _termTimeout = 250;
     QSettings      *_settings;
     ArtifactVector *_artifacts;
     ArtifactVector *_stars;
     QMutex         *_mutex;
+private slots:
+    void inputArtifacts(ArtifactVector*, QMutex*);
+    void inputStars(ArtifactVector*, QMutex*);
+signals:
+    void toGui(ArtifactVector *artifacts,
+               ArtifactVector *stars,
+               QMutex         *mutex);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

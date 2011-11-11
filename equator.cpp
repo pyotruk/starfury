@@ -5,15 +5,51 @@ Equator::Equator(QSettings *settings) :
     _artifacts(new ArtifactVector),
     _stars(new ArtifactVector),
     _mutex(new QMutex)
-{}
+{
+    this->moveToThread(this);
+    this->start(QThread::NormalPriority);
+}
 /////////////////////////////////////////////////////////////////////////////////////
 Equator::~Equator()
 {
+    this->quit();
+    if(!this->wait(_termTimeout))   this->terminate();
     delete _mutex;
     delete _stars;
     delete _artifacts;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Equator::inputArtifacts(ArtifactVector *artifacts,
+                             QMutex *mutex)
+{
+    if(mutex->tryLock(_timeout))
+    {
+        if(this->_mutex->tryLock(_timeout))
+        {
+            _artifacts->resize(artifacts->size());
+            qCopy(artifacts->begin(), artifacts->end(), _artifacts->begin());
+            this->_mutex->unlock();
+        }
+        mutex->unlock();
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Equator::inputStars(ArtifactVector *stars,
+                         QMutex *mutex)
+{
+    if(mutex->tryLock(_timeout))
+    {
+        if(this->_mutex->tryLock(_timeout))
+        {
+            _stars->resize(stars->size());
+            qCopy(stars->begin(), stars->end(), _stars->begin());
+            this->_mutex->unlock();
+
+            emit toGui(_artifacts, _stars, _mutex);
+        }
+        mutex->unlock();
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

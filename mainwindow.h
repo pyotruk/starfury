@@ -34,15 +34,16 @@ private:
     Ui::MainWindow *ui;
     QImage          _img;
     QSize           _imgSize;
-    ArtifactVector  _artVec;
+    ArtifactVector  _artifacts;
     ArtifactVector  _stars;
     void adaptWindowSize(const QSize&);
     void markArtifacts(QImage&);
     void markStars(QImage&);
 private slots:
     void drawFrame(Frame*, QMutex*);
-    void inputArtifacts(ArtifactVector*, QMutex*);
-    void inputStars(ArtifactVector*, QMutex*);
+    void fromEquator(ArtifactVector *artifacts,
+                     ArtifactVector *stars,
+                     QMutex         *mutex);
     void paintEvent(QPaintEvent *);
     void updateFace();
 signals:
