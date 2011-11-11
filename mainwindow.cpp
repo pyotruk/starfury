@@ -78,7 +78,7 @@ void MainWindow::markStars(QImage &img)
     {
         drawCross(img,
                   it->center(),
-                  _crossSide,
+                  (int)it->magnitude(),
                   Qt::magenta);
     }
 }
@@ -86,35 +86,36 @@ void MainWindow::markStars(QImage &img)
 void MainWindow::drawFrame(Frame *frame,
                            QMutex *mutex)
 {
-    QTime time;
-    time.start();
+//    QTime time;
+//    time.start();
     if(mutex->tryLock(_timeout))
     {
-        QTime time1;
-        time1.start();
+//        QTime time1;
+//        time1.start();
         _img = frame->asQImage();
         mutex->unlock();
-        qDebug() << "rapidThread _mutex1 unlocked " << time1.elapsed();
+//        qDebug() << "rapidThread _mutex1 unlocked " << time1.elapsed();
     }
     if(_img.size() != _imgSize)
     {
         adaptWindowSize(_img.size());
         _imgSize = _img.size();
+        emit screenSizeChanged(_imgSize.width(), _imgSize.height());
     }
 
-    QTime ta;
-    ta.start();
+//    QTime ta;
+//    ta.start();
     this->markArtifacts(_img);
-    qDebug() << "markArtifacts " << ta.elapsed();
+//    qDebug() << "markArtifacts " << ta.elapsed();
 
-    QTime ts;
-    ts.start();
+//    QTime ts;
+//    ts.start();
     this->markStars(_img);
-    qDebug() << "markStars " << ts.elapsed();
+//    qDebug() << "markStars " << ts.elapsed();
 
 
     update();
-    qDebug() << "gui: drawFrame work " << time.elapsed();
+//    qDebug() << "gui: drawFrame work " << time.elapsed();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::inputArtifacts(ArtifactVector *artVec,
@@ -122,12 +123,12 @@ void MainWindow::inputArtifacts(ArtifactVector *artVec,
 {
     if(mutex->tryLock(_timeout))
     {
-        QTime time;
-        time.start();
+//        QTime time;
+//        time.start();
         _artVec.resize(artVec->size());
         qCopy(artVec->begin(), artVec->end(), _artVec.begin());
         mutex->unlock();
-        qDebug() << "gui: inputArtifacts mutex " << time.elapsed();
+//        qDebug() << "gui: inputArtifacts mutex " << time.elapsed();
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,12 +137,12 @@ void MainWindow::inputStars(ArtifactVector *stars,
 {
     if(mutex->tryLock(_timeout))
     {
-        QTime time;
-        time.start();
+//        QTime time;
+//        time.start();
         _stars.resize(stars->size());
         qCopy(stars->begin(), stars->end(), _stars.begin());
         mutex->unlock();
-        qDebug() << "gui: inputStars mutex " << time.elapsed();
+//        qDebug() << "gui: inputStars mutex " << time.elapsed();
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

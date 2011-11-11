@@ -33,8 +33,8 @@ void RapidThread::frameIn(Frame *frame,
 {
     if(mutex->tryLock(_timeout))
     {
-        QTime time;
-        time.start();
+//        QTime time;
+//        time.start();
         urgentProcessing(frame);
         if(this->_mutex0->tryLock(_timeout))
         {
@@ -52,7 +52,7 @@ void RapidThread::frameIn(Frame *frame,
             emit frameOut1(_frame1, this->_mutex1);
         }
         mutex->unlock();
-        qDebug() << "framerec mutex unlocked t " << time.elapsed() << endl;
+//        qDebug() << "framerec mutex unlocked t " << time.elapsed() << endl;
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -49,6 +49,8 @@ signals:
     void mousePressEvent(QMouseEvent *);
     void changeStrobSize(const int);
     void changeTrackingThreshold(const int);
+    void screenSizeChanged(const int width,
+                           const int heihgt);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // MAINWINDOW_H

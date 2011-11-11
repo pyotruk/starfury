@@ -131,8 +131,8 @@ void ac::axes2horiz(const double axesAzimuth,
                 double &horizAzimuth,
                 double &horizElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(orientAzimuth)));
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - orientElevation));
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(orientAzimuth)) * RAD2DEG);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - orientElevation) * RAD2DEG);
     QQuaternion q = qz * qy;
     double x, y, z;
     spherical2cartesian(astro2math(axesAzimuth), axesElevation, x, y, z);
@@ -148,8 +148,8 @@ void ac::horiz2axes(const double horizAzimuth,
                 double &axesAzimuth,
                 double &axesElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(orientAzimuth));
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, orientElevation);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(orientAzimuth) * RAD2DEG);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, orientElevation * RAD2DEG);
     QQuaternion q  = qy * qz;
     double x, y, z;
     spherical2cartesian(astro2math(horizAzimuth), horizElevation, x, y, z);
@@ -165,8 +165,8 @@ void ac::horiz2iieqt(const double horizAzimuth,
                  double &alpha,
                  double &delta)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, localSiderealTime);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (PI2 - latitude));
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, localSiderealTime * RAD2DEG);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (PI2 - latitude) * RAD2DEG);
     QQuaternion q = qz * qy;
     double x, y, z;
     spherical2cartesian(astro2math(horizAzimuth), horizElevation, x, y, z);
@@ -176,14 +176,14 @@ void ac::horiz2iieqt(const double horizAzimuth,
 }
 ////////////////////////////////////////////////////////////////////////////////
 void ac::iieqt2horiz(const double alpha,
-                 const double delta,
-                 const double localSiderealTime,
-                 const double latitude,
-                 double &horizAzimuth,
-                 double &horizElevation)
+                     const double delta,
+                     const double localSiderealTime,
+                     const double latitude,
+                     double &horizAzimuth,
+                     double &horizElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - localSiderealTime));
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (latitude - PI2));
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - localSiderealTime) * RAD2DEG);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (latitude - PI2) * RAD2DEG);
     QQuaternion q = qy * qz;
     double x, y, z;
     spherical2cartesian(shiftMinus(alpha), delta, x, y, z);
@@ -199,8 +199,8 @@ void ac::screen2horiz(const double centerAzimuth,
                   double &horizAzimuth,
                   double &horizElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(centerAzimuth));
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - centerElevation));
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(centerAzimuth) * RAD2DEG);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - centerElevation) * RAD2DEG);
     QQuaternion q  = qz * qy;
     double x, y, z;
     spherical2cartesian(screenX , screenY , x, y, z);
@@ -210,14 +210,14 @@ void ac::screen2horiz(const double centerAzimuth,
 }
 ////////////////////////////////////////////////////////////////////////////////
 void ac::horiz2screen(const double centerAzimuth,
-                  const double centerElevation,
-                  const double horizAzimuth,
-                  const double horizElevation,
-                  double &screenX,
-                  double &screenY)
+                      const double centerElevation,
+                      const double horizAzimuth,
+                      const double horizElevation,
+                      double &screenX,
+                      double &screenY)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(centerAzimuth)));
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, centerElevation);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(centerAzimuth)) * RAD2DEG);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, centerElevation * RAD2DEG);
     QQuaternion q = qy * qz;
     double x, y, z;
     spherical2cartesian(astro2math(horizAzimuth), horizElevation, x, y, z);
@@ -233,12 +233,12 @@ void ac::horiz2screen(const double centerAzimuth,
     //SCREEN
 ////////////////////////////////////////////////////////////////////////////////
 void ac::screenAngles2screenPoint(const double angleX, //no field rotation !
-                                    const double angleY,
-                                    const double starDelta,
-                                    const QSizeF &field,
-                                    const QSize  &screen,
-                                    int &x,
-                                    int &y)
+                                  const double angleY,
+                                  const double starDelta,
+                                  const QSizeF &field,
+                                  const QSize  &screen,
+                                  int &x,
+                                  int &y)
 {
     QPoint rad2pix(screen.width() / field.width(),
                    screen.height() / field.height());
@@ -246,6 +246,14 @@ void ac::screenAngles2screenPoint(const double angleX, //no field rotation !
     int y0 = round(angleY * rad2pix.y());
     x = -x0 + (screen.width() / 2);
     y = -y0 + (screen.height() / 2);
+}
+////////////////////////////////////////////////////////////////////////////////
+double ac::calcStarRadius(const double magnitude)
+{
+    const double magicNumber = 5.0;
+    const double radiusPar = 55.0;
+    double expfun = qExp( -magnitude / magicNumber );
+    return ac::round(radiusPar * expfun);
 }
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

@@ -56,12 +56,11 @@ void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
 
     if(mutex->tryLock(_timeout))
     {
-        QTime time;
-        time.start();
+//        QTime time;
+//        time.start();
 
         *_tvector = *tvector;
         mutex->unlock();
-        _segment->generateNew(_tvector->alpha, _tvector->delta);
         _starcatReader->refresh(_tvector->alpha, _tvector->delta);
         if(this->_mutex->tryLock(_timeout))
         {
@@ -73,7 +72,7 @@ void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
             this->_mutex->unlock();
             emit starsReady(_stars, this->_mutex);
         }
-        qDebug() << "starcatScreen work " << time.elapsed();
+//        qDebug() << "starcatScreen work " << time.elapsed();
     }
 
     QObject::connect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
@@ -84,6 +83,7 @@ void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
 void StarcatScreen::processing()
 {
     _stars->clear();
+    _segment->generateNew(_tvector->alpha, _tvector->delta);
     Artifact star;
     StarVector::iterator it = _starcatReader->stars()->begin();
     for(; it != _starcatReader->stars()->end(); ++it)
@@ -117,9 +117,9 @@ void StarcatScreen::catStar2screenStar(Star     &catStar,
                                  x,
                                  y);
     screenStar.center() = QPoint(x, y);
-    screenStar.setMagnitude(catStar.magnitude());
+    screenStar.setMagnitude(ac::calcStarRadius(qAbs(catStar.magnitude())));
 }
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::setScreenSize(const int width,
                                   const int height)
 {

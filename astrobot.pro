@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     star.cpp \
     guidecodec.cpp \
     starcatscreen.cpp \
-    stardetector.cpp
+    stardetector.cpp \
+    equator.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -46,10 +47,11 @@ HEADERS  += mainwindow.h \
     guidecodec.h \
     starcatscreen.h \
     stardetector.h \
-    astrocalc.h
+    astrocalc.h \
+    equator.h
 
 INCLUDEPATH += "C:/opencv231/include"
-INCLUDEPATH += "D:/arbeit/astrobot/astrobot/astrocalc"
+INCLUDEPATH += "../astrobot/astrocalc"
 
 
 LIBS += -L"C:/opencv231/lib" \
@@ -58,9 +60,12 @@ LIBS += -L"C:/opencv231/lib" \
 -l"opencv_gpu231" -l"opencv_highgui231" -l"opencv_imgproc231" -l"opencv_legacy231" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
-LIBS += -L"D:/arbeit/astrobot/astrobot/astrocalc/debug" \
+LIBS += -L"../astrobot/astrocalc/debug" \
         -l"astrocalc"
+
 FORMS += mainwindow.ui
+
+
 
 
 

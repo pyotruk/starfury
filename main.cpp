@@ -64,6 +64,9 @@ int main(int argc, char *argv[])
     QObject::connect(&w, SIGNAL(changeTrackingThreshold(int)),
                      rapidThread.strob(), SLOT(setThreshold(int)),
                      Qt::QueuedConnection);
+    QObject::connect(&w, SIGNAL(screenSizeChanged(int,int)),
+                     &starcatScreen, SLOT(setScreenSize(int,int)),
+                     Qt::QueuedConnection);
 
     w.show();
     return a.exec();

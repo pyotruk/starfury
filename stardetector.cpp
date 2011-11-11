@@ -27,8 +27,8 @@ void StarDetector::frameIn(Frame *frame,
     _target = QPoint(xTarget, yTarget);
     if(mutex->tryLock(_timeout))
     {
-        QTime time;
-        time.start();
+//        QTime time;
+//        time.start();
 
         *_frame = *frame;
         mutex->unlock();
@@ -41,7 +41,7 @@ void StarDetector::frameIn(Frame *frame,
             this->_mutex->unlock();
             emit artifactsOut(_artVec, _mutex);
         }
-        qDebug() << "starDetector work " << time.elapsed();
+//        qDebug() << "starDetector work " << time.elapsed();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
