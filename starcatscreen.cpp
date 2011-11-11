@@ -6,11 +6,19 @@ StarcatScreen::StarcatScreen(QSettings *settings) :
     _starcatReader(new StarcatReader(_settings)),
     _stars(new ArtifactVector),
     _mutex(new QMutex),
-    _field(_starcatReader->segment().field())
+    _segment(new SkySegment(_starcatReader->segment().field().width(),
+                            _starcatReader->segment().field().height(),
+                            1, 0)),
+    _snServer(new SnUdpSrv(_settings))
 {
     this->moveToThread(this);
     qDebug() << "starcatScreen::_starcatReader thread: " << _starcatReader->thread();
+    qDebug() << "starcatScreen::_snServer thread: " << _snServer->thread();
     this->loadSettings(_settings);
+    QObject::connect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
+                     this, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
+                     Qt::QueuedConnection);
+
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +27,8 @@ StarcatScreen::~StarcatScreen()
     this->quit();
     this->terminate();
     this->saveSettings(_settings);
+    delete _snServer;
+    delete _segment;
     delete _mutex;
     delete _stars;
     delete _starcatReader;
@@ -27,8 +37,8 @@ StarcatScreen::~StarcatScreen()
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::loadSettings(QSettings *settings)
 {
-    double screenWidth = settings->value(SKEY_SCREEN_WIDTH, _defaultScreenWidth).toInt();
-    double screenHeight = settings->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
+    int screenWidth = settings->value(SKEY_SCREEN_WIDTH, _defaultScreenWidth).toInt();
+    int screenHeight = settings->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -41,36 +51,50 @@ void StarcatScreen::saveSettings(QSettings *settings)
 void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
                                       QMutex *mutex)
 {
+    QObject::disconnect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
+                     this, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)));
+
     if(mutex->tryLock(_timeout))
     {
+        QTime time;
+        time.start();
+
         *_tvector = *tvector;
         mutex->unlock();
+        _segment->generateNew(_tvector->alpha, _tvector->delta);
         _starcatReader->refresh(_tvector->alpha, _tvector->delta);
-        if(_mutex->tryLock(_timeout))
+        if(this->_mutex->tryLock(_timeout))
         {
             if(_starcatReader->mutex()->tryLock(_timeout))
             {
                 this->processing();
                 _starcatReader->mutex()->unlock();
             }
-            _mutex->unlock();
-            emit starsReady(_stars, _mutex);
+            this->_mutex->unlock();
+            emit starsReady(_stars, this->_mutex);
         }
+        qDebug() << "starcatScreen work " << time.elapsed();
     }
+
+    QObject::connect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
+                     this, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
+                     Qt::QueuedConnection);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::processing()
 {
+    _stars->clear();
     Artifact star;
     StarVector::iterator it = _starcatReader->stars()->begin();
     for(; it != _starcatReader->stars()->end(); ++it)
     {
-        if(!_segment.isBelong(it->alpha(), it->delta()))
+        if(_segment->isBelong(it->alpha(), it->delta()))
         {
             catStar2screenStar(*it, star);
             _stars->push_back(star);
         }
     }
+    qSort(*_stars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::catStar2screenStar(Star     &catStar,
@@ -83,12 +107,12 @@ void StarcatScreen::catStar2screenStar(Star     &catStar,
                     starAzimuth, starElevation);
     ac::horiz2screen(_tvector->azHoriz, _tvector->elHoriz,
                      starAzimuth, starElevation,
-                     starAngleX, starAngleY );
+                     starAngleX, starAngleY);
     int x, y;
     ac::screenAngles2screenPoint(starAngleX,
                                  starAngleY,
                                  catStar.delta(),
-                                 _field,
+                                 _segment->field(),
                                  _screen,
                                  x,
                                  y);
@@ -99,8 +123,8 @@ void StarcatScreen::catStar2screenStar(Star     &catStar,
 void StarcatScreen::setScreenSize(const int width,
                                   const int height)
 {
-    _field.setWidth(width);
-    _field.setHeight(height);
+    _screen.setWidth(width);
+    _screen.setHeight(height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

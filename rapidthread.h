@@ -19,16 +19,18 @@ public:
     Strob *strob();
 private:
     static const int _timeout = 20;
-    Frame  *_frame;
+    Frame  *_frame0,
+           *_frame1;
+    QMutex *_mutex0;
+    QMutex *_mutex1;
     Strob  *_strob;
-    QMutex *_mutex;
     void urgentProcessing(Frame*);
 private slots:
     void frameIn(Frame*, QMutex*);
 signals:
-    void frameOut1(Frame*, QMutex*, int xTarget, int yTarget);
+    void frameOut0(Frame*, QMutex*, int xTarget, int yTarget);
+    void frameOut1(Frame*, QMutex*);
     void frameOut2(Frame*, QMutex*);
-    void frameOut3(Frame*, QMutex*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // RAPIDTHREAD_H

@@ -1,9 +1,11 @@
 #include "rapidthread.h"
 /////////////////////////////////////////////////////////////////////////////////////
 RapidThread::RapidThread(QSettings *settings) :
-    _frame(new Frame),
-    _strob(new Strob(settings, this)),
-    _mutex(new QMutex)
+    _frame0(new Frame),
+    _frame1(new Frame),
+    _mutex0(new QMutex),
+    _mutex1(new QMutex),
+    _strob(new Strob(settings, this))
 {
     this->moveToThread(this);
     qDebug() << "rapidThread->_strob thread:" << _strob->thread();
@@ -14,9 +16,11 @@ RapidThread::~RapidThread()
 {
     this->quit();
     this->terminate();
-    delete _mutex;
     delete _strob;
-    delete _frame;
+    delete _mutex0;
+    delete _mutex1;
+    delete _frame0;
+    delete _frame1;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void RapidThread::urgentProcessing(Frame *frame)
@@ -29,19 +33,26 @@ void RapidThread::frameIn(Frame *frame,
 {
     if(mutex->tryLock(_timeout))
     {
+        QTime time;
+        time.start();
         urgentProcessing(frame);
-        if(this->_mutex->tryLock(_timeout))
+        if(this->_mutex0->tryLock(_timeout))
         {
-            *_frame = *frame;
-            this->_mutex->unlock();
-            emit frameOut1(_frame,
-                           this->_mutex,
+            *_frame0 = *frame;
+            this->_mutex0->unlock();
+            emit frameOut0(_frame0,
+                           this->_mutex0,
                            _strob->geometry().center().x(),
                            _strob->geometry().center().y());
-            emit frameOut2(_frame, this->_mutex);
-            emit frameOut3(_frame, this->_mutex);
+        }
+        if(this->_mutex1->tryLock(_timeout))
+        {
+            *_frame1 = *frame;
+            _mutex1->unlock();
+            emit frameOut1(_frame1, this->_mutex1);
         }
         mutex->unlock();
+        qDebug() << "framerec mutex unlocked t " << time.elapsed() << endl;
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

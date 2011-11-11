@@ -47,7 +47,7 @@ private:
     static const int    _defaultSegmentSide = 4;
     static const double _defaultSegmentEdge = 0.75;
     static const unsigned long _termTimeout = 1000;
-    static const int           _timeout = 60;
+    static const int           _timeout = 20;
     QSettings   *_settings;
     QString      _path;
     double       _magnLim;

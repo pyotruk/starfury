@@ -59,9 +59,8 @@ LIBS += -L"C:/opencv231/lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 LIBS += -L"D:/arbeit/astrobot/astrobot/astrocalc/debug" \
--l"astrocalc"
-
-FORMS    += mainwindow.ui
+        -l"astrocalc"
+FORMS += mainwindow.ui
 
 
 

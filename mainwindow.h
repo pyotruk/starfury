@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QMainWindow>
 #include <QDebug>
+#include <QTime>
 #include <QImage>
 #include <QPainter>
 #include <QPoint>
@@ -34,11 +35,14 @@ private:
     QImage          _img;
     QSize           _imgSize;
     ArtifactVector  _artVec;
+    ArtifactVector  _stars;
     void adaptWindowSize(const QSize&);
     void markArtifacts(QImage&);
+    void markStars(QImage&);
 private slots:
     void drawFrame(Frame*, QMutex*);
-    void artifactsIn(ArtifactVector*, QMutex*);
+    void inputArtifacts(ArtifactVector*, QMutex*);
+    void inputStars(ArtifactVector*, QMutex*);
     void paintEvent(QPaintEvent *);
     void updateFace();
 signals:

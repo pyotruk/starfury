@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QSize>
 #include <QSizeF>
+#include <QtAlgorithms>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "snudpsrv.h"
 #include "starcatreader.h"
@@ -30,7 +31,7 @@ public slots:
     void setScreenSize(const int width,
                        const int height);
 private:
-    static const int _timeout = 40;
+    static const int _timeout = 20;
     static const int _defaultScreenWidth  = 640;
     static const int _defaultScreenHeight = 480;
     QSettings       *_settings;
@@ -38,9 +39,9 @@ private:
     StarcatReader   *_starcatReader;
     ArtifactVector  *_stars;
     QMutex          *_mutex;
-    SkySegment      _segment;
-    QSizeF          _field;
+    SkySegment      *_segment;
     QSize           _screen;
+    SnUdpSrv        *_snServer;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void processing();
