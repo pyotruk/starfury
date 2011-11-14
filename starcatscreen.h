@@ -8,6 +8,7 @@
 #include <QSize>
 #include <QSizeF>
 #include <QtAlgorithms>
+#include <QDateTime>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "snudpsrv.h"
 #include "starcatreader.h"
@@ -15,6 +16,7 @@
 #include "skysegment.h"
 #include "star.h"
 #include "artifact.h"
+#include "adapters.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 #define SKEY_SCREEN_WIDTH               "/Screen/Width"
@@ -42,6 +44,7 @@ private:
     SkySegment      *_segment;
     QSize           _screen;
     SnUdpSrv        *_snServer;
+    QDateTime        _time;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void processing();
@@ -49,7 +52,7 @@ private:
 private slots:
     void telescopeVectorIn(TelescopeVector*, QMutex*);
 signals:
-    void starsReady(ArtifactVector*, QMutex*);
+    void starsReady(ArtifactVector*, QMutex*, QDateTime*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

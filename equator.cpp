@@ -19,35 +19,39 @@ Equator::~Equator()
     delete _artifacts;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::inputArtifacts(ArtifactVector *artifacts,
-                             QMutex *mutex)
+void Equator::inputArtifacts(ArtifactVector *a,
+                             QMutex *m,
+                             QDateTime *t)
 {
-    if(mutex->tryLock(_timeout))
+    if(m->tryLock(_timeout))
     {
         if(this->_mutex->tryLock(_timeout))
         {
-            _artifacts->resize(artifacts->size());
-            qCopy(artifacts->begin(), artifacts->end(), _artifacts->begin());
+            _tArts = *t;
+            _artifacts->resize(a->size());
+            qCopy(a->begin(), a->end(), _artifacts->begin());
             this->_mutex->unlock();
         }
-        mutex->unlock();
+        m->unlock();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::inputStars(ArtifactVector *stars,
-                         QMutex *mutex)
+void Equator::inputStars(ArtifactVector *s,
+                         QMutex *m,
+                         QDateTime *t)
 {
-    if(mutex->tryLock(_timeout))
+    if(m->tryLock(_timeout))
     {
         if(this->_mutex->tryLock(_timeout))
         {
-            _stars->resize(stars->size());
-            qCopy(stars->begin(), stars->end(), _stars->begin());
+            _tStars = *t;
+            _stars->resize(s->size());
+            qCopy(s->begin(), s->end(), _stars->begin());
             this->_mutex->unlock();
 
             emit toGui(_artifacts, _stars, _mutex);
         }
-        mutex->unlock();
+        m->unlock();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

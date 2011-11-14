@@ -50,11 +50,11 @@ int main(int argc, char *argv[])
     QObject::connect(&rapidThread, SIGNAL(frameOut1(Frame*, QMutex*)),
                      &w, SLOT(drawFrame(Frame*, QMutex*)),
                      Qt::QueuedConnection);
-    QObject::connect(&starDetector, SIGNAL(artifactsOut(ArtifactVector*,QMutex*)),
-                     &equator, SLOT(inputArtifacts(ArtifactVector*,QMutex*)),
+    QObject::connect(&starDetector, SIGNAL(artifactsOut(ArtifactVector*,QMutex*,QDateTime*)),
+                     &equator, SLOT(inputArtifacts(ArtifactVector*,QMutex*,QDateTime*)),
                      Qt::QueuedConnection);
-    QObject::connect(&starcatScreen, SIGNAL(starsReady(ArtifactVector*,QMutex*)),
-                     &equator, SLOT(inputStars(ArtifactVector*,QMutex*)),
+    QObject::connect(&starcatScreen, SIGNAL(starsReady(ArtifactVector*,QMutex*,QDateTime*)),
+                     &equator, SLOT(inputStars(ArtifactVector*,QMutex*,QDateTime*)),
                      Qt::QueuedConnection);
 
     //gui <--> object connections

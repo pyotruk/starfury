@@ -4,7 +4,7 @@
 #include <QThread>
 #include <QMutex>
 #include <QDebug>
-#include <QTime>
+#include <QDateTime>
 #include <QSettings>
 #include <qmath.h>
 /////////////////////////////////////////////////////////////////////////////////////
@@ -23,11 +23,13 @@ private:
     static const unsigned long _termTimeout = 250;
     QSettings      *_settings;
     ArtifactVector *_artifacts;
+    QDateTime       _tArts;
     ArtifactVector *_stars;
+    QDateTime       _tStars;
     QMutex         *_mutex;
 private slots:
-    void inputArtifacts(ArtifactVector*, QMutex*);
-    void inputStars(ArtifactVector*, QMutex*);
+    void inputArtifacts(ArtifactVector*, QMutex*, QDateTime*);
+    void inputStars(ArtifactVector*, QMutex*, QDateTime*);
 signals:
     void toGui(ArtifactVector *artifacts,
                ArtifactVector *stars,

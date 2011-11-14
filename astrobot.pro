@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     guidecodec.cpp \
     starcatscreen.cpp \
     stardetector.cpp \
-    equator.cpp
+    equator.cpp \
+    adapters.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -48,7 +49,8 @@ HEADERS  += mainwindow.h \
     starcatscreen.h \
     stardetector.h \
     astrocalc.h \
-    equator.h
+    equator.h \
+    adapters.h
 
 INCLUDEPATH += "C:/opencv231/include"
 INCLUDEPATH += "../astrobot/astrocalc"
@@ -64,6 +66,8 @@ LIBS += -L"../astrobot/astrocalc/debug" \
         -l"astrocalc"
 
 FORMS += mainwindow.ui
+
+
 
 
 

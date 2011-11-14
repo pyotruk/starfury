@@ -56,9 +56,6 @@ void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
 
     if(mutex->tryLock(_timeout))
     {
-//        QTime time;
-//        time.start();
-
         *_tvector = *tvector;
         mutex->unlock();
         _starcatReader->refresh(_tvector->alpha, _tvector->delta);
@@ -69,10 +66,10 @@ void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
                 this->processing();
                 _starcatReader->mutex()->unlock();
             }
+            winfiletime2qdatetime(_tvector->timeUTC, _time);
             this->_mutex->unlock();
-            emit starsReady(_stars, this->_mutex);
+            emit starsReady(_stars, this->_mutex, &_time);
         }
-//        qDebug() << "starcatScreen work " << time.elapsed();
     }
 
     QObject::connect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),

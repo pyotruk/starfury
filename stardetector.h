@@ -6,13 +6,14 @@
 #include <QSettings>
 #include <QtAlgorithms>
 #include <QDebug>
-#include <QTime>
+#include <QDateTime>
 #include <QPoint>
 #include "opencv.hpp"
 #include "cvhelpfun.h"
 #include "frame.h"
 #include "artifact.h"
 #include "astrocalc.h"
+#include "adapters.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class StarDetector : public QThread
 {
@@ -28,6 +29,7 @@ private:
     ArtifactVector *_artVec;
     QMutex         *_mutex;
     QPoint          _target;
+    QDateTime       _time;
     void filtering(Frame*);
     void findArtifacts(Frame*,
                        ArtifactVector*,
@@ -37,7 +39,7 @@ private:
 private slots:
     void frameIn(Frame*, QMutex*, int xTarget, int yTarget);
 signals:
-    void artifactsOut(ArtifactVector*, QMutex*);
+    void artifactsOut(ArtifactVector*, QMutex*, QDateTime*);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

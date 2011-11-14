@@ -6,6 +6,7 @@ void  decodeADM( double &a, //rad
                  char   *x)
 {
     const double del = 2*pi/16/1024/1024;
+
     Tib4 y;
     y.i = 0;
 
