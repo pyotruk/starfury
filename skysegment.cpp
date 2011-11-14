@@ -26,13 +26,21 @@ bool SkySegment::isBelongToSkyRect(const double alpha,
 void SkySegment::generateNew(const double alpha,
                              const double delta)
 {
-
     double alphaSide = _field.width() * _side / qAbs(qCos(delta));
     double deltaSide = _field.height() * _side;
     _rect.topRight.alpha = alpha + alphaSide / 2;
     _rect.topRight.delta = delta + deltaSide / 2;
     _rect.botLeft.alpha = _rect.topRight.alpha - alphaSide;
     _rect.botLeft.delta = _rect.topRight.delta - deltaSide;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void SkySegment::generateNew(const double alpha,
+                             const double delta,
+                             const double fieldWidth,
+                             const double fieldHeight)
+{
+    this->setField(QSizeF(fieldWidth, fieldHeight));
+    this->generateNew(alpha, delta);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 bool SkySegment::isBelong(const double alpha,

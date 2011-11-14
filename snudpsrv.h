@@ -27,6 +27,8 @@ struct TelescopeVector
     double delta;
     double LST;
     double latitude;
+    double fieldWidth;
+    double fieldHeight;
 };
 ////////////////////////////////////////////////////////////////////////////////////
 class SnUdpSrv : public QObject

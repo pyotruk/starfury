@@ -79,8 +79,11 @@ void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::processing()
 {
+    _segment->generateNew(_tvector->alpha,
+                          _tvector->delta,
+                          _tvector->fieldWidth,
+                          _tvector->fieldHeight);
     _stars->clear();
-    _segment->generateNew(_tvector->alpha, _tvector->delta);
     Artifact star;
     StarVector::iterator it = _starcatReader->stars()->begin();
     for(; it != _starcatReader->stars()->end(); ++it)

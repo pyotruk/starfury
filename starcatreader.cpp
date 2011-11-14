@@ -99,12 +99,12 @@ void StarcatReader::readNewSegment()
                       finPos);
     _file->seek(startPos);
     Star star;
-    char *data = new char[BYTES_PER_STAR];
+    uchar *data = new uchar[BYTES_PER_STAR];
     while(_file->pos() < finPos)
     {
-        _file->read(data, BYTES_PER_STAR);
+        _file->read((char*)data, BYTES_PER_STAR);
         decodeStar(star, data);
-        if(qAbs(star.magnitude()) <= _magnLim)
+        if(star.magnitude() < _magnLim)
         {
             if(_segment.isBelong(star.alpha(), star.delta()))
             {
@@ -113,6 +113,7 @@ void StarcatReader::readNewSegment()
         }
     }
     delete []data;
+    qSort(*_starVec0);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 StarVector* StarcatReader::stars()

@@ -30,7 +30,11 @@ void Equator::inputArtifacts(ArtifactVector *a,
             _tArts = *t;
             _artifacts->resize(a->size());
             qCopy(a->begin(), a->end(), _artifacts->begin());
+
+            this->proc(_artifacts, _stars);
+
             this->_mutex->unlock();
+            emit toGui(_artifacts, _stars, _mutex);
         }
         m->unlock();
     }
@@ -48,13 +52,16 @@ void Equator::inputStars(ArtifactVector *s,
             _stars->resize(s->size());
             qCopy(s->begin(), s->end(), _stars->begin());
             this->_mutex->unlock();
-
-            emit toGui(_artifacts, _stars, _mutex);
         }
         m->unlock();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Equator::proc(ArtifactVector *arts,
+                   ArtifactVector *stars)
+{
+    //ololo
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

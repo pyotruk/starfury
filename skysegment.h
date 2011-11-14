@@ -25,6 +25,10 @@ public:
                         const double side = _defaultSide, //сторона сегмента в единицах стороны поля зрения
                         const double edge = _defaultEdge); //толщина края сегмента в единицах стороны поля
     void generateNew(const double alpha,
+                     const double delta,
+                     const double fieldWidth,
+                     const double fieldHeight);
+    void generateNew(const double alpha,
                      const double delta);
     bool isBelong(const double alpha,
                   const double delta);

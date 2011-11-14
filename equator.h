@@ -27,6 +27,8 @@ private:
     ArtifactVector *_stars;
     QDateTime       _tStars;
     QMutex         *_mutex;
+    void proc(ArtifactVector *arts,
+              ArtifactVector *stars);
 private slots:
     void inputArtifacts(ArtifactVector*, QMutex*, QDateTime*);
     void inputStars(ArtifactVector*, QMutex*, QDateTime*);

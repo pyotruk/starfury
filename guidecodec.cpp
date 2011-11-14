@@ -3,7 +3,7 @@
 void  decodeADM( double &a, //rad
                  double &d, //rad
                  double &m,
-                 char   *x)
+                 uchar  *x)
 {
     const double del = 2*pi/16/1024/1024;
 
@@ -23,7 +23,7 @@ void  decodeADM( double &a, //rad
     m = x[6] / 10;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void decodeStar(Star &star, char *data)
+void decodeStar(Star &star, uchar *data)
 {
     double alpha, delta, magn;
     decodeADM(alpha, delta, magn, data);
