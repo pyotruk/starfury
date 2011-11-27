@@ -2,40 +2,28 @@
 #define EQUATOR_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
-#include <QMutex>
 #include <QDebug>
-#include <QDateTime>
 #include <QSettings>
 #include <qmath.h>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "frame.h"
-#include "artifact.h"
-#include "star.h"
+#include "artifactbox.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class Equator : public QThread
 {
     Q_OBJECT
 public:
-    explicit Equator(QSettings *settings = 0);
+    explicit Equator(QSettings*);
     ~Equator();
 private:
     static const int _timeout = 20;
-    static const unsigned long _termTimeout = 250;
-    QSettings      *_settings;
-    ArtifactVector *_artifacts;
-    QDateTime       _tArts;
-    ArtifactVector *_stars;
-    QDateTime       _tStars;
-    QMutex         *_mutex;
-    void proc(ArtifactVector *arts,
-              ArtifactVector *stars);
+    QSettings    *_settings;
+    ArtifactBox   _screenStars;
+    ArtifactBox   _catStars;
+    void proc(ArtifactBox &screenStars,
+              ArtifactBox &catStars);
 private slots:
-    void inputArtifacts(ArtifactVector*, QMutex*, QDateTime*);
-    void inputStars(ArtifactVector*, QMutex*, QDateTime*);
-signals:
-    void toGui(ArtifactVector *artifacts,
-               ArtifactVector *stars,
-               QMutex         *mutex);
+    void inputScreenStars(ArtifactBox*);
+    void inputCatStars(ArtifactBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -1,52 +1,45 @@
 #include "strob.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Strob::Strob(QSettings *settings,
-             QThread *parent) :
-    _settings(settings),
+Strob::Strob(QSettings *s) :
+    _settings(s),
     _geometry(new StrobGeometry(_settings))
-{    
+{
+    this->moveToThread(this);
     loadSettings(_settings);
-    this->moveToThread(parent);
-    _geometry->moveToThread(parent);
     qDebug() << "strob->_geometry thread:" << _geometry->thread();
+    this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::~Strob()
 {
+    this->quit();
+    this->wait();
     saveSettings(_settings);
     delete _geometry;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void Strob::loadSettings(QSettings *settings)
+void Strob::loadSettings(QSettings *s)
 {
-    if(settings == 0)
-    {
-        _threshold = _defaultThreshold;
-    }
-    else
-    {
-        _threshold = settings->value(SKEY_STROB_STDDEV_THRESHOLD, _defaultThreshold).toDouble();
-    }
+    _threshold = s->value(SKEY_STROB_STDDEV_THRESHOLD, _defaultThreshold).toDouble();
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void Strob::saveSettings(QSettings *settings)
+void Strob::saveSettings(QSettings *s)
 {
-    if(settings != 0)
-    {
-        settings->setValue(SKEY_STROB_STDDEV_THRESHOLD, _threshold);
-    }
+    s->setValue(SKEY_STROB_STDDEV_THRESHOLD, _threshold);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void Strob::makeTracking(Frame *frame)
+void Strob::makeTracking(Frame *f)
 {
+    f->lock().lockForWrite();
     //создание, инициализация сигнального и фонового стробов
-    _geometry->checkRange(QSize(frame->header().width, frame->header().height));
+    _geometry->checkRange(QSize(f->header().width,
+                                f->header().height));
     cv::Rect innerRect;
     cv::Rect outerRect;
     qtRect2cvRect(_geometry->innerRect(), innerRect);
     qtRect2cvRect(_geometry->outerRect(), outerRect);
-    cv::Mat signalRoi(frame->asCvMat(), innerRect);
-    cv::Mat foneRoi(frame->asCvMat(), outerRect);
+    cv::Mat signalRoi(f->asCvMat(), innerRect);
+    cv::Mat foneRoi(f->asCvMat(), outerRect);
 
     cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтрация
 
@@ -68,11 +61,15 @@ void Strob::makeTracking(Frame *frame)
 
         //вычисление центра масс по сигнальному стробу
         cv::TermCriteria crit(cv::TermCriteria::COUNT, 1, 0.1);
-        cv::meanShift(frame->asCvMat(), innerRect, crit);
+        cv::meanShift(f->asCvMat(), innerRect, crit);
         QRect newInnerRect;
         cvRect2qtRect(innerRect, newInnerRect);
         _geometry->setRect(newInnerRect);
     }
+    f->lock().unlock();
+    emit frameReady(f,
+                    _geometry->center().x(),
+                    _geometry->center().y());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::calcThresholds(const cv::Mat &signalRoi,

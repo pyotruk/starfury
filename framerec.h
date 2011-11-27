@@ -2,8 +2,8 @@
 #define FRAMEREC_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
-#include <QMutex>
 #include <QSettings>
+/////////////////////////////////////////////////////////////////////////////////////
 #include "sharedmem.h"
 #include "frame.h"
 /////////////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@ class FrameReceiver : public QThread
 {
     Q_OBJECT
 public:
-    explicit FrameReceiver(QSettings *settings = 0);
+    explicit FrameReceiver(QSettings*, Frame*);
     ~FrameReceiver();
     void stop();
 protected:
@@ -20,13 +20,12 @@ protected:
 private:
     static const int _timeout = 20;
     static const unsigned long _termTimeout = 500;
-    QSettings *_settings;
-    SharedMem *_sharedMem;
-    Frame     *_frame;
-    QMutex    *_mutex;
-    volatile bool _stopped;
+    QSettings      *_settings;
+    Frame          *_frame;
+    SharedMem      *_sharedMem;
+    volatile bool   _stopped;
 signals:
-    void frameReady(Frame*, QMutex*);
+    void frameReady(Frame*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

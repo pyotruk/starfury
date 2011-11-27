@@ -2,20 +2,18 @@
 #define STARCATSCREEN_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
-#include <QMutex>
 #include <QSettings>
 #include <QDebug>
 #include <QSize>
 #include <QSizeF>
 #include <QtAlgorithms>
-#include <QDateTime>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "snudpsrv.h"
 #include "starcatreader.h"
 #include "astrocalc.h"
 #include "skysegment.h"
 #include "star.h"
-#include "artifact.h"
+#include "artifactbox.h"
 #include "adapters.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
@@ -27,7 +25,8 @@ class StarcatScreen : public QThread
 {
     Q_OBJECT
 public:
-    explicit StarcatScreen(QSettings *settings);
+    explicit StarcatScreen(QSettings*,
+                           ArtifactBox*);
     ~StarcatScreen();
 public slots:
     void setScreenSize(const int width,
@@ -36,23 +35,23 @@ private:
     static const int _timeout = 20;
     static const int _defaultScreenWidth  = 640;
     static const int _defaultScreenHeight = 480;
-    QSettings       *_settings;
-    TelescopeVector *_tvector;
-    StarcatReader   *_starcatReader;
-    ArtifactVector  *_stars;
-    QMutex          *_mutex;
-    SkySegment      *_segment;
-    QSize           _screen;
-    SnUdpSrv        *_snServer;
-    QDateTime        _time;
+    QSettings        *_settings;
+    ArtifactBox      *_starBox;
+    StarcatReader    *_starcatReader;
+    SkySegment       *_segment;
+    SnUdpSrv         *_snServer;
+    QSize             _screen;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void processing();
-    void catStar2screenStar(Star&, Artifact&);
+    void proc(TelescopeVector&);
+    void catStar2screenStar(TelescopeVector&,
+                            Star&,
+                            Artifact&);
 private slots:
-    void telescopeVectorIn(TelescopeVector*, QMutex*);
+    void inputTelescopeVector(TelescopeVector*,
+                              QReadWriteLock*);
 signals:
-    void starsReady(ArtifactVector*, QMutex*, QDateTime*);
+    void catStarsReady(ArtifactBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

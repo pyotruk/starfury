@@ -2,6 +2,7 @@
 #define FRAME_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QtGlobal>
+#include <QReadWriteLock>
 #include <string.h>
 #include <QImage>
 #include <QDebug>
@@ -28,19 +29,16 @@ public:
     void attachRawData(const FrameHeader &header,
                        const void *data);
     void unattachRawData(); //do not forget!
-    void lock();
-    void unlock();
-    bool isLocked();
     uchar* data();
     const FrameHeader& header();
+    QReadWriteLock& lock();
     cv::Mat& asCvMat();
-    QImage& asQImage();
+    void asQImage(QImage&);
 private:
-    uchar       *_data;
-    FrameHeader  _header;
-    bool    _locked;
-    cv::Mat _cvmat;
-    QImage  _qimg;
+    uchar         *_data;
+    FrameHeader    _header;
+    QReadWriteLock _lock;
+    cv::Mat        _cvmat;
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

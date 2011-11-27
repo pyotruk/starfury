@@ -61,20 +61,20 @@ void MainWindow::adaptWindowSize(const QSize &imgSize)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::markArtifacts(QImage &img)
 {
-    ArtifactVector::iterator it = _artifacts.begin();
-    for(; it != _artifacts.end(); ++it)
+    ArtifactVector::iterator it = _artifactBox.artifacts().begin();
+    for(; it != _artifactBox.artifacts().end(); ++it)
     {
-        drawCross(img,
-                  it->center(),
-                  _crossSide,
-                  Qt::green);
+        drawCrossbuck(img,
+                      it->center(),
+                      (int)it->magnitude(),
+                      Qt::green);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::markStars(QImage &img)
 {
-    ArtifactVector::iterator it = _stars.begin();
-    for(; it != _stars.end(); ++it)
+    ArtifactVector::iterator it = _starBox.artifacts().begin();
+    for(; it != _starBox.artifacts().end(); ++it)
     {
         drawCross(img,
                   it->center(),
@@ -83,14 +83,12 @@ void MainWindow::markStars(QImage &img)
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawFrame(Frame *frame,
-                           QMutex *mutex)
+void MainWindow::drawFrame(Frame *f)
 {
-    if(mutex->tryLock(_timeout))
-    {
-        _img = frame->asQImage();
-        mutex->unlock();
-    }
+    f->lock().lockForRead();
+    f->asQImage(_img);
+    f->lock().unlock();
+
     if(_img.size() != _imgSize)
     {
         adaptWindowSize(_img.size());
@@ -102,20 +100,19 @@ void MainWindow::drawFrame(Frame *frame,
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::fromEquator(ArtifactVector *artifacts,
-                             ArtifactVector *stars,
-                             QMutex *mutex)
+void MainWindow::inputScreenStars(ArtifactBox *a)
 {
-    if(mutex->tryLock(_timeout))
-    {
-        _artifacts.resize(artifacts->size());
-        _stars.resize(stars->size());
-        qCopy(artifacts->begin(), artifacts->end(), _artifacts.begin());
-        qCopy(stars->begin(), stars->end(), _stars.begin());
-        mutex->unlock();
-    }
+    a->lock().lockForRead();
+    _artifactBox = *a;
+    a->lock().unlock();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::inputCatStars(ArtifactBox *a)
+{
+    a->lock().lockForRead();
+    _starBox = *a;
+    a->lock().unlock();
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

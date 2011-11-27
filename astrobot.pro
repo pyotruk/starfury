@@ -13,7 +13,6 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     strob.cpp \
-    rapidthread.cpp \
     strobgeometry.cpp \
     cvhelpfun.cpp \
     frame.cpp \
@@ -29,11 +28,11 @@ SOURCES += main.cpp\
     starcatscreen.cpp \
     stardetector.cpp \
     equator.cpp \
-    adapters.cpp
+    adapters.cpp \
+    artifactbox.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
-    rapidthread.h \
     strobgeometry.h \
     cvhelpfun.h \
     frame.h \
@@ -50,7 +49,8 @@ HEADERS  += mainwindow.h \
     stardetector.h \
     astrocalc.h \
     equator.h \
-    adapters.h
+    adapters.h \
+    artifactbox.h
 
 INCLUDEPATH += "C:/opencv231/include"
 INCLUDEPATH += "../astrobot/astrocalc"
@@ -66,6 +66,24 @@ LIBS += -L"../astrobot/astrocalc/debug" \
         -l"astrocalc"
 
 FORMS += mainwindow.ui
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

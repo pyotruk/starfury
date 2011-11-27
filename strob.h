@@ -2,12 +2,13 @@
 #define STROB_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <numeric>
-#include <QObject>
+#include <QThread>
 #include <QPoint>
 #include <math.h>
 #include <QMouseEvent>
 #include <QSize>
 #include <QSettings>
+/////////////////////////////////////////////////////////////////////////////////////
 #include "strobgeometry.h"
 #include "cvhelpfun.h"
 #include "frame.h"
@@ -15,12 +16,11 @@
 //setting keys
 #define SKEY_STROB_STDDEV_THRESHOLD "/Strob/StdDevThreshold"
 /////////////////////////////////////////////////////////////////////////////////////
-class Strob : public QObject
+class Strob : public QThread
 {
     Q_OBJECT
 public:
-    explicit Strob(QSettings *settings = 0,
-                   QThread *parent = 0);
+    explicit Strob(QSettings*);
     ~Strob();
     double threshold();
     int    pixThreshold();
@@ -36,12 +36,16 @@ private:
                         const double stdDevThreshold,
                         double &sumThreshold,
                         int    &pixThreshold);
-    void loadSettings(QSettings *settings);
-    void saveSettings(QSettings *settings);
+    void loadSettings(QSettings*);
+    void saveSettings(QSettings*);
 public slots:
-    void makeTracking(Frame *frame);
+    void makeTracking(Frame*);
     void clickTarget(QMouseEvent *mousePressEvent);
     void setThreshold(const int pos);
+signals:
+    void frameReady(Frame*,
+                    int xTarget,
+                    int yTarget);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // STROB_H

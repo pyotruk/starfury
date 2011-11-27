@@ -3,18 +3,20 @@
 #include <QObject>
 #include <QSettings>
 #include <QDebug>
-
+/////////////////////////////////////////////////////////////////////////////////////
 #include "mainwindow.h"
-#include "rapidthread.h"
 #include "framerec.h"
 #include "frame.h"
+#include "strob.h"
 #include "stardetector.h"
 #include "starcatscreen.h"
 #include "snudpsrv.h"
 #include "equator.h"
-
+#include "artifactbox.h"
+/////////////////////////////////////////////////////////////////////////////////////
 #define FRAME_HEADER_SIZE 32
-
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char *argv[])
 {
@@ -22,53 +24,65 @@ int main(int argc, char *argv[])
     MainWindow w;
     QSettings settings("NIIPP", "astrobot");
 
-    RapidThread   rapidThread(&settings);
-    FrameReceiver frameReceiver(&settings);
-    StarDetector  starDetector(&settings);
-    StarcatScreen starcatScreen(&settings);
+    //per-thread data
+    Frame          frame;
+    ArtifactBox    screenStars;
+    ArtifactBox    catStars;
+
+    //threads
+    FrameReceiver frameReceiver(&settings,
+                                &frame);
+    Strob         strob(&settings);
+    StarDetector  starDetector(&settings,
+                               &screenStars);
+    StarcatScreen starcatScreen(&settings,
+                                &catStars);
     Equator       equator(&settings);
 
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "MainWidow w thread: " << w.thread();
-    qDebug() << "rapidThread thread: " << rapidThread.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
+    qDebug() << "strob thread: " << strob.thread();
     qDebug() << "starDetector thread:" << starDetector.thread();
     qDebug() << "starcatScreen thread: " << starcatScreen.thread();
     qDebug() << "equator thread: " << equator.thread();
 
     //form init
-    w.initFace(rapidThread.strob()->geometry().innerSide(),
-               (int)(rapidThread.strob()->threshold()));
+    w.initFace(strob.geometry().innerSide(),
+               (int)(strob.threshold()));
 
     //object <--> object connections
-    QObject::connect(&frameReceiver, SIGNAL(frameReady(Frame*, QMutex*)),
-                     &rapidThread, SLOT(frameIn(Frame*, QMutex*)),
+    QObject::connect(&frameReceiver, SIGNAL(frameReady(Frame*)),
+                     &strob, SLOT(makeTracking(Frame*)),
                      Qt::QueuedConnection);
-    QObject::connect(&rapidThread, SIGNAL(frameOut0(Frame*,QMutex*,int,int)),
-                     &starDetector, SLOT(frameIn(Frame*,QMutex*,int,int)),
+    QObject::connect(&strob, SIGNAL(frameReady(Frame*,int,int)),
+                     &starDetector, SLOT(inputFrame(Frame*,int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&rapidThread, SIGNAL(frameOut1(Frame*, QMutex*)),
-                     &w, SLOT(drawFrame(Frame*, QMutex*)),
+    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
+                     &equator, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
-    QObject::connect(&starDetector, SIGNAL(artifactsOut(ArtifactVector*,QMutex*,QDateTime*)),
-                     &equator, SLOT(inputArtifacts(ArtifactVector*,QMutex*,QDateTime*)),
-                     Qt::QueuedConnection);
-    QObject::connect(&starcatScreen, SIGNAL(starsReady(ArtifactVector*,QMutex*,QDateTime*)),
-                     &equator, SLOT(inputStars(ArtifactVector*,QMutex*,QDateTime*)),
+    QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
+                     &equator, SLOT(inputCatStars(ArtifactBox*)),
                      Qt::QueuedConnection);
 
     //gui <--> object connections
-    QObject::connect(&equator, SIGNAL(toGui(ArtifactVector*,ArtifactVector*,QMutex*)),
-                     &w, SLOT(fromEquator(ArtifactVector*,ArtifactVector*,QMutex*)),
+    QObject::connect(&strob, SIGNAL(frameReady(Frame*,int,int)),
+                     &w, SLOT(drawFrame(Frame*)),
+                     Qt::QueuedConnection);
+    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
+                     &w, SLOT(inputScreenStars(ArtifactBox*)),
+                     Qt::QueuedConnection);
+    QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
+                     &w, SLOT(inputCatStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
-                     rapidThread.strob(), SLOT(clickTarget(QMouseEvent *)),
+                     &strob, SLOT(clickTarget(QMouseEvent *)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(changeStrobSize(int)),
-                     &(rapidThread.strob()->geometry()), SLOT(setSide(int)),
+                     &(strob.geometry()), SLOT(setSide(int)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(changeTrackingThreshold(int)),
-                     rapidThread.strob(), SLOT(setThreshold(int)),
+                     &strob, SLOT(setThreshold(int)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(screenSizeChanged(int,int)),
                      &starcatScreen, SLOT(setScreenSize(int,int)),

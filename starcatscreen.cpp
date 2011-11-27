@@ -1,11 +1,10 @@
 #include "starcatscreen.h"
 /////////////////////////////////////////////////////////////////////////////////////
-StarcatScreen::StarcatScreen(QSettings *settings) :
-    _settings(settings),
-    _tvector(new TelescopeVector),
+StarcatScreen::StarcatScreen(QSettings *s,
+                             ArtifactBox *a) :
+    _settings(s),
+    _starBox(a),
     _starcatReader(new StarcatReader(_settings)),
-    _stars(new ArtifactVector),
-    _mutex(new QMutex),
     _segment(new SkySegment(_starcatReader->segment().field().width(),
                             _starcatReader->segment().field().height(),
                             1, 0)),
@@ -15,8 +14,8 @@ StarcatScreen::StarcatScreen(QSettings *settings) :
     qDebug() << "starcatScreen::_starcatReader thread: " << _starcatReader->thread();
     qDebug() << "starcatScreen::_snServer thread: " << _snServer->thread();
     this->loadSettings(_settings);
-    QObject::connect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
-                     this, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
+    QObject::connect(_snServer, SIGNAL(telescopeVectorReady(TelescopeVector*,QReadWriteLock*)),
+                     this, SLOT(inputTelescopeVector(TelescopeVector*,QReadWriteLock*)),
                      Qt::QueuedConnection);
 
     this->start(QThread::NormalPriority);
@@ -25,87 +24,75 @@ StarcatScreen::StarcatScreen(QSettings *settings) :
 StarcatScreen::~StarcatScreen()
 {
     this->quit();
-    this->terminate();
+    this->wait();
     this->saveSettings(_settings);
     delete _snServer;
     delete _segment;
-    delete _mutex;
-    delete _stars;
     delete _starcatReader;
-    delete _tvector;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::loadSettings(QSettings *settings)
+void StarcatScreen::loadSettings(QSettings *s)
 {
-    int screenWidth = settings->value(SKEY_SCREEN_WIDTH, _defaultScreenWidth).toInt();
-    int screenHeight = settings->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
+    int screenWidth = s->value(SKEY_SCREEN_WIDTH, _defaultScreenWidth).toInt();
+    int screenHeight = s->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::saveSettings(QSettings *settings)
+void StarcatScreen::saveSettings(QSettings *s)
 {
-    settings->setValue(SKEY_SCREEN_WIDTH, _screen.width());
-    settings->setValue(SKEY_SCREEN_HEIGHT, _screen.height());
+    s->setValue(SKEY_SCREEN_WIDTH, _screen.width());
+    s->setValue(SKEY_SCREEN_HEIGHT, _screen.height());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::telescopeVectorIn(TelescopeVector *tvector,
-                                      QMutex *mutex)
+void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
+                                         QReadWriteLock  *lock)
 {
-    QObject::disconnect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
-                     this, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)));
+    lock->lockForRead();
+    _starcatReader->refresh(t->alpha, t->delta);
 
-    if(mutex->tryLock(_timeout))
-    {
-        *_tvector = *tvector;
-        mutex->unlock();
-        _starcatReader->refresh(_tvector->alpha, _tvector->delta);
-        if(this->_mutex->tryLock(_timeout))
-        {
-            if(_starcatReader->mutex()->tryLock(_timeout))
-            {
-                this->processing();
-                _starcatReader->mutex()->unlock();
-            }
-            winfiletime2qdatetime(_tvector->timeUTC, _time);
-            this->_mutex->unlock();
-            emit starsReady(_stars, this->_mutex, &_time);
-        }
-    }
+    _starBox->lock().lockForWrite();
 
-    QObject::connect(_snServer, SIGNAL(dataReady(TelescopeVector*,QMutex*)),
-                     this, SLOT(telescopeVectorIn(TelescopeVector*,QMutex*)),
-                     Qt::QueuedConnection);
+    _starcatReader->mutex()->lock();
+    this->proc(*t);
+    _starcatReader->mutex()->unlock();
+
+    winfiletime2qdatetime(t->timeUTC, _starBox->timeMarker());
+    _starBox->lock().unlock();
+
+    emit catStarsReady(_starBox);
+    lock->unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::processing()
+void StarcatScreen::proc(TelescopeVector &t)
 {
-    _segment->generateNew(_tvector->alpha,
-                          _tvector->delta,
-                          _tvector->fieldWidth,
-                          _tvector->fieldHeight);
-    _stars->clear();
+    _segment->generateNew(t.alpha,
+                          t.delta,
+                          t.fieldWidth,
+                          t.fieldHeight);
+    _starBox->artifacts().clear();
     Artifact star;
     StarVector::iterator it = _starcatReader->stars()->begin();
     for(; it != _starcatReader->stars()->end(); ++it)
     {
         if(_segment->isBelong(it->alpha(), it->delta()))
         {
-            catStar2screenStar(*it, star);
-            _stars->push_back(star);
+            catStar2screenStar(t, *it, star);
+            _starBox->artifacts().push_back(star);
         }
     }
-    qSort(*_stars);
+    qSort(_starBox->artifacts());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::catStar2screenStar(Star     &catStar,
-                                       Artifact &screenStar)
+void StarcatScreen::catStar2screenStar(TelescopeVector &t,
+                                       Star            &catStar,
+                                       Artifact        &screenStar)
 {
     double starAzimuth, starElevation;
     double starAngleX, starAngleY;
     ac::iieqt2horiz(catStar.alpha(), catStar.delta(),
-                    _tvector->LST, _tvector->latitude,
+                    t.LST, t.latitude,
                     starAzimuth, starElevation);
-    ac::horiz2screen(_tvector->azHoriz, _tvector->elHoriz,
+    ac::horiz2screen(t.azHoriz, t.elHoriz,
                      starAzimuth, starElevation,
                      starAngleX, starAngleY);
     int x, y;

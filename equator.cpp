@@ -1,10 +1,7 @@
 #include "equator.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Equator::Equator(QSettings *settings) :
-    _settings(settings),
-    _artifacts(new ArtifactVector),
-    _stars(new ArtifactVector),
-    _mutex(new QMutex)
+Equator::Equator(QSettings *s) :
+    _settings(s)
 {
     this->moveToThread(this);
     this->start(QThread::NormalPriority);
@@ -13,52 +10,27 @@ Equator::Equator(QSettings *settings) :
 Equator::~Equator()
 {
     this->quit();
-    if(!this->wait(_termTimeout))   this->terminate();
-    delete _mutex;
-    delete _stars;
-    delete _artifacts;
+    this->wait();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::inputArtifacts(ArtifactVector *a,
-                             QMutex *m,
-                             QDateTime *t)
+void Equator::inputScreenStars(ArtifactBox *a)
 {
-    if(m->tryLock(_timeout))
-    {
-        if(this->_mutex->tryLock(_timeout))
-        {
-            _tArts = *t;
-            _artifacts->resize(a->size());
-            qCopy(a->begin(), a->end(), _artifacts->begin());
+    a->lock().lockForRead();
+    _screenStars = *a;
+    a->lock().unlock();
 
-            this->proc(_artifacts, _stars);
-
-            this->_mutex->unlock();
-            emit toGui(_artifacts, _stars, _mutex);
-        }
-        m->unlock();
-    }
+    this->proc(_screenStars, _catStars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::inputStars(ArtifactVector *s,
-                         QMutex *m,
-                         QDateTime *t)
+void Equator::inputCatStars(ArtifactBox *a)
 {
-    if(m->tryLock(_timeout))
-    {
-        if(this->_mutex->tryLock(_timeout))
-        {
-            _tStars = *t;
-            _stars->resize(s->size());
-            qCopy(s->begin(), s->end(), _stars->begin());
-            this->_mutex->unlock();
-        }
-        m->unlock();
-    }
+    a->lock().lockForRead();
+    _catStars = *a;
+    a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::proc(ArtifactVector *arts,
-                   ArtifactVector *stars)
+void Equator::proc(ArtifactBox &screenStars,
+                   ArtifactBox &catStars)
 {
     //ololo
 }

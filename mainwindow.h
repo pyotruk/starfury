@@ -3,16 +3,14 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QMainWindow>
 #include <QDebug>
-#include <QTime>
 #include <QImage>
 #include <QPainter>
 #include <QPoint>
 #include <QMouseEvent>
-#include <QMutex>
-#include <QVector>
 #include <QtAlgorithms>
+/////////////////////////////////////////////////////////////////////////////////////
 #include "frame.h"
-#include "artifact.h"
+#include "artifactbox.h"
 #include "drawhelpfun.h"
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,16 +32,15 @@ private:
     Ui::MainWindow *ui;
     QImage          _img;
     QSize           _imgSize;
-    ArtifactVector  _artifacts;
-    ArtifactVector  _stars;
+    ArtifactBox     _artifactBox;
+    ArtifactBox     _starBox;
     void adaptWindowSize(const QSize&);
     void markArtifacts(QImage&);
     void markStars(QImage&);
 private slots:
-    void drawFrame(Frame*, QMutex*);
-    void fromEquator(ArtifactVector *artifacts,
-                     ArtifactVector *stars,
-                     QMutex         *mutex);
+    void drawFrame(Frame*);
+    void inputScreenStars(ArtifactBox*);
+    void inputCatStars(ArtifactBox*);
     void paintEvent(QPaintEvent *);
     void updateFace();
 signals:

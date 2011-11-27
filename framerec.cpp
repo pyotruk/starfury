@@ -1,10 +1,10 @@
 #include "framerec.h"
 /////////////////////////////////////////////////////////////////////////////////////
-FrameReceiver::FrameReceiver(QSettings *settings) :
-    _settings(settings),
+FrameReceiver::FrameReceiver(QSettings *s,
+                             Frame *f) :
+    _settings(s),
+    _frame(f),
     _sharedMem(new SharedMem(_settings)),
-    _frame(new Frame),
-    _mutex(new QMutex),
     _stopped(false)
 {
     this->moveToThread(this);
@@ -15,8 +15,6 @@ FrameReceiver::~FrameReceiver()
 {
     this->stop();
     if(!this->wait(_termTimeout))   this->terminate();
-    delete _mutex;
-    delete _frame;
     delete _sharedMem;
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -26,12 +24,12 @@ void FrameReceiver::run()
     {
         if(_sharedMem->waitForData())
         {
-            if(_mutex->tryLock(_timeout))
+            if(_frame->lock().tryLockForWrite(_timeout))
             {
                 _sharedMem->readFrame(_frame);
-                _mutex->unlock();
+                _frame->lock().unlock();
             }
-            emit frameReady(_frame, _mutex);
+            emit frameReady(_frame);
         }
     }
 }
