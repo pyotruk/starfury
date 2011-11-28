@@ -9,6 +9,10 @@ Frame::Frame(const Frame &f)
     this->_header = f._header;
     _data = new uchar[_header.dataSize];
     memcpy(this->_data, f._data, this->_header.dataSize);
+    this->_cvmat = cv::Mat(this->_header.height,
+                           this->_header.width,
+                           CV_8UC1,
+                           this->_data);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Frame& Frame::operator =(const Frame &f)
@@ -19,6 +23,10 @@ Frame& Frame::operator =(const Frame &f)
         delete []_data;
         _data = new uchar[_header.dataSize];
         memcpy(this->_data, f._data, this->_header.dataSize);
+        this->_cvmat = cv::Mat(this->_header.height,
+                               this->_header.width,
+                               CV_8UC1,
+                               this->_data);
     }
     return *this;
 }
@@ -58,14 +66,10 @@ QReadWriteLock& Frame::lock()
 /////////////////////////////////////////////////////////////////////////////////////
 cv::Mat& Frame::asCvMat()
 {
-    _cvmat = cv::Mat(_header.height,
-                     _header.width,
-                     CV_8UC1,
-                     _data);
     return _cvmat;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::asQImage(QImage &img)
+void Frame::copyToQImage(QImage &img)
 {
     img = QImage(_header.width,
                  _header.height,

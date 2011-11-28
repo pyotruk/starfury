@@ -16,7 +16,8 @@ StarDetector::~StarDetector()
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarDetector::inputFrame(Frame *f,
-                              int xTarget, int yTarget)
+                              int xTarget,
+                              int yTarget)
 {
     _target = QPoint(xTarget, yTarget);
 

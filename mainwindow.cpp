@@ -83,12 +83,8 @@ void MainWindow::markStars(QImage &img)
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawFrame(Frame *f)
+void MainWindow::drawAll()
 {
-    f->lock().lockForRead();
-    f->asQImage(_img);
-    f->lock().unlock();
-
     if(_img.size() != _imgSize)
     {
         adaptWindowSize(_img.size());
@@ -100,11 +96,19 @@ void MainWindow::drawFrame(Frame *f)
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::inputFrame(Frame *f)
+{
+    f->lock().lockForRead();
+    f->copyToQImage(_img);
+    f->lock().unlock();
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::inputScreenStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
     _artifactBox = *a;
     a->lock().unlock();
+    this->drawAll(); //<---------!!!
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::inputCatStars(ArtifactBox *a)

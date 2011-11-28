@@ -33,7 +33,7 @@ public:
     const FrameHeader& header();
     QReadWriteLock& lock();
     cv::Mat& asCvMat();
-    void asQImage(QImage&);
+    void copyToQImage(QImage&);
 private:
     uchar         *_data;
     FrameHeader    _header;

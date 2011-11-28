@@ -25,6 +25,7 @@ public:
     double threshold();
     int    pixThreshold();
     StrobGeometry &geometry();
+    void makeTracking(Frame*);
 private:
     static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
@@ -39,13 +40,8 @@ private:
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
 public slots:
-    void makeTracking(Frame*);
     void clickTarget(QMouseEvent *mousePressEvent);
     void setThreshold(const int pos);
-signals:
-    void frameReady(Frame*,
-                    int xTarget,
-                    int yTarget);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // STROB_H

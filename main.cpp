@@ -7,7 +7,6 @@
 #include "mainwindow.h"
 #include "framerec.h"
 #include "frame.h"
-#include "strob.h"
 #include "stardetector.h"
 #include "starcatscreen.h"
 #include "snudpsrv.h"
@@ -25,14 +24,14 @@ int main(int argc, char *argv[])
     QSettings settings("NIIPP", "astrobot");
 
     //per-thread data
-    Frame          frame;
+    Frame          frame0, frame1;
     ArtifactBox    screenStars;
     ArtifactBox    catStars;
 
     //threads
     FrameReceiver frameReceiver(&settings,
-                                &frame);
-    Strob         strob(&settings);
+                                &frame0,
+                                &frame1);
     StarDetector  starDetector(&settings,
                                &screenStars);
     StarcatScreen starcatScreen(&settings,
@@ -42,20 +41,16 @@ int main(int argc, char *argv[])
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "MainWidow w thread: " << w.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
-    qDebug() << "strob thread: " << strob.thread();
     qDebug() << "starDetector thread:" << starDetector.thread();
     qDebug() << "starcatScreen thread: " << starcatScreen.thread();
     qDebug() << "equator thread: " << equator.thread();
 
     //form init
-    w.initFace(strob.geometry().innerSide(),
-               (int)(strob.threshold()));
+    w.initFace(frameReceiver.strob().geometry().innerSide(),
+               (int)(frameReceiver.strob().threshold()));
 
     //object <--> object connections
-    QObject::connect(&frameReceiver, SIGNAL(frameReady(Frame*)),
-                     &strob, SLOT(makeTracking(Frame*)),
-                     Qt::QueuedConnection);
-    QObject::connect(&strob, SIGNAL(frameReady(Frame*,int,int)),
+    QObject::connect(&frameReceiver, SIGNAL(frame1Ready(Frame*,int,int)),
                      &starDetector, SLOT(inputFrame(Frame*,int,int)),
                      Qt::QueuedConnection);
     QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
@@ -66,8 +61,8 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
 
     //gui <--> object connections
-    QObject::connect(&strob, SIGNAL(frameReady(Frame*,int,int)),
-                     &w, SLOT(drawFrame(Frame*)),
+    QObject::connect(&frameReceiver, SIGNAL(frame0Ready(Frame*)),
+                     &w, SLOT(inputFrame(Frame*)),
                      Qt::QueuedConnection);
     QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
                      &w, SLOT(inputScreenStars(ArtifactBox*)),
@@ -76,13 +71,13 @@ int main(int argc, char *argv[])
                      &w, SLOT(inputCatStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
-                     &strob, SLOT(clickTarget(QMouseEvent *)),
+                     &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(changeStrobSize(int)),
-                     &(strob.geometry()), SLOT(setSide(int)),
+                     &(frameReceiver.strob().geometry()), SLOT(setSide(int)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(changeTrackingThreshold(int)),
-                     &strob, SLOT(setThreshold(int)),
+                     &(frameReceiver.strob()), SLOT(setThreshold(int)),
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(screenSizeChanged(int,int)),
                      &starcatScreen, SLOT(setScreenSize(int,int)),

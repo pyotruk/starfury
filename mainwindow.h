@@ -37,8 +37,9 @@ private:
     void adaptWindowSize(const QSize&);
     void markArtifacts(QImage&);
     void markStars(QImage&);
+    void drawAll();
 private slots:
-    void drawFrame(Frame*);
+    void inputFrame(Frame*);
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
     void paintEvent(QPaintEvent *);

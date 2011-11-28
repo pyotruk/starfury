@@ -5,6 +5,7 @@ Strob::Strob(QSettings *s) :
     _geometry(new StrobGeometry(_settings))
 {
     this->moveToThread(this);
+    _geometry->moveToThread(this);
     loadSettings(_settings);
     qDebug() << "strob->_geometry thread:" << _geometry->thread();
     this->start(QThread::NormalPriority);
@@ -30,7 +31,6 @@ void Strob::saveSettings(QSettings *s)
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::makeTracking(Frame *f)
 {
-    f->lock().lockForWrite();
     //создание, инициализация сигнального и фонового стробов
     _geometry->checkRange(QSize(f->header().width,
                                 f->header().height));
@@ -66,10 +66,6 @@ void Strob::makeTracking(Frame *f)
         cvRect2qtRect(innerRect, newInnerRect);
         _geometry->setRect(newInnerRect);
     }
-    f->lock().unlock();
-    emit frameReady(f,
-                    _geometry->center().x(),
-                    _geometry->center().y());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::calcThresholds(const cv::Mat &signalRoi,
