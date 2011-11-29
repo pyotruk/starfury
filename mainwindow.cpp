@@ -59,10 +59,11 @@ void MainWindow::adaptWindowSize(const QSize &imgSize)
     ui->groupBoxTracking->setGeometry(rect);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::markArtifacts(QImage &img)
+void MainWindow::markArtifacts(QImage &img,
+                               ArtifactVector &a)
 {
-    ArtifactVector::iterator it = _artifactBox.artifacts().begin();
-    for(; it != _artifactBox.artifacts().end(); ++it)
+    ArtifactVector::iterator it = a.begin();
+    for(; it != a.end(); ++it)
     {
         drawCrossbuck(img,
                       it->center(),
@@ -71,10 +72,11 @@ void MainWindow::markArtifacts(QImage &img)
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::markStars(QImage &img)
+void MainWindow::markStars(QImage &img,
+                           ArtifactVector &s)
 {
-    ArtifactVector::iterator it = _starBox.artifacts().begin();
-    for(; it != _starBox.artifacts().end(); ++it)
+    ArtifactVector::iterator it = s.begin();
+    for(; it != s.end(); ++it)
     {
         drawCross(img,
                   it->center(),
@@ -89,10 +91,9 @@ void MainWindow::drawAll()
     {
         adaptWindowSize(_img.size());
         _imgSize = _img.size();
-        emit screenSizeChanged(_imgSize.width(), _imgSize.height());
     }
-    this->markArtifacts(_img);
-    this->markStars(_img);
+    this->markArtifacts(_img, _artifactBox.artifacts());
+    this->markStars(_img, _starBox.artifacts());
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

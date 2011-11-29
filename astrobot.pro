@@ -29,7 +29,8 @@ SOURCES += main.cpp\
     stardetector.cpp \
     equator.cpp \
     adapters.cpp \
-    artifactbox.cpp
+    artifactbox.cpp \
+    arttriangle.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -50,7 +51,9 @@ HEADERS  += mainwindow.h \
     astrocalc.h \
     equator.h \
     adapters.h \
-    artifactbox.h
+    artifactbox.h \
+    globalskeys.h \
+    arttriangle.h
 
 INCLUDEPATH += "C:/opencv231/include"
 INCLUDEPATH += "../astrobot/astrocalc"
@@ -66,6 +69,9 @@ LIBS += -L"../astrobot/astrocalc/debug" \
         -l"astrocalc"
 
 FORMS += mainwindow.ui
+
+
+
 
 
 

@@ -8,6 +8,7 @@
 #include <QSizeF>
 #include <QtAlgorithms>
 /////////////////////////////////////////////////////////////////////////////////////
+#include "globalskeys.h"
 #include "snudpsrv.h"
 #include "starcatreader.h"
 #include "astrocalc.h"
@@ -15,10 +16,6 @@
 #include "star.h"
 #include "artifactbox.h"
 #include "adapters.h"
-/////////////////////////////////////////////////////////////////////////////////////
-//setting keys
-#define SKEY_SCREEN_WIDTH               "/Screen/Width"
-#define SKEY_SCREEN_HEIGHT              "/Screen/Height"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class StarcatScreen : public QThread
@@ -43,8 +40,11 @@ private:
     QSize             _screen;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void proc(TelescopeVector&);
-    void catStar2screenStar(TelescopeVector&,
+    void proc(const TelescopeVector&,
+              StarVector&,
+              ArtifactVector&,
+              SkySegment&);
+    void catStar2screenStar(const TelescopeVector&,
                             Star&,
                             Artifact&);
 private slots:

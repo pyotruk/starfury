@@ -26,7 +26,7 @@ bool SkySegment::isBelongToSkyRect(const double alpha,
 void SkySegment::generateNew(const double alpha,
                              const double delta)
 {
-    double alphaSide = _field.width() * _side / qAbs(qCos(delta));
+    double alphaSide = _field.width() * _side /*/ qAbs(qCos(delta))*/;
     double deltaSide = _field.height() * _side;
     _rect.topRight.alpha = alpha + alphaSide / 2;
     _rect.topRight.delta = delta + deltaSide / 2;
@@ -54,7 +54,7 @@ bool SkySegment::isOnEdge(const double alpha,
 {
     SkyRect smallRect ;
     double edgeWidth, edgeHeight;
-    edgeWidth  = _field.width() * _edge / qAbs(qCos(delta));
+    edgeWidth  = _field.width() * _edge /*/ qAbs(qCos(delta))*/;
     edgeHeight = _field.height() * _edge;
     smallRect.botLeft.alpha = _rect.botLeft.alpha + edgeWidth;
     smallRect.botLeft.delta = _rect.botLeft.delta + edgeHeight;

@@ -48,12 +48,18 @@ void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
                                          QReadWriteLock  *lock)
 {
     lock->lockForRead();
-    _starcatReader->refresh(t->alpha, t->delta);
+    _starcatReader->refresh(t->alpha,
+                            t->delta,
+                            t->fieldWidth,
+                            t->fieldHeight);
 
     _starBox->lock().lockForWrite();
 
     _starcatReader->mutex()->lock();
-    this->proc(*t);
+    this->proc(*t,
+               *(_starcatReader->stars()),
+               _starBox->artifacts(),
+               *_segment);
     _starcatReader->mutex()->unlock();
 
     winfiletime2qdatetime(t->timeUTC, _starBox->timeMarker());
@@ -63,29 +69,33 @@ void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
     lock->unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::proc(TelescopeVector &t)
+void StarcatScreen::proc(const TelescopeVector &t,
+                         StarVector &s,
+                         ArtifactVector &a,
+                         SkySegment &seg)
 {
-    _segment->generateNew(t.alpha,
-                          t.delta,
-                          t.fieldWidth,
-                          t.fieldHeight);
-    _starBox->artifacts().clear();
+    if(s.empty())  return;
+    seg.generateNew(t.alpha,
+                    t.delta,
+                    t.fieldWidth,
+                    t.fieldHeight);
+    a.clear();
     Artifact star;
-    StarVector::iterator it = _starcatReader->stars()->begin();
-    for(; it != _starcatReader->stars()->end(); ++it)
+    StarVector::iterator it = s.begin();
+    for(; it < s.end(); ++it)
     {
-        if(_segment->isBelong(it->alpha(), it->delta()))
+        if(seg.isBelong(it->alpha(), it->delta()))
         {
             catStar2screenStar(t, *it, star);
-            _starBox->artifacts().push_back(star);
+            a.push_back(star);
         }
     }
-    qSort(_starBox->artifacts());
+    qSort(a.begin(), a.end(), qGreater<Artifact>());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::catStar2screenStar(TelescopeVector &t,
-                                       Star            &catStar,
-                                       Artifact        &screenStar)
+void StarcatScreen::catStar2screenStar(const TelescopeVector &t,
+                                       Star &catStar,
+                                       Artifact &screenStar)
 {
     double starAzimuth, starElevation;
     double starAngleX, starAngleY;

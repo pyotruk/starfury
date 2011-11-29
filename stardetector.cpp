@@ -87,7 +87,7 @@ void StarDetector::findArtifacts(Frame &f,
             }
         }
     }
-    qSort(a);
+    qSort(a.begin(), a.end(), qGreater<Artifact>());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarDetector::deleteTarget(ArtifactVector &a,
@@ -98,7 +98,7 @@ void StarDetector::deleteTarget(ArtifactVector &a,
     double minDist = 1000000;
     int targetIndex;
     ArtifactVector::iterator it = a.begin();
-    for(int i=0; it != a.end(); ++it, ++i)
+    for(int i=0; it < a.end(); ++it, ++i)
     {
         dist = ac::calcDistance(target, it->center());
         if(dist < minDist)

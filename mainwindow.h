@@ -35,8 +35,10 @@ private:
     ArtifactBox     _artifactBox;
     ArtifactBox     _starBox;
     void adaptWindowSize(const QSize&);
-    void markArtifacts(QImage&);
-    void markStars(QImage&);
+    void markArtifacts(QImage&,
+                       ArtifactVector&);
+    void markStars(QImage&,
+                   ArtifactVector&);
     void drawAll();
 private slots:
     void inputFrame(Frame*);
@@ -48,8 +50,6 @@ signals:
     void mousePressEvent(QMouseEvent *);
     void changeStrobSize(const int);
     void changeTrackingThreshold(const int);
-    void screenSizeChanged(const int width,
-                           const int heihgt);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // MAINWINDOW_H

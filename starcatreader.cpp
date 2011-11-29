@@ -73,11 +73,17 @@ void StarcatReader::run()
              << " m" << star.magnitude() << endl;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatReader::refresh(double alpha, double delta)
+void StarcatReader::refresh(const double alpha,
+                            const double delta,
+                            const double fieldWidth,
+                            const double fieldHeight)
 {
     if(_segment.isOnEdge(alpha, delta))
     {
-        _segment.generateNew(alpha, delta);
+        _segment.generateNew(alpha,
+                             delta,
+                             fieldWidth,
+                             fieldHeight);
         this->start(QThread::NormalPriority);
     }
 }

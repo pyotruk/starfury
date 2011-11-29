@@ -59,6 +59,10 @@ int main(int argc, char *argv[])
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
                      &equator, SLOT(inputCatStars(ArtifactBox*)),
                      Qt::QueuedConnection);
+    QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
+                     &starcatScreen, SLOT(setScreenSize(int,int)));
+    QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
+                     &equator, SLOT(setScreenSize(int,int)));
 
     //gui <--> object connections
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(Frame*)),
@@ -78,9 +82,6 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     QObject::connect(&w, SIGNAL(changeTrackingThreshold(int)),
                      &(frameReceiver.strob()), SLOT(setThreshold(int)),
-                     Qt::QueuedConnection);
-    QObject::connect(&w, SIGNAL(screenSizeChanged(int,int)),
-                     &starcatScreen, SLOT(setScreenSize(int,int)),
                      Qt::QueuedConnection);
 
     w.show();

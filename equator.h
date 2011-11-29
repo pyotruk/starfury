@@ -5,8 +5,15 @@
 #include <QDebug>
 #include <QSettings>
 #include <qmath.h>
+#include <QSize>
+#include <QPoint>
 /////////////////////////////////////////////////////////////////////////////////////
+#include "globalskeys.h"
 #include "artifactbox.h"
+#include "astrocalc.h"
+/////////////////////////////////////////////////////////////////////////////////////
+//setting keys
+#define SKEY_MAX_STAR_QUANTITY        "/Equator/MaxStarQuantity"
 /////////////////////////////////////////////////////////////////////////////////////
 class Equator : public QThread
 {
@@ -14,13 +21,26 @@ class Equator : public QThread
 public:
     explicit Equator(QSettings*);
     ~Equator();
+public slots:
+    void setScreenSize(const int width,
+                       const int height);
 private:
     static const int _timeout = 20;
+    static const int _defaultScreenWidth  = 640;
+    static const int _defaultScreenHeight = 480;
+    static const int _defaultMaxStarQuantity = 15;
     QSettings    *_settings;
     ArtifactBox   _screenStars;
     ArtifactBox   _catStars;
-    void proc(ArtifactBox &screenStars,
-              ArtifactBox &catStars);
+    QSize         _screen;
+    int           _maxStarQuantity;
+    void loadSettings(QSettings*);
+    void saveSettings(QSettings*);
+    void proc(ArtifactVector &screenStars,
+              ArtifactVector &catStars);
+    void selection(ArtifactVector&,        //отбор звёзд, попадающих в круг с центром
+                   const int radius,       //в центре кадра и радиусом [radius]
+                   const int maxQuantity); //и обрезка до [maxQuantity]
 private slots:
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);

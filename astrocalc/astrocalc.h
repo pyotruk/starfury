@@ -29,6 +29,9 @@ int round(const double x);
 ////////////////////////////////////////////////////////////////////////////////
 double calcDistance(const QPoint &p1,
                     const QPoint &p2);
+bool isEqual(const QPoint &p1,
+             const QPoint &p2,
+             const double eps);
 ////////////////////////////////////////////////////////////////////////////////
 void rad2degminsec(const double rad,
                    int &deg,

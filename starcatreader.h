@@ -12,6 +12,7 @@
 #include <qmath.h>
 #include <QFile>
 /////////////////////////////////////////////////////////////////////////////////////
+#include "globalskeys.h"
 #include "skysegment.h"
 #include "star.h"
 #include "guidecodec.h"
@@ -19,8 +20,6 @@
 #define DEFAULT_CATALOG_PATH    "D:/GuideCat/Guide.rez"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
-#define SKEY_FIELD_WIDTH               "/Field/Width"
-#define SKEY_FIELD_HEIGHT              "/Field/Height"
 #define SKEY_STARCATREADER_PATH        "/Starcat/Reader/Path"
 #define SKEY_STARCATREADER_MAGNLIM     "/Starcat/Reader/MagnLim"
 #define SKEY_STARCATREADER_SEGMENTSIDE "/Starcat/Reader/Segment/Side"
@@ -34,7 +33,10 @@ public:
     StarVector* stars();
     SkySegment& segment();
     QMutex*     mutex();
-    void refresh(double alpha, double delta);
+    void refresh(const double alpha,
+                 const double delta,
+                 const double fieldWidth,
+                 const double fieldHeight);
 protected:
     void run();
 private:

@@ -31,7 +31,9 @@ void FrameReceiver::run()
             if(_frame0->lock().tryLockForWrite(_timeout))
             {
                 _sharedMem->readFrame(_frame0);
-                fastProc(_frame0);
+                this->checkFrameSize(_frame0->header().width,
+                                     _frame0->header().height);
+                this->fastProc(_frame0);
                 _frame0->lock().unlock();
                 emit frame0Ready(_frame0); //to Gui
             }
@@ -62,5 +64,14 @@ Strob& FrameReceiver::strob()
     return *_strob;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void FrameReceiver::checkFrameSize(int width, int height)
+{
+    QSize s(width, height);
+    if(s != _bufSize)
+    {
+        _bufSize = s;
+        emit frameSizeChanged(width, height);
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

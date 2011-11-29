@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
 #include <QSettings>
+#include <QSize>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "sharedmem.h"
 #include "frame.h"
@@ -30,12 +31,15 @@ private:
     SharedMem      *_sharedMem;
     volatile bool   _stopped;
     Strob          *_strob;
+    QSize           _bufSize;
+    void checkFrameSize(int width, int height);
     void fastProc(Frame*);
 signals:
     void frame0Ready(Frame*); //to Gui
     void frame1Ready(Frame*,  //to StarDetector
                      int xTarget,
                      int yTarget);
+    void frameSizeChanged(int width, int height);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
