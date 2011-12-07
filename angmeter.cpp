@@ -1,6 +1,6 @@
-#include "equator.h"
+#include "angmeter.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Equator::Equator(QSettings *s) :
+Angmeter::Angmeter(QSettings *s) :
     _settings(s)
 {
     this->moveToThread(this);
@@ -9,14 +9,14 @@ Equator::Equator(QSettings *s) :
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-Equator::~Equator()
+Angmeter::~Angmeter()
 {
     this->quit();
     this->wait();
     this->saveSettings(_settings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::loadSettings(QSettings *s)
+void Angmeter::loadSettings(QSettings *s)
 {
     int screenWidth = s->value(SKEY_SCREEN_WIDTH, _defaultScreenWidth).toInt();
     int screenHeight = s->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
@@ -24,14 +24,14 @@ void Equator::loadSettings(QSettings *s)
     _maxStarQuantity = s->value(SKEY_MAX_STAR_QUANTITY, _defaultMaxStarQuantity).toInt();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::saveSettings(QSettings *s)
+void Angmeter::saveSettings(QSettings *s)
 {
     s->setValue(SKEY_SCREEN_WIDTH, _screen.width());
     s->setValue(SKEY_SCREEN_HEIGHT, _screen.height());
     s->setValue(SKEY_MAX_STAR_QUANTITY, _maxStarQuantity);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::inputScreenStars(ArtifactBox *a)
+void Angmeter::inputScreenStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
     _screenStars = *a;
@@ -41,15 +41,15 @@ void Equator::inputScreenStars(ArtifactBox *a)
                _catStars.artifacts());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::inputCatStars(ArtifactBox *a)
+void Angmeter::inputCatStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
     _catStars = *a;
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::proc(ArtifactVector &screenStars,
-                   ArtifactVector &catStars)
+void Angmeter::proc(ArtifactVector &screenStars,
+                    ArtifactVector &catStars)
 {
     this->selection(screenStars,
                     _screen.height() / 2,
@@ -57,16 +57,33 @@ void Equator::proc(ArtifactVector &screenStars,
     this->selection(catStars,
                     _screen.height() / 2,
                     _maxStarQuantity);
+
+    TriangleVector screenTriangles;
+    TriangleVector catTriangles;
+    triangle::cookTriangles(screenStars, screenTriangles);
+    triangle::cookTriangles(catStars, catTriangles);
+
+    _equatedScreenStars.lock().lockForWrite();
+    _equatedCatStars.lock().lockForWrite();
+    triangle::cookEquatedArtifacts(screenTriangles,
+                                   catTriangles,
+                                   _equatedScreenStars.artifacts(),
+                                   _equatedCatStars.artifacts());
+    _equatedCatStars.lock().unlock();
+    _equatedScreenStars.lock().unlock();
+
+    emit sendEquatedScreenStars(&_equatedScreenStars);
+    emit sendEquatedCatStars(&_equatedCatStars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::setScreenSize(const int width,
-                            const int height)
+void Angmeter::setScreenSize(const int width,
+                             const int height)
 {
     _screen.setWidth(width);
     _screen.setHeight(height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Equator::selection(ArtifactVector &a,
+void Angmeter::selection(ArtifactVector &a,
                         const int radius,
                         const int maxQuantity)
 {

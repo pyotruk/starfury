@@ -1,5 +1,5 @@
-#ifndef EQUATOR_H
-#define EQUATOR_H
+#ifndef ANGMETER_H
+#define ANGMETER_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QThread>
 #include <QDebug>
@@ -11,16 +11,17 @@
 #include "globalskeys.h"
 #include "artifactbox.h"
 #include "astrocalc.h"
+#include "triangle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
-#define SKEY_MAX_STAR_QUANTITY        "/Equator/MaxStarQuantity"
+#define SKEY_MAX_STAR_QUANTITY        "/Angmeter/MaxStarQuantity"
 /////////////////////////////////////////////////////////////////////////////////////
-class Equator : public QThread
+class Angmeter : public QThread
 {
     Q_OBJECT
 public:
-    explicit Equator(QSettings*);
-    ~Equator();
+    explicit Angmeter(QSettings*);
+    ~Angmeter();
 public slots:
     void setScreenSize(const int width,
                        const int height);
@@ -34,6 +35,8 @@ private:
     ArtifactBox   _catStars;
     QSize         _screen;
     int           _maxStarQuantity;
+    ArtifactBox   _equatedScreenStars;
+    ArtifactBox   _equatedCatStars;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc(ArtifactVector &screenStars,
@@ -44,6 +47,9 @@ private:
 private slots:
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
+signals:
+    void sendEquatedScreenStars(ArtifactBox*);
+    void sendEquatedCatStars(ArtifactBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -53,4 +59,4 @@ private slots:
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-#endif // EQUATOR_H
+#endif // ANGMETER_H

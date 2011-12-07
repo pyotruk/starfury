@@ -10,7 +10,7 @@
 #include "stardetector.h"
 #include "starcatscreen.h"
 #include "snudpsrv.h"
-#include "equator.h"
+#include "angmeter.h"
 #include "artifactbox.h"
 /////////////////////////////////////////////////////////////////////////////////////
 #define FRAME_HEADER_SIZE 32
@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
                                &screenStars);
     StarcatScreen starcatScreen(&settings,
                                 &catStars);
-    Equator       equator(&settings);
+    Angmeter      angmeter(&settings);
 
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "MainWidow w thread: " << w.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
     qDebug() << "starDetector thread:" << starDetector.thread();
     qDebug() << "starcatScreen thread: " << starcatScreen.thread();
-    qDebug() << "equator thread: " << equator.thread();
+    qDebug() << "angmeter thread: " << angmeter.thread();
 
     //form init
     w.initFace(frameReceiver.strob().geometry().innerSide(),
@@ -54,26 +54,32 @@ int main(int argc, char *argv[])
                      &starDetector, SLOT(inputFrame(Frame*,int,int)),
                      Qt::QueuedConnection);
     QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
-                     &equator, SLOT(inputScreenStars(ArtifactBox*)),
+                     &angmeter, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
-                     &equator, SLOT(inputCatStars(ArtifactBox*)),
+                     &angmeter, SLOT(inputCatStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
                      &starcatScreen, SLOT(setScreenSize(int,int)));
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
-                     &equator, SLOT(setScreenSize(int,int)));
+                     &angmeter, SLOT(setScreenSize(int,int)));
 
     //gui <--> object connections
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(Frame*)),
                      &w, SLOT(inputFrame(Frame*)),
                      Qt::QueuedConnection);
-    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
-                     &w, SLOT(inputScreenStars(ArtifactBox*)),
-                     Qt::QueuedConnection);
-    QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
-                     &w, SLOT(inputCatStars(ArtifactBox*)),
-                     Qt::QueuedConnection);
+
+//    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
+//                     &w, SLOT(inputScreenStars(ArtifactBox*)),
+//                     Qt::QueuedConnection);
+//    QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
+//                     &w, SLOT(inputCatStars(ArtifactBox*)),
+//                     Qt::QueuedConnection);
+
+    QObject::connect(&angmeter, SIGNAL(sendEquatedScreenStars(ArtifactBox*)),
+                     &w, SLOT(inputScreenStars(ArtifactBox*)));
+    QObject::connect(&angmeter, SIGNAL(sendEquatedCatStars(ArtifactBox*)),
+                     &w, SLOT(inputCatStars(ArtifactBox*)));
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),
                      Qt::QueuedConnection);
