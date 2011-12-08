@@ -27,25 +27,30 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////
 typedef QVector<ArtifactTriangle> TriangleVector;
 /////////////////////////////////////////////////////////////////////////////////////
-typedef int SimPath[3];
+typedef int SimPath[3]; //путь подоби€ (соответствие сторон треугольников)
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-namespace triangle
+namespace tri
 {
-bool isEqual(const ArtifactTriangle &t1,
+bool isEqual(const ArtifactTriangle &t1,   //проверка треугольников на равенство (совпадение вершин)
              const ArtifactTriangle &t2,
              const double eps);
-bool isSimilar(const ArtifactTriangle &t1,
+bool isSimilar(const ArtifactTriangle &t1, //проверка треугольников на подобие
                const ArtifactTriangle &t2,
                const double eps,
                SimPath&);
-void cookTriangles(ArtifactVector&,
+void deleteEqual(TriangleVector&,          //удал€ет повтор€ющиес€ треугольники
+                 const double eps);
+void cookTriangles(ArtifactVector&,        //формирует вектор треугольников из вектора артефактов
                    TriangleVector&);
-void cookEquatedArtifacts(const TriangleVector &t1,
+void cookEquatedArtifacts(const TriangleVector &t1, //формирует вектора a1 и a2 с отождествлЄнными точками (артефактами)
                           const TriangleVector &t2,
+                          const double eps,
                           ArtifactVector &a1,
                           ArtifactVector &a2);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // ARTTRIANGLE_H

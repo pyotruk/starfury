@@ -15,6 +15,8 @@
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 #define SKEY_MAX_STAR_QUANTITY        "/Angmeter/MaxStarQuantity"
+#define SKEY_EQUAL_EPS                "/Angmeter/EqualEps"
+#define SKEY_SIMILAR_EPS              "/Angmeter/SimilarEps"
 /////////////////////////////////////////////////////////////////////////////////////
 class Angmeter : public QThread
 {
@@ -30,20 +32,21 @@ private:
     static const int _defaultScreenWidth  = 640;
     static const int _defaultScreenHeight = 480;
     static const int _defaultMaxStarQuantity = 15;
+    static const double _defaultEqualEps   = 2.0;
+    static const double _defaultSimilarEps = 7.0;
     QSettings    *_settings;
     ArtifactBox   _screenStars;
     ArtifactBox   _catStars;
     QSize         _screen;
-    int           _maxStarQuantity;
     ArtifactBox   _equatedScreenStars;
     ArtifactBox   _equatedCatStars;
+    int           _maxStarQuantity;
+    double        _equalEps;
+    double        _similarEps;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc(ArtifactVector &screenStars,
               ArtifactVector &catStars);
-    void selection(ArtifactVector&,        //отбор звёзд, попадающих в круг с центром
-                   const int radius,       //в центре кадра и радиусом [radius]
-                   const int maxQuantity); //и обрезка до [maxQuantity]
 private slots:
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);

@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     adapters.cpp \
     artifactbox.cpp \
     triangle.cpp \
-    angmeter.cpp
+    angmeter.cpp \
+    astrocalc.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -56,7 +57,6 @@ HEADERS  += mainwindow.h \
     angmeter.h
 
 INCLUDEPATH += "C:/opencv231/include"
-INCLUDEPATH += "../astrobot/astrocalc"
 
 
 LIBS += -L"C:/opencv231/lib" \
@@ -65,10 +65,10 @@ LIBS += -L"C:/opencv231/lib" \
 -l"opencv_gpu231" -l"opencv_highgui231" -l"opencv_imgproc231" -l"opencv_legacy231" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
-LIBS += -L"../astrobot/astrocalc/debug" \
-        -l"astrocalc"
 
 FORMS += mainwindow.ui
+
+
 
 
 

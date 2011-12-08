@@ -22,6 +22,8 @@ void Angmeter::loadSettings(QSettings *s)
     int screenHeight = s->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
     _maxStarQuantity = s->value(SKEY_MAX_STAR_QUANTITY, _defaultMaxStarQuantity).toInt();
+    _equalEps = s->value(SKEY_EQUAL_EPS, _defaultEqualEps).toDouble();
+    _similarEps = s->value(SKEY_SIMILAR_EPS, _defaultSimilarEps).toDouble();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::saveSettings(QSettings *s)
@@ -29,6 +31,8 @@ void Angmeter::saveSettings(QSettings *s)
     s->setValue(SKEY_SCREEN_WIDTH, _screen.width());
     s->setValue(SKEY_SCREEN_HEIGHT, _screen.height());
     s->setValue(SKEY_MAX_STAR_QUANTITY, _maxStarQuantity);
+    s->setValue(SKEY_EQUAL_EPS, _equalEps);
+    s->setValue(SKEY_SIMILAR_EPS, _similarEps);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputScreenStars(ArtifactBox *a)
@@ -51,24 +55,35 @@ void Angmeter::inputCatStars(ArtifactBox *a)
 void Angmeter::proc(ArtifactVector &screenStars,
                     ArtifactVector &catStars)
 {
-    this->selection(screenStars,
-                    _screen.height() / 2,
-                    _maxStarQuantity);
-    this->selection(catStars,
-                    _screen.height() / 2,
-                    _maxStarQuantity);
+    art::selectOnCircle(screenStars,
+                        QPoint(_screen.width() / 2, _screen.height() / 2),
+                        _screen.height() / 2);
+    art::cutoff(screenStars, _maxStarQuantity);
+
+    art::selectOnCircle(catStars,
+                        QPoint(_screen.width() / 2, _screen.height() / 2),
+                        _screen.height() / 2);
+    art::cutoff(catStars, _maxStarQuantity);
+
+    if(catStars.size() > screenStars.size())
+        art::cutoff(catStars, screenStars.size());
 
     TriangleVector screenTriangles;
     TriangleVector catTriangles;
-    triangle::cookTriangles(screenStars, screenTriangles);
-    triangle::cookTriangles(catStars, catTriangles);
+
+    tri::cookTriangles(screenStars, screenTriangles);
+    tri::deleteEqual(screenTriangles, _equalEps);
+
+    tri::cookTriangles(catStars, catTriangles);
+    tri::deleteEqual(catTriangles, _equalEps);
 
     _equatedScreenStars.lock().lockForWrite();
     _equatedCatStars.lock().lockForWrite();
-    triangle::cookEquatedArtifacts(screenTriangles,
-                                   catTriangles,
-                                   _equatedScreenStars.artifacts(),
-                                   _equatedCatStars.artifacts());
+    tri::cookEquatedArtifacts(screenTriangles,
+                              catTriangles,
+                              _similarEps,
+                              _equatedScreenStars.artifacts(),
+                              _equatedCatStars.artifacts());
     _equatedCatStars.lock().unlock();
     _equatedScreenStars.lock().unlock();
 
@@ -83,26 +98,6 @@ void Angmeter::setScreenSize(const int width,
     _screen.setHeight(height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::selection(ArtifactVector &a,
-                        const int radius,
-                        const int maxQuantity)
-{
-    double r = (double)radius;
-    double dist;
-    QPoint cen(_screen.width() / 2,
-               _screen.height() / 2);
-    ArtifactVector::iterator it = a.begin();
-    for(; it < a.end(); ++it)
-    {
-        dist = ac::calcDistance(cen, it->center());
-        if(dist > r)
-        {
-            a.erase(it);
-        }
-    }
-    int dif = a.size() - maxQuantity;
-    if(dif > 0)     a.erase(a.end() - dif, a.end());
-}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

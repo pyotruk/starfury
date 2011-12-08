@@ -1,8 +1,8 @@
 #include "triangle.h"
 /////////////////////////////////////////////////////////////////////////////////////
-bool triangle::isEqual(const ArtifactTriangle &t1,
-                       const ArtifactTriangle &t2,
-                       const double eps)
+bool tri::isEqual(const ArtifactTriangle &t1,
+                  const ArtifactTriangle &t2,
+                  const double eps)
 {
     QPoint p1[3]; //массив точек
     p1[0] = t1.t()[0]->center();
@@ -32,10 +32,10 @@ bool triangle::isEqual(const ArtifactTriangle &t1,
     else            return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-bool triangle::isSimilar(const ArtifactTriangle &t1,
-                         const ArtifactTriangle &t2,
-                         const double eps,
-                         SimPath& sim)
+bool tri::isSimilar(const ArtifactTriangle &t1,
+                    const ArtifactTriangle &t2,
+                    const double eps,
+                    SimPath& sim)
 {
     double s1[3]; //массив сторон
     s1[0] = ac::calcDistance(t1.t()[0]->center(), t1.t()[1]->center());
@@ -94,26 +94,8 @@ found:
     return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void deleteEqual(TriangleVector &t)
-{
-    const double eps = 2;
-    TriangleVector::iterator i = t.begin();
-    TriangleVector::iterator j = t.begin();
-    for(; i < t.end(); ++i)
-    {
-        for(; j < t.end(); ++j)
-        {
-            if(j == i)    continue;
-            if(triangle::isEqual(*i, *j, eps))
-            {
-                t.erase(j);
-            }
-        }
-    }
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void triangle::cookTriangles(ArtifactVector &a,
-                             TriangleVector &t)
+void tri::cookTriangles(ArtifactVector &a,
+                        TriangleVector &t)
 {
     t.clear();
     ArtifactVector::iterator i = a.begin();
@@ -131,15 +113,32 @@ void triangle::cookTriangles(ArtifactVector &a,
             }
         }
     }
-    deleteEqual(t);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void triangle::cookEquatedArtifacts(const TriangleVector &t1,
-                                    const TriangleVector &t2,
-                                    ArtifactVector &a1,
-                                    ArtifactVector &a2)
+void tri::deleteEqual(TriangleVector &t,
+                      const double eps)
 {
-    const double eps = 7;
+    TriangleVector::iterator i = t.begin();
+    TriangleVector::iterator j = t.begin();
+    for(; i < t.end(); ++i)
+    {
+        for(; j < t.end(); ++j)
+        {
+            if(j == i)    continue;
+            if(tri::isEqual(*i, *j, eps))
+            {
+                t.erase(j);
+            }
+        }
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void tri::cookEquatedArtifacts(const TriangleVector &t1,
+                               const TriangleVector &t2,
+                               const double eps,
+                               ArtifactVector &a1,
+                               ArtifactVector &a2)
+{
     SimPath sim;
     a1.clear();
     a2.clear();
@@ -149,7 +148,7 @@ void triangle::cookEquatedArtifacts(const TriangleVector &t1,
     {
         for(; it2 < t2.constEnd(); ++it2)
         {
-            if(isSimilar(*it1, *it2, eps, sim))
+            if(tri::isSimilar(*it1, *it2, eps, sim))
             {
                 for(int i = 0; i < 3; ++i)
                 {

@@ -113,7 +113,7 @@ void StarcatScreen::catStar2screenStar(const TelescopeVector &t,
                                  _screen,
                                  x,
                                  y);
-    screenStar.center() = QPoint(x, y);
+    screenStar.setCenter(QPoint(x, y));
     screenStar.setMagnitude(ac::calcStarRadius(qAbs(catStar.magnitude())));
 }
 ////////////////////////////////////////////////////////////////////////////////
