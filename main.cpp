@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
                      &w, SLOT(inputScreenStars(ArtifactBox*)));
     QObject::connect(&angmeter, SIGNAL(sendEquatedCatStars(ArtifactBox*)),
                      &w, SLOT(inputCatStars(ArtifactBox*)));
+
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),
                      Qt::QueuedConnection);

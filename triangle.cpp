@@ -16,9 +16,9 @@ bool tri::isEqual(const ArtifactTriangle &t1,
 
     int eq = 0;
 
-    for(int i=0; i < 3; ++i)
+    for(int i = 0; i < 3; ++i)
     {
-        for(int j=0; j < 3; ++j)
+        for(int j = 0; j < 3; ++j)
         {
             if(ac::isEqual(p1[i], p2[j], eps))
             {
@@ -38,14 +38,14 @@ bool tri::isSimilar(const ArtifactTriangle &t1,
                     SimPath& sim)
 {
     double s1[3]; //массив сторон
-    s1[0] = ac::calcDistance(t1.t()[0]->center(), t1.t()[1]->center());
+    s1[0] = ac::calcDistance(t1.t()[1]->center(), t1.t()[2]->center());
     s1[1] = ac::calcDistance(t1.t()[0]->center(), t1.t()[2]->center());
-    s1[2] = ac::calcDistance(t1.t()[1]->center(), t1.t()[2]->center());
+    s1[2] = ac::calcDistance(t1.t()[0]->center(), t1.t()[1]->center());
 
     double s2[3]; //массив сторон
-    s2[0] = ac::calcDistance(t2.t()[0]->center(), t2.t()[1]->center());
+    s2[0] = ac::calcDistance(t2.t()[1]->center(), t2.t()[2]->center());
     s2[1] = ac::calcDistance(t2.t()[0]->center(), t2.t()[2]->center());
-    s2[2] = ac::calcDistance(t2.t()[1]->center(), t2.t()[2]->center());
+    s2[2] = ac::calcDistance(t2.t()[0]->center(), t2.t()[1]->center());
 
     double r1[3]; //массив отношений сторон
     r1[0] = s1[0] / s2[0];
@@ -53,22 +53,20 @@ bool tri::isSimilar(const ArtifactTriangle &t1,
     r1[2] = s1[0] / s2[2];
 
     double r2[3]; //массив отношений сторон
-    r1[0] = s1[1] / s2[0];
-    r1[1] = s1[1] / s2[1];
-    r1[2] = s1[1] / s2[2];
+    r2[0] = s1[1] / s2[0];
+    r2[1] = s1[1] / s2[1];
+    r2[2] = s1[1] / s2[2];
 
     double r3[3]; //массив отношений сторон
-    r1[0] = s1[2] / s2[0];
-    r1[1] = s1[2] / s2[1];
-    r1[2] = s1[2] / s2[2];
+    r3[0] = s1[2] / s2[0];
+    r3[1] = s1[2] / s2[1];
+    r3[2] = s1[2] / s2[2];
 
-    int i = 0;
-    int j = 0;
-    for(; i < 3; ++i)
+    for(int i = 0; i < 3; ++i)
     {
-        for(; j < 3; ++j)
+        for(int j = 0; j < 3; ++j)
         {
-            if(i == j)
+            if(j == i)
                 continue;
             if(qAbs(r1[i] - r2[j]) < eps)
             {
@@ -81,11 +79,11 @@ bool tri::isSimilar(const ArtifactTriangle &t1,
     return false;
 
 found:
-    for(int k=0; k < 3; ++k)
+    for(int k = 0; k < 3; ++k)
     {
-        if((k == i) || (k == j))
+        if((k == sim[0]) || (k == sim[1]))
             continue;
-        if(qAbs(r3[k] - r2[j]) < eps)
+        if(qAbs(r3[k] - r2[sim[1]]) < eps)
         {
             sim[2] = k;
             return true;
@@ -98,15 +96,15 @@ void tri::cookTriangles(ArtifactVector &a,
                         TriangleVector &t)
 {
     t.clear();
-    ArtifactVector::iterator i = a.begin();
-    ArtifactVector::iterator j = a.begin();
-    ArtifactVector::iterator k = a.begin();
-    for(; i < a.end(); ++i)
+    for(ArtifactVector::iterator
+        i = a.begin(); i < a.end(); ++i)
     {
-        for(; j < a.end(); ++j)
+        for(ArtifactVector::iterator
+            j = a.begin(); j < a.end(); ++j)
         {
             if(j == i)    continue;
-            for(; k < a.end(); ++k)
+            for(ArtifactVector::iterator
+                k = a.begin(); k < a.end(); ++k)
             {
                 if((k == i) || (k == j))    continue;
                 t.push_back(ArtifactTriangle(i, j, k));
@@ -118,11 +116,11 @@ void tri::cookTriangles(ArtifactVector &a,
 void tri::deleteEqual(TriangleVector &t,
                       const double eps)
 {
-    TriangleVector::iterator i = t.begin();
-    TriangleVector::iterator j = t.begin();
-    for(; i < t.end(); ++i)
+    for(TriangleVector::iterator
+        i = t.begin(); i < t.end(); ++i)
     {
-        for(; j < t.end(); ++j)
+        for(TriangleVector::iterator
+            j = t.begin(); j < t.end(); ++j)
         {
             if(j == i)    continue;
             if(tri::isEqual(*i, *j, eps))
@@ -142,11 +140,11 @@ void tri::cookEquatedArtifacts(const TriangleVector &t1,
     SimPath sim;
     a1.clear();
     a2.clear();
-    TriangleVector::const_iterator it1 = t1.constBegin();
-    TriangleVector::const_iterator it2 = t2.constBegin();
-    for(; it1 < t1.constEnd(); ++it1)
+    for(TriangleVector::const_iterator
+        it1 = t1.constBegin(); it1 < t1.constEnd(); ++it1)
     {
-        for(; it2 < t2.constEnd(); ++it2)
+        for(TriangleVector::const_iterator
+            it2 = t2.constBegin(); it2 < t2.constEnd(); ++it2)
         {
             if(tri::isSimilar(*it1, *it2, eps, sim))
             {

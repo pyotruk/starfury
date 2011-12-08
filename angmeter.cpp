@@ -84,6 +84,8 @@ void Angmeter::proc(ArtifactVector &screenStars,
                               _similarEps,
                               _equatedScreenStars.artifacts(),
                               _equatedCatStars.artifacts());
+    art::deleteEqual(_equatedScreenStars.artifacts(), _equalEps);
+    art::deleteEqual(_equatedCatStars.artifacts(), _equalEps);
     _equatedCatStars.lock().unlock();
     _equatedScreenStars.lock().unlock();
 

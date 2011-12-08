@@ -38,8 +38,8 @@ void art::selectOnCircle(ArtifactVector &a,
 {
     double r = (double)radius;
     double dist;
-    ArtifactVector::iterator it = a.begin();
-    for(; it < a.end(); ++it)
+    for(ArtifactVector::iterator
+        it = a.begin(); it < a.end(); ++it)
     {
         dist = ac::calcDistance(center, it->center());
         if(dist > r)
@@ -66,11 +66,11 @@ bool art::isEqual(const Artifact &a1,
 void art::deleteEqual(ArtifactVector &a,
                       const double eps)
 {
-    ArtifactVector::iterator i = a.begin();
-    ArtifactVector::iterator j = a.begin();
-    for(; i < a.end(); ++i)
+    for(ArtifactVector::iterator
+        i = a.begin(); i < a.end(); ++i)
     {
-        for(; j < a.end(); ++j)
+        for(ArtifactVector::iterator
+            j = a.begin(); j < a.end(); ++j)
         {
             if(j == i)    continue;
             if(art::isEqual(*i, *j, eps))

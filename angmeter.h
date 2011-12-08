@@ -33,16 +33,17 @@ private:
     static const int _defaultScreenHeight = 480;
     static const int _defaultMaxStarQuantity = 15;
     static const double _defaultEqualEps   = 2.0;
-    static const double _defaultSimilarEps = 7.0;
-    QSettings    *_settings;
-    ArtifactBox   _screenStars;
-    ArtifactBox   _catStars;
-    QSize         _screen;
-    ArtifactBox   _equatedScreenStars;
-    ArtifactBox   _equatedCatStars;
-    int           _maxStarQuantity;
-    double        _equalEps;
-    double        _similarEps;
+    static const double _defaultSimilarEps = 0.25;
+    QSettings     *_settings;
+    ArtifactBox    _screenStars;
+    ArtifactBox    _catStars;
+    QSize          _screen;
+    ArtifactBox    _equatedScreenStars;
+    ArtifactBox    _equatedCatStars;
+    TriangleVector _triangles;
+    int            _maxStarQuantity;
+    double         _equalEps;
+    double         _similarEps;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc(ArtifactVector &screenStars,
