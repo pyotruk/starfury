@@ -58,7 +58,7 @@ void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
     _starcatReader->mutex()->lock();
     this->proc(*t,
                *(_starcatReader->stars()),
-               _starBox->artifacts(),
+               _starBox->data(),
                *_segment);
     _starcatReader->mutex()->unlock();
 

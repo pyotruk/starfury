@@ -11,7 +11,6 @@
 #include "starcatscreen.h"
 #include "snudpsrv.h"
 #include "angmeter.h"
-#include "artifactbox.h"
 /////////////////////////////////////////////////////////////////////////////////////
 #define FRAME_HEADER_SIZE 32
 /////////////////////////////////////////////////////////////////////////////////////
@@ -76,10 +75,8 @@ int main(int argc, char *argv[])
 //                     &w, SLOT(inputCatStars(ArtifactBox*)),
 //                     Qt::QueuedConnection);
 
-    QObject::connect(&angmeter, SIGNAL(sendEquatedScreenStars(ArtifactBox*)),
-                     &w, SLOT(inputScreenStars(ArtifactBox*)));
-    QObject::connect(&angmeter, SIGNAL(sendEquatedCatStars(ArtifactBox*)),
-                     &w, SLOT(inputCatStars(ArtifactBox*)));
+    QObject::connect(&angmeter, SIGNAL(sendTriangles(TriangleBox*)),
+                     &w, SLOT(inputTriangles(TriangleBox*)));
 
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),

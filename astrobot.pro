@@ -28,7 +28,6 @@ SOURCES += main.cpp\
     starcatscreen.cpp \
     stardetector.cpp \
     adapters.cpp \
-    artifactbox.cpp \
     triangle.cpp \
     angmeter.cpp \
     astrocalc.cpp
@@ -51,10 +50,10 @@ HEADERS  += mainwindow.h \
     stardetector.h \
     astrocalc.h \
     adapters.h \
-    artifactbox.h \
     globalskeys.h \
     triangle.h \
-    angmeter.h
+    angmeter.h \
+    databox.h
 
 INCLUDEPATH += "C:/opencv231/include"
 
@@ -67,6 +66,11 @@ LIBS += -L"C:/opencv231/lib" \
 
 
 FORMS += mainwindow.ui
+
+
+
+
+
 
 
 

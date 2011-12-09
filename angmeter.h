@@ -9,7 +9,6 @@
 #include <QPoint>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "globalskeys.h"
-#include "artifactbox.h"
 #include "astrocalc.h"
 #include "triangle.h"
 /////////////////////////////////////////////////////////////////////////////////////
@@ -35,25 +34,19 @@ private:
     static const double _defaultEqualEps   = 2.0;
     static const double _defaultSimilarEps = 0.25;
     QSettings     *_settings;
-    ArtifactBox    _screenStars;
-    ArtifactBox    _catStars;
     QSize          _screen;
-    ArtifactBox    _equatedScreenStars;
-    ArtifactBox    _equatedCatStars;
-    TriangleVector _triangles;
+    TriangleBox    _tribox;
     int            _maxStarQuantity;
     double         _equalEps;
     double         _similarEps;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void proc(ArtifactVector &screenStars,
-              ArtifactVector &catStars);
+    void proc();
 private slots:
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
 signals:
-    void sendEquatedScreenStars(ArtifactBox*);
-    void sendEquatedCatStars(ArtifactBox*);
+    void sendTriangles(TriangleBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

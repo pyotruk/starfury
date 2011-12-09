@@ -29,9 +29,9 @@ void StarDetector::inputFrame(Frame *f,
 
     _artifactBox->lock().lockForWrite();
     this->findArtifacts(_frame,
-                        _artifactBox->artifacts(),
+                        _artifactBox->data(),
                         _magnThresh);
-    this->deleteTarget(_artifactBox->artifacts(),
+    this->deleteTarget(_artifactBox->data(),
                        _target);
     winfiletime2qdatetime(_frame.header().timeID,
                           _artifactBox->timeMarker());

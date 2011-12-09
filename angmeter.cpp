@@ -37,60 +37,64 @@ void Angmeter::saveSettings(QSettings *s)
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputScreenStars(ArtifactBox *a)
 {
+    _tribox.lock().lockForWrite();
     a->lock().lockForRead();
-    _screenStars = *a;
+
+    _tribox.data().picStars = a->data();
+
     a->lock().unlock();
 
-    this->proc(_screenStars.artifacts(),
-               _catStars.artifacts());
+    QTime t;
+    t.start();
+    this->proc();
+    qDebug() << "Angmeter proc delay: " << t.elapsed();
+
+
+    _tribox.lock().unlock();
+
+    emit sendTriangles(&_tribox);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputCatStars(ArtifactBox *a)
 {
+    _tribox.lock().lockForWrite();
     a->lock().lockForRead();
-    _catStars = *a;
+
+    _tribox.data().catStars = a->data();
+
     a->lock().unlock();
+    _tribox.lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::proc(ArtifactVector &screenStars,
-                    ArtifactVector &catStars)
+void Angmeter::proc()
 {
-    art::selectOnCircle(screenStars,
+    art::selectOnCircle(_tribox.data().picStars,
                         QPoint(_screen.width() / 2, _screen.height() / 2),
                         _screen.height() / 2);
-    art::cutoff(screenStars, _maxStarQuantity);
+    art::cutoff(_tribox.data().picStars,
+                _maxStarQuantity);
 
-    art::selectOnCircle(catStars,
+    art::selectOnCircle(_tribox.data().catStars,
                         QPoint(_screen.width() / 2, _screen.height() / 2),
                         _screen.height() / 2);
-    art::cutoff(catStars, _maxStarQuantity);
+    art::cutoff(_tribox.data().catStars,
+                _maxStarQuantity);
 
-    if(catStars.size() > screenStars.size())
-        art::cutoff(catStars, screenStars.size());
+    if(_tribox.data().catStars.size() > _tribox.data().picStars.size())
+        art::cutoff(_tribox.data().catStars,
+                    _tribox.data().picStars.size());
 
-    TriangleVector screenTriangles;
-    TriangleVector catTriangles;
+    tri::cookTriangles(_tribox.data().picStars,
+                       _tribox.data().picTriangles);
+    tri::deleteEqual(_tribox.data().picTriangles,
+                     _equalEps);
 
-    tri::cookTriangles(screenStars, screenTriangles);
-    tri::deleteEqual(screenTriangles, _equalEps);
+    tri::cookTriangles(_tribox.data().catStars,
+                       _tribox.data().catTriangles);
+    tri::deleteEqual(_tribox.data().catTriangles,
+                     _equalEps);
 
-    tri::cookTriangles(catStars, catTriangles);
-    tri::deleteEqual(catTriangles, _equalEps);
-
-    _equatedScreenStars.lock().lockForWrite();
-    _equatedCatStars.lock().lockForWrite();
-    tri::cookEquatedArtifacts(screenTriangles,
-                              catTriangles,
-                              _similarEps,
-                              _equatedScreenStars.artifacts(),
-                              _equatedCatStars.artifacts());
-    art::deleteEqual(_equatedScreenStars.artifacts(), _equalEps);
-    art::deleteEqual(_equatedCatStars.artifacts(), _equalEps);
-    _equatedCatStars.lock().unlock();
-    _equatedScreenStars.lock().unlock();
-
-    emit sendEquatedScreenStars(&_equatedScreenStars);
-    emit sendEquatedCatStars(&_equatedCatStars);
+    tri::cookTriangleBox(_tribox.data(), _similarEps);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,

@@ -10,8 +10,9 @@
 #include <QtAlgorithms>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "frame.h"
-#include "artifactbox.h"
 #include "drawhelpfun.h"
+#include "artifact.h"
+#include "triangle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace Ui {
@@ -34,16 +35,23 @@ private:
     QSize           _imgSize;
     ArtifactBox     _artifactBox;
     ArtifactBox     _starBox;
+    TriangleBox     _tribox;
+    void checkImgSize();
     void adaptWindowSize(const QSize&);
     void markArtifacts(QImage&,
                        ArtifactVector&);
     void markStars(QImage&,
                    ArtifactVector&);
-    void drawAll();
+    void drawTriangles(TriangleVector&,
+                       const QColor&);
+    void drawAll(ArtifactVector& picStars,
+                 ArtifactVector& catStars);
+    void drawAll(TriangleBoxData&);
 private slots:
     void inputFrame(Frame*);
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
+    void inputTriangles(TriangleBox*);
     void paintEvent(QPaintEvent *);
     void updateFace();
 signals:

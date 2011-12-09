@@ -131,31 +131,60 @@ void tri::deleteEqual(TriangleVector &t,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void tri::cookEquatedArtifacts(const TriangleVector &t1,
-                               const TriangleVector &t2,
-                               const double eps,
-                               ArtifactVector &a1,
-                               ArtifactVector &a2)
+void tri::cookTriangleBox(TriangleBoxData &d,
+                          const double eps)
 {
     SimPath sim;
-    a1.clear();
-    a2.clear();
-    for(TriangleVector::const_iterator
-        it1 = t1.constBegin(); it1 < t1.constEnd(); ++it1)
+    ArtifactVector aPic;
+    TriangleVector tPic;
+    ArtifactVector aCat;
+    TriangleVector tCat;
+    Triangle tp, tc;
+    Artifact a;
+    ArtifactVector::iterator it;
+    for(TriangleVector::iterator
+        itPic = d.picTriangles.begin(); itPic < d.picTriangles.end(); ++itPic)
     {
-        for(TriangleVector::const_iterator
-            it2 = t2.constBegin(); it2 < t2.constEnd(); ++it2)
+        for(TriangleVector::iterator
+            itCat = d.catTriangles.begin(); itCat < d.catTriangles.end(); ++itCat)
         {
-            if(tri::isSimilar(*it1, *it2, eps, sim))
+            if(tri::isSimilar(*itPic, *itCat, eps, sim))
             {
                 for(int i = 0; i < 3; ++i)
                 {
-                    a1.push_back(*(it1->t()[i]));
-                    a2.push_back(*(it2->t()[sim[i]]));
+                    a = *(itPic->t()[i]);
+                    it = qBinaryFind(aPic.begin(), aPic.end(), a);
+                    if(it < aPic.end())
+                    {
+                        tp[i] = it;
+                    }
+                    else
+                    {
+                        aPic.push_back(a);
+                        tp[i] = &(aPic.back());
+                    }
+
+                    a = *(itCat->t()[sim[i]]);
+                    it = qBinaryFind(aCat.begin(), aCat.end(), a);
+                    if(it < aCat.end())
+                    {
+                        tc[i] = it;
+                    }
+                    else
+                    {
+                        aCat.push_back(a);
+                        tc[i] = &(aCat.back());
+                    }
                 }
+                tPic.push_back(ArtifactTriangle(tp[0], tp[1], tp[2]));
+                tCat.push_back(ArtifactTriangle(tc[0], tc[1], tc[2]));
                 break;
             }
         }
     }
+    d.picStars = aPic;
+    d.picTriangles = tPic;
+    d.catStars = aCat;
+    d.catTriangles = tCat;
 }
 /////////////////////////////////////////////////////////////////////////////////////

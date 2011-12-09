@@ -48,6 +48,15 @@ void MainWindow::paintEvent(QPaintEvent *)
     painter.drawImage(p, _img);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::checkImgSize()
+{
+    if(_img.size() != _imgSize)
+    {
+        adaptWindowSize(_img.size());
+        _imgSize = _img.size();
+    }
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::adaptWindowSize(const QSize &imgSize)
 {
     QRect rect(this->geometry());
@@ -65,10 +74,10 @@ void MainWindow::markArtifacts(QImage &img,
     ArtifactVector::iterator it = a.begin();
     for(; it != a.end(); ++it)
     {
-        drawCrossbuck(img,
-                      it->center(),
-                      (int)it->magnitude(),
-                      Qt::green);
+        draw::crossbuck(img,
+                        it->center(),
+                        (int)it->magnitude(),
+                        Qt::green);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,22 +87,42 @@ void MainWindow::markStars(QImage &img,
     ArtifactVector::iterator it = s.begin();
     for(; it != s.end(); ++it)
     {
-        drawCross(img,
-                  it->center(),
-                  (int)it->magnitude(),
-                  Qt::magenta);
+        draw::cross(img,
+                    it->center(),
+                    (int)it->magnitude(),
+                    Qt::magenta);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawAll()
+void MainWindow::drawTriangles(TriangleVector &tv,
+                               const QColor &color)
 {
-    if(_img.size() != _imgSize)
+    foreach(ArtifactTriangle t, tv)
     {
-        adaptWindowSize(_img.size());
-        _imgSize = _img.size();
+        draw::triangle(_img,
+                       color,
+                       t.t()[0]->center(),
+                       t.t()[1]->center(),
+                       t.t()[2]->center());
     }
-    this->markArtifacts(_img, _artifactBox.artifacts());
-    this->markStars(_img, _starBox.artifacts());
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::drawAll(ArtifactVector &picStars,
+                         ArtifactVector &catStars)
+{
+    this->checkImgSize();
+    this->markArtifacts(_img, picStars);
+    this->markStars(_img, catStars);
+    update();
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::drawAll(TriangleBoxData &d)
+{
+    this->checkImgSize();
+    this->markArtifacts(_img, d.picStars);
+    this->markStars(_img, d.catStars);
+    this->drawTriangles(d.picTriangles, Qt::yellow);
+    this->drawTriangles(d.catTriangles, Qt::blue);
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +138,8 @@ void MainWindow::inputScreenStars(ArtifactBox *a)
     a->lock().lockForRead();
     _artifactBox = *a;
     a->lock().unlock();
-    this->drawAll(); //<---------!!!
+    this->drawAll(_artifactBox.data(),
+                  _starBox.data());    //<---------!!!
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::inputCatStars(ArtifactBox *a)
@@ -119,6 +149,14 @@ void MainWindow::inputCatStars(ArtifactBox *a)
     a->lock().unlock();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::inputTriangles(TriangleBox *t)
+{
+    t->lock().lockForRead();
+    _tribox = *t;
+    t->lock().unlock();
+
+    this->drawAll(_tribox.data());
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -10,9 +10,9 @@
 #include "opencv.hpp"
 #include "cvhelpfun.h"
 #include "frame.h"
-#include "artifactbox.h"
 #include "astrocalc.h"
 #include "adapters.h"
+#include "artifact.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class StarDetector : public QThread
 {
