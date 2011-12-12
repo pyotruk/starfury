@@ -1,18 +1,25 @@
 #include "triangle.h"
 /////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 bool tri::isEqual(const ArtifactTriangle &t1,
                   const ArtifactTriangle &t2,
                   const double eps)
 {
     QPoint p1[3]; //массив точек
-    p1[0] = t1.t()[0]->center();
-    p1[1] = t1.t()[1]->center();
-    p1[2] = t1.t()[2]->center();
+    p1[0] = t1.t()[0].center();
+    p1[1] = t1.t()[1].center();
+    p1[2] = t1.t()[2].center();
 
     QPoint p2[3]; //массив точек
-    p2[0] = t2.t()[0]->center();
-    p2[1] = t2.t()[1]->center();
-    p2[2] = t2.t()[2]->center();
+    p2[0] = t2.t()[0].center();
+    p2[1] = t2.t()[1].center();
+    p2[2] = t2.t()[2].center();
 
     int eq = 0;
 
@@ -38,14 +45,14 @@ bool tri::isSimilar(const ArtifactTriangle &t1,
                     SimPath& sim)
 {
     double s1[3]; //массив сторон
-    s1[0] = ac::calcDistance(t1.t()[1]->center(), t1.t()[2]->center());
-    s1[1] = ac::calcDistance(t1.t()[0]->center(), t1.t()[2]->center());
-    s1[2] = ac::calcDistance(t1.t()[0]->center(), t1.t()[1]->center());
+    s1[0] = ac::calcDistance(t1.t()[1].center(), t1.t()[2].center());
+    s1[1] = ac::calcDistance(t1.t()[0].center(), t1.t()[2].center());
+    s1[2] = ac::calcDistance(t1.t()[0].center(), t1.t()[1].center());
 
     double s2[3]; //массив сторон
-    s2[0] = ac::calcDistance(t2.t()[1]->center(), t2.t()[2]->center());
-    s2[1] = ac::calcDistance(t2.t()[0]->center(), t2.t()[2]->center());
-    s2[2] = ac::calcDistance(t2.t()[0]->center(), t2.t()[1]->center());
+    s2[0] = ac::calcDistance(t2.t()[1].center(), t2.t()[2].center());
+    s2[1] = ac::calcDistance(t2.t()[0].center(), t2.t()[2].center());
+    s2[2] = ac::calcDistance(t2.t()[0].center(), t2.t()[1].center());
 
     double r1[3]; //массив отношений сторон
     r1[0] = s1[0] / s2[0];
@@ -107,7 +114,7 @@ void tri::cookTriangles(ArtifactVector &a,
                 k = a.begin(); k < a.end(); ++k)
             {
                 if((k == i) || (k == j))    continue;
-                t.push_back(ArtifactTriangle(i, j, k));
+                t.push_back(ArtifactTriangle(*i, *j, *k));
             }
         }
     }
@@ -135,13 +142,8 @@ void tri::cookTriangleBox(TriangleBoxData &d,
                           const double eps)
 {
     SimPath sim;
-    ArtifactVector aPic;
-    TriangleVector tPic;
-    ArtifactVector aCat;
-    TriangleVector tCat;
-    Triangle tp, tc;
-    Artifact a;
-    ArtifactVector::iterator it;
+    TriangleVector tvPic;
+    TriangleVector tvCat;
     for(TriangleVector::iterator
         itPic = d.picTriangles.begin(); itPic < d.picTriangles.end(); ++itPic)
     {
@@ -150,41 +152,15 @@ void tri::cookTriangleBox(TriangleBoxData &d,
         {
             if(tri::isSimilar(*itPic, *itCat, eps, sim))
             {
-                for(int i = 0; i < 3; ++i)
-                {
-                    a = *(itPic->t()[i]);
-                    it = qBinaryFind(aPic.begin(), aPic.end(), a);
-                    if(it < aPic.end())
-                    {
-                        tp[i] = it;
-                    }
-                    else
-                    {
-                        aPic.push_back(a);
-                        tp[i] = &(aPic.back());
-                    }
-
-                    a = *(itCat->t()[sim[i]]);
-                    it = qBinaryFind(aCat.begin(), aCat.end(), a);
-                    if(it < aCat.end())
-                    {
-                        tc[i] = it;
-                    }
-                    else
-                    {
-                        aCat.push_back(a);
-                        tc[i] = &(aCat.back());
-                    }
-                }
-                tPic.push_back(ArtifactTriangle(tp[0], tp[1], tp[2]));
-                tCat.push_back(ArtifactTriangle(tc[0], tc[1], tc[2]));
+                tvPic.push_back(*itPic);
+                tvCat.push_back(ArtifactTriangle(itCat->t()[sim[0]],
+                                                 itCat->t()[sim[1]],
+                                                 itCat->t()[sim[2]]));
                 break;
             }
         }
     }
-    d.picStars = aPic;
-    d.picTriangles = tPic;
-    d.catStars = aCat;
-    d.catTriangles = tCat;
+    d.picTriangles = tvPic;
+    d.catTriangles = tvCat;
 }
 /////////////////////////////////////////////////////////////////////////////////////

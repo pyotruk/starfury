@@ -29,13 +29,14 @@ void draw::cross(QImage &img,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void draw::triangle(QImage &img,
+                    const int width,
                     const QColor &color,
                     const QPoint &p1,
                     const QPoint &p2,
                     const QPoint &p3)
 {
     QPainter p(&img);
-    p.setPen(QPen(color, 1));
+    p.setPen(QPen(color, width));
     p.drawLine(p1, p2);
     p.drawLine(p2, p3);
     p.drawLine(p3, p1);

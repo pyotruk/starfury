@@ -95,34 +95,33 @@ void MainWindow::markStars(QImage &img,
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::drawTriangles(TriangleVector &tv,
+                               const int width,
                                const QColor &color)
 {
     foreach(ArtifactTriangle t, tv)
     {
         draw::triangle(_img,
+                       width,
                        color,
-                       t.t()[0]->center(),
-                       t.t()[1]->center(),
-                       t.t()[2]->center());
+                       t.t()[0].center(),
+                       t.t()[1].center(),
+                       t.t()[2].center());
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawAll(ArtifactVector &picStars,
+void MainWindow::drawAll(TriangleBoxData &d,
+                         ArtifactVector &picStars,
                          ArtifactVector &catStars)
 {
     this->checkImgSize();
     this->markArtifacts(_img, picStars);
     this->markStars(_img, catStars);
-    update();
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawAll(TriangleBoxData &d)
-{
-    this->checkImgSize();
-    this->markArtifacts(_img, d.picStars);
-    this->markStars(_img, d.catStars);
-    this->drawTriangles(d.picTriangles, Qt::yellow);
-    this->drawTriangles(d.catTriangles, Qt::blue);
+    this->drawTriangles(d.picTriangles,
+                        2,
+                        Qt::yellow);
+    this->drawTriangles(d.catTriangles,
+                        1,
+                        Qt::blue);
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -131,6 +130,13 @@ void MainWindow::inputFrame(Frame *f)
     f->lock().lockForRead();
     f->copyToQImage(_img);
     f->lock().unlock();
+
+    QTime time;
+    time.start();
+    this->drawAll(_tribox.data(),
+                  _artifactBox.data(),
+                  _starBox.data());
+    qDebug() << "drawing delay: " << time.elapsed();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::inputScreenStars(ArtifactBox *a)
@@ -138,8 +144,6 @@ void MainWindow::inputScreenStars(ArtifactBox *a)
     a->lock().lockForRead();
     _artifactBox = *a;
     a->lock().unlock();
-    this->drawAll(_artifactBox.data(),
-                  _starBox.data());    //<---------!!!
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::inputCatStars(ArtifactBox *a)
@@ -154,8 +158,6 @@ void MainWindow::inputTriangles(TriangleBox *t)
     t->lock().lockForRead();
     _tribox = *t;
     t->lock().unlock();
-
-    this->drawAll(_tribox.data());
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

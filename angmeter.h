@@ -35,6 +35,8 @@ private:
     static const double _defaultSimilarEps = 0.25;
     QSettings     *_settings;
     QSize          _screen;
+    ArtifactVector _picStars;
+    ArtifactVector _catStars;
     TriangleBox    _tribox;
     int            _maxStarQuantity;
     double         _equalEps;

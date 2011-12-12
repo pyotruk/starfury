@@ -43,10 +43,11 @@ private:
     void markStars(QImage&,
                    ArtifactVector&);
     void drawTriangles(TriangleVector&,
+                       const int width,
                        const QColor&);
-    void drawAll(ArtifactVector& picStars,
-                 ArtifactVector& catStars);
-    void drawAll(TriangleBoxData&);
+    void drawAll(TriangleBoxData&,
+                 ArtifactVector &picStars,
+                 ArtifactVector &catStars);
 private slots:
     void inputFrame(Frame*);
     void inputScreenStars(ArtifactBox*);

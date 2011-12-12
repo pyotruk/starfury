@@ -61,22 +61,24 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
                      &starcatScreen, SLOT(setScreenSize(int,int)));
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
-                     &angmeter, SLOT(setScreenSize(int,int)));
+                     &angmeter, SLOT(setScreenSize(int,int)),
+                     Qt::QueuedConnection);
 
     //gui <--> object connections
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(Frame*)),
                      &w, SLOT(inputFrame(Frame*)),
                      Qt::QueuedConnection);
 
-//    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
-//                     &w, SLOT(inputScreenStars(ArtifactBox*)),
-//                     Qt::QueuedConnection);
-//    QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
-//                     &w, SLOT(inputCatStars(ArtifactBox*)),
-//                     Qt::QueuedConnection);
+    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
+                     &w, SLOT(inputScreenStars(ArtifactBox*)),
+                     Qt::QueuedConnection);
+    QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
+                     &w, SLOT(inputCatStars(ArtifactBox*)),
+                     Qt::QueuedConnection);
 
     QObject::connect(&angmeter, SIGNAL(sendTriangles(TriangleBox*)),
-                     &w, SLOT(inputTriangles(TriangleBox*)));
+                     &w, SLOT(inputTriangles(TriangleBox*)),
+                     Qt::QueuedConnection);
 
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),

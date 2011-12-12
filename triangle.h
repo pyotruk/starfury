@@ -13,14 +13,15 @@
 #include "qmath.h"
 #include "databox.h"
 /////////////////////////////////////////////////////////////////////////////////////
-typedef Artifact* Triangle[3];
+typedef Artifact Triangle[3];
 /////////////////////////////////////////////////////////////////////////////////////
 class ArtifactTriangle
 {
 public:
-    ArtifactTriangle(Artifact *a = 0,
-                     Artifact *b = 0,
-                     Artifact *c = 0)
+    ArtifactTriangle() {}
+    ArtifactTriangle(const Artifact &a,
+                     const Artifact &b,
+                     const Artifact &c)
     {_t[0] = a;  _t[1] = b;  _t[2] = c;}
     const Triangle& t() const {return _t;}
 private:
@@ -31,9 +32,7 @@ typedef QVector<ArtifactTriangle> TriangleVector;
 /////////////////////////////////////////////////////////////////////////////////////
 struct TriangleBoxData
 {
-    ArtifactVector picStars;
     TriangleVector picTriangles;
-    ArtifactVector catStars;
     TriangleVector catTriangles;
 };
 /////////////////////////////////////////////////////////////////////////////////////

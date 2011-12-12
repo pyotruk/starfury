@@ -18,6 +18,7 @@ void cross(QImage&,
            const QColor &color);
 /////////////////////////////////////////////////////////////////////////////////////
 void triangle(QImage&,
+              const int width,
               const QColor&,
               const QPoint &p1,
               const QPoint &p2,
