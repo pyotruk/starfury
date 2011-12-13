@@ -121,7 +121,7 @@ void MainWindow::drawAll(TriangleBoxData &d,
                         Qt::yellow);
     this->drawTriangles(d.catTriangles,
                         1,
-                        Qt::blue);
+                        Qt::cyan);
     update();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

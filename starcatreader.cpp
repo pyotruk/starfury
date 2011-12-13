@@ -31,8 +31,8 @@ void StarcatReader::loadSettings(QSettings *settings)
 {
     _path = settings->value(SKEY_STARCATREADER_PATH, DEFAULT_CATALOG_PATH).toString();
     _magnLim = settings->value(SKEY_STARCATREADER_MAGNLIM, _defaultMagnLim).toDouble();
-    double fieldWidth = settings->value(SKEY_FIELD_WIDTH, _defaultFieldWidth).toDouble();
-    double fieldHeight = settings->value(SKEY_FIELD_HEIGHT, _defaultFieldHeight).toDouble();
+    double fieldWidth = settings->value(SKEY_FIELD_WIDTH, _defaultFieldWidth).toDouble() / 60 * __deg2rad;
+    double fieldHeight = settings->value(SKEY_FIELD_HEIGHT, _defaultFieldHeight).toDouble() / 60 * __deg2rad;
     double segmentSide = settings->value(SKEY_STARCATREADER_SEGMENTSIDE, _defaultSegmentSide).toDouble();
     double segmentEdge = settings->value(SKEY_STARCATREADER_SEGMENTEDGE, _defaultSegmentEdge).toDouble();
     _segment.setField(QSizeF(fieldWidth, fieldHeight));
@@ -44,8 +44,8 @@ void StarcatReader::saveSettings(QSettings *settings)
 {
     settings->setValue(SKEY_STARCATREADER_PATH, _path);
     settings->setValue(SKEY_STARCATREADER_MAGNLIM, _magnLim);
-    settings->setValue(SKEY_FIELD_WIDTH, _segment.field().width());
-    settings->setValue(SKEY_FIELD_HEIGHT, _segment.field().height());
+    settings->setValue(SKEY_FIELD_WIDTH, _segment.field().width() * __rad2deg * 60);
+    settings->setValue(SKEY_FIELD_HEIGHT, _segment.field().height() * __rad2deg * 60);
     settings->setValue(SKEY_STARCATREADER_SEGMENTSIDE, _segment.side());
     settings->setValue(SKEY_STARCATREADER_SEGMENTEDGE, _segment.edge());
 }
@@ -74,16 +74,16 @@ void StarcatReader::run()
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::refresh(const double alpha,
-                            const double delta,
+                            const double delta/*,
                             const double fieldWidth,
-                            const double fieldHeight)
+                            const double fieldHeight*/)
 {
     if(_segment.isOnEdge(alpha, delta))
     {
         _segment.generateNew(alpha,
-                             delta,
+                             delta/*,
                              fieldWidth,
-                             fieldHeight);
+                             fieldHeight*/);
         this->start(QThread::NormalPriority);
     }
 }

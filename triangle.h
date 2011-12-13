@@ -57,6 +57,11 @@ void cookTriangles(ArtifactVector&,        //формирует вектор треугольников из в
                    TriangleVector&);
 void cookTriangleBox(TriangleBoxData&,     //формирует вектора с отождествлёнными точками (артефактами)
                      const double eps);    //и вектора с соответствующими им треугольниками
+void triangles2Artifacts(const TriangleVector &tvPic,
+                         const TriangleVector &tvCat,
+                         const double equalEps,
+                         ArtifactVector &picStars,
+                         ArtifactVector &catStars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

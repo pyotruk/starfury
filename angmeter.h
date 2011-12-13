@@ -11,6 +11,7 @@
 #include "globalskeys.h"
 #include "astrocalc.h"
 #include "triangle.h"
+#include "lincor.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 #define SKEY_MAX_STAR_QUANTITY        "/Angmeter/MaxStarQuantity"
@@ -41,6 +42,7 @@ private:
     int            _maxStarQuantity;
     double         _equalEps;
     double         _similarEps;
+    LinCor         _lincor;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc();

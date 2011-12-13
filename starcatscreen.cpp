@@ -49,9 +49,9 @@ void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
 {
     lock->lockForRead();
     _starcatReader->refresh(t->alpha,
-                            t->delta,
+                            t->delta/*,
                             t->fieldWidth,
-                            t->fieldHeight);
+                            t->fieldHeight*/);
 
     _starBox->lock().lockForWrite();
 
@@ -77,8 +77,10 @@ void StarcatScreen::proc(const TelescopeVector &t,
     if(s.empty())  return;
     seg.generateNew(t.alpha,
                     t.delta,
-                    t.fieldWidth,
-                    t.fieldHeight);
+                    _starcatReader->segment().field().width(),
+                    _starcatReader->segment().field().height()
+                    /*t.fieldWidth,
+                    t.fieldHeight*/);
     a.clear();
     Artifact star;
     StarVector::iterator it = s.begin();

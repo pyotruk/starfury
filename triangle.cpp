@@ -164,3 +164,34 @@ void tri::cookTriangleBox(TriangleBoxData &d,
     d.catTriangles = tvCat;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void tri::triangles2Artifacts(const TriangleVector &tvPic,
+                              const TriangleVector &tvCat,
+                              const double equalEps,
+                              ArtifactVector &picStars,
+                              ArtifactVector &catStars)
+{
+    picStars.clear();
+    catStars.clear();
+    Artifact a;
+    for(TriangleVector::const_iterator itPic = tvPic.constBegin(),
+                                       itCat = tvCat.constBegin();
+        itPic < tvPic.constEnd();
+        ++itPic, ++itCat)
+    {
+        for(int i = 0; i < 3; ++i)
+        {
+            a = itPic->t()[i];
+            if(!art::isContain(picStars, a, equalEps))
+            {
+                picStars.push_back(a);
+            }
+            a = itCat->t()[i];
+            if(!art::isContain(catStars, a, equalEps))
+            {
+                catStars.push_back(a);
+            }
+        }
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////

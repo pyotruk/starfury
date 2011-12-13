@@ -43,6 +43,9 @@ bool isEqual(const Artifact &a1,           //проверка артефактов на равенство (с
              const double eps);
 void deleteEqual(ArtifactVector&,
                  const double eps);         //удал€ет повтор€ющиес€ артефакты
+bool isContain(const ArtifactVector&,
+               const Artifact&,
+               const double eps);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

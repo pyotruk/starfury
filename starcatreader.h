@@ -34,9 +34,9 @@ public:
     SkySegment& segment();
     QMutex*     mutex();
     void refresh(const double alpha,
-                 const double delta,
+                 const double delta/*,
                  const double fieldWidth,
-                 const double fieldHeight);
+                 const double fieldHeight*/);
 protected:
     void run();
 private:

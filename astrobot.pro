@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     adapters.cpp \
     triangle.cpp \
     angmeter.cpp \
-    astrocalc.cpp
+    astrocalc.cpp \
+    lincor.cpp
 
 HEADERS  += mainwindow.h \
     strob.h \
@@ -53,7 +54,8 @@ HEADERS  += mainwindow.h \
     globalskeys.h \
     triangle.h \
     angmeter.h \
-    databox.h
+    databox.h \
+    lincor.h
 
 INCLUDEPATH += "C:/opencv231/include"
 
@@ -66,6 +68,8 @@ LIBS += -L"C:/opencv231/lib" \
 
 
 FORMS += mainwindow.ui
+
+
 
 
 

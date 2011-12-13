@@ -90,9 +90,27 @@ void Angmeter::proc()
 
     qDebug() << "triangles TOTAL:  " << _tribox.data().picTriangles.size()
              << " (pic)    " << _tribox.data().catTriangles.size() << " (cat)";
+
     tri::cookTriangleBox(_tribox.data(), _similarEps);
+
     qDebug() << "triangles SIMILAR:  " << _tribox.data().picTriangles.size()
              << " (pic)    " << _tribox.data().catTriangles.size() << " (cat)";
+
+    tri::triangles2Artifacts(_tribox.data().picTriangles,
+                             _tribox.data().catTriangles,
+                             _equalEps,
+                             _picStars,
+                             _catStars);
+
+    calcLinCor(_picStars,
+               _catStars,
+               _lincor);
+    qDebug() << "a1 = " << _lincor.a1
+             << "    b1 = " << _lincor.b1
+             << "    c1 = " << _lincor.c1;
+    qDebug() << "a2 = " << _lincor.a2
+             << "    b2 = " << _lincor.b2
+             << "    c2 = " << _lincor.c2;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,
