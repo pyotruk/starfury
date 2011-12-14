@@ -77,10 +77,11 @@ void StarcatScreen::inputTarget(double x, double y)
     this->screenTarget2catTarget(_telescope,
                                  x, y,
                                  alpha, delta);
-    double errAlpha = (_telescope.alpha - alpha) * __rad2deg * 3600;
-    double errDelta = (_telescope.delta - delta) * __rad2deg * 3600;
-    qDebug() << "errAlpha = " << errAlpha
-             << "    errDelta = " << errDelta;
+    double errAlpha = _telescope.alpha - alpha;
+    double errDelta = _telescope.delta - delta;
+    emit sendMeasureError(errAlpha, errDelta);
+    qDebug() << "errAlpha = " << errAlpha * __rad2deg * 3600
+             << "    errDelta = " << errDelta * __rad2deg * 3600;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::proc(const TelescopeVector &t,

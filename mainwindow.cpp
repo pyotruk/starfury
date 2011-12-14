@@ -160,6 +160,14 @@ void MainWindow::inputTriangles(TriangleBox *t)
     t->lock().unlock();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::inputMeasureError(double errAlpha,  //rad
+                                   double errDelta)  //rad
+{
+    ui->labelMeasErr->setText("measure error (sec):  alpha = " +
+                              QString::number(errAlpha * __rad2deg * 3600) +
+                              "    delta = " +
+                              QString::number(errDelta * __rad2deg * 3600));
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 

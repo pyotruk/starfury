@@ -83,6 +83,10 @@ int main(int argc, char *argv[])
                      &w, SLOT(inputTriangles(TriangleBox*)),
                      Qt::QueuedConnection);
 
+    QObject::connect(&starcatScreen, SIGNAL(sendMeasureError(double,double)),
+                     &w, SLOT(inputMeasureError(double,double)),
+                     Qt::QueuedConnection);
+
     QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
                      &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),
                      Qt::QueuedConnection);

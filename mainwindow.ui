@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>640</width>
-    <height>580</height>
+    <height>639</height>
    </rect>
   </property>
   <property name="cursor">
@@ -23,7 +23,7 @@
       <x>10</x>
       <y>470</y>
       <width>621</width>
-      <height>71</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="font">
@@ -121,6 +121,27 @@
      </property>
      <property name="text">
       <string>thr 000</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelMeasErr">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>80</y>
+       <width>541</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <underline>false</underline>
+       <strikeout>false</strikeout>
+       <kerning>true</kerning>
+      </font>
+     </property>
+     <property name="text">
+      <string>measure error    alpha = 0    delta = 0</string>
      </property>
     </widget>
    </widget>

@@ -28,6 +28,8 @@ public:
     void initFace(const int strobSize,
                   const int trackTresh);
 private:
+    static const double __deg2rad = 0.017453292519943295769236907684886;
+    static const double __rad2deg = 57.295779513082320876798154814105;
     static const int _timeout = 20;
     static const int _crossSide = 10;
     Ui::MainWindow *ui;
@@ -53,6 +55,8 @@ private slots:
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
     void inputTriangles(TriangleBox*);
+    void inputMeasureError(double errAlpha,  //rad
+                           double errDelta); //rad
     void paintEvent(QPaintEvent *);
     void updateFace();
 signals:

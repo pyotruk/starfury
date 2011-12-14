@@ -61,6 +61,8 @@ private slots:
     void inputTarget(double x, double y); //в экранной СК в плоскости каталога
 signals:
     void catStarsReady(ArtifactBox*);
+    void sendMeasureError(double errAlpha,  //rad
+                          double errDelta); //rad
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
