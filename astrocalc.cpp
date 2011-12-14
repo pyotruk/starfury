@@ -241,7 +241,8 @@ void ac::horiz2screen(const double centerAzimuth,
 ////////////////////////////////////////////////////////////////////////////////
     //SCREEN
 ////////////////////////////////////////////////////////////////////////////////
-void ac::screenAngles2screenPoint(const double angleX, //no field rotation !
+//no field rotation !
+void ac::screenAngles2screenPoint(const double angleX,
                                   const double angleY,
                                   const double starDelta,
                                   const QSizeF &field,
@@ -249,12 +250,29 @@ void ac::screenAngles2screenPoint(const double angleX, //no field rotation !
                                   int &x,
                                   int &y)
 {
-    QPoint rad2pix(screen.width() / field.width(),
-                   screen.height() / field.height());
+    QPointF rad2pix(screen.width() / field.width(),
+                    screen.height() / field.height());
     int x0 = round(angleX * rad2pix.x() / qAbs(qCos(starDelta)));
     int y0 = round(angleY * rad2pix.y());
     x = -x0 + (screen.width() / 2);
     y = -y0 + (screen.height() / 2);
+}
+////////////////////////////////////////////////////////////////////////////////
+//no field rotation !
+void ac::screenPoint2screenAngles(const int x,
+                                  const int y,
+                                  const double starDelta,
+                                  const QSizeF &field,
+                                  const QSize &screen,
+                                  double &angleX,
+                                  double &angleY)
+{
+    int x0 = -x + (screen.width() / 2);
+    int y0 = -y + (screen.height() / 2);
+    QPointF pix2rad(field.width() / screen.width(),
+                    field.height() / screen.height());
+    angleX = x0 * pix2rad.x() * qAbs(qCos(starDelta));
+    angleY = y0 * pix2rad.y();
 }
 ////////////////////////////////////////////////////////////////////////////////
 double ac::calcStarRadius(const double magnitude)

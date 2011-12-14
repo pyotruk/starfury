@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frame1Ready(Frame*,int,int)),
                      &starDetector, SLOT(inputFrame(Frame*,int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
-                     &angmeter, SLOT(inputScreenStars(ArtifactBox*)),
+    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*,int,int)),
+                     &angmeter, SLOT(inputScreenStars(ArtifactBox*,int,int)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
                      &angmeter, SLOT(inputCatStars(ArtifactBox*)),
@@ -63,13 +63,16 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
                      &angmeter, SLOT(setScreenSize(int,int)),
                      Qt::QueuedConnection);
+    QObject::connect(&angmeter, SIGNAL(sendTarget(int,int)),
+                     &starcatScreen, SLOT(inputTarget(int,int)),
+                     Qt::QueuedConnection);
 
     //gui <--> object connections
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(Frame*)),
                      &w, SLOT(inputFrame(Frame*)),
                      Qt::QueuedConnection);
 
-    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*)),
+    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*,int,int)),
                      &w, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),

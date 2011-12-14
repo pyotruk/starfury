@@ -103,13 +103,23 @@ void horiz2screen(const double centerAzimuth,
 ////////////////////////////////////////////////////////////////////////////////
     //SCREEN
 ////////////////////////////////////////////////////////////////////////////////
-void screenAngles2screenPoint(const double angleX, //no field rotation !
+ //no field rotation !
+void screenAngles2screenPoint(const double angleX,
                               const double angleY,
                               const double starDelta,
                               const QSizeF &field,
                               const QSize  &screen,
                               int &x,
                               int &y);
+////////////////////////////////////////////////////////////////////////////////
+ //no field rotation !
+void screenPoint2screenAngles(const int x,
+                              const int y,
+                              const double starDelta,
+                              const QSizeF &field,
+                              const QSize  &screen,
+                              double &angleX,
+                              double &angleY);
 ////////////////////////////////////////////////////////////////////////////////
 double calcStarRadius(const double magnitude);
 ////////////////////////////////////////////////////////////////////////////////

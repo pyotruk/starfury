@@ -39,7 +39,9 @@ private slots:
                     int xTarget,
                     int yTarget);
 signals:
-    void screenStarsReady(ArtifactBox*);
+    void screenStarsReady(ArtifactBox*,
+                          int xTarget,
+                          int yTarget);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

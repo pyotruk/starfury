@@ -18,6 +18,7 @@
 #define SKEY_EQUAL_EPS                "/Angmeter/EqualEps"
 #define SKEY_SIMILAR_EPS              "/Angmeter/SimilarEps"
 /////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 class Angmeter : public QThread
 {
     Q_OBJECT
@@ -45,12 +46,17 @@ private:
     LinCor         _lincor;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void proc();
+    void equation();
+    void measureWork(int &xTarget,
+                     int &yTarget);
 private slots:
-    void inputScreenStars(ArtifactBox*);
+    void inputScreenStars(ArtifactBox*,
+                          int xTarget,
+                          int yTarget);
     void inputCatStars(ArtifactBox*);
 signals:
     void sendTriangles(TriangleBox*);
+    void sendTarget(int x, int y);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

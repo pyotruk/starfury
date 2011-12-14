@@ -48,25 +48,39 @@ void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
                                          QReadWriteLock  *lock)
 {
     lock->lockForRead();
-    _starcatReader->refresh(t->alpha,
-                            t->delta/*,
-                            t->fieldWidth,
-                            t->fieldHeight*/);
+    _telescope = *t;
+    lock->unlock();
+
+    _starcatReader->refresh(_telescope.alpha,
+                            _telescope.delta/*,
+                            _telescope.fieldWidth,
+                            _telescope.fieldHeight*/);
 
     _starBox->lock().lockForWrite();
 
     _starcatReader->mutex()->lock();
-    this->proc(*t,
+    this->proc(_telescope,
                *(_starcatReader->stars()),
                _starBox->data(),
                *_segment);
     _starcatReader->mutex()->unlock();
 
-    winfiletime2qdatetime(t->timeUTC, _starBox->timeMarker());
+    winfiletime2qdatetime(_telescope.timeUTC, _starBox->timeMarker());
     _starBox->lock().unlock();
 
     emit catStarsReady(_starBox);
-    lock->unlock();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StarcatScreen::inputTarget(int x, int y)
+{
+    double alpha, delta;
+    this->screenTarget2catTarget(_telescope,
+                                 x, y,
+                                 alpha, delta);
+    double errAlpha = (_telescope.alpha - alpha) * __rad2deg * 3600;
+    double errDelta = (_telescope.delta - delta) * __rad2deg * 3600;
+    qDebug() << "errAlpha = " << errAlpha
+             << "    errDelta = " << errDelta;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::proc(const TelescopeVector &t,
@@ -117,6 +131,35 @@ void StarcatScreen::catStar2screenStar(const TelescopeVector &t,
                                  y);
     screenStar.setCenter(QPoint(x, y));
     screenStar.setMagnitude(ac::calcStarRadius(qAbs(catStar.magnitude())));
+}
+////////////////////////////////////////////////////////////////////////////////
+void StarcatScreen::screenTarget2catTarget(const TelescopeVector &t,
+                                           const int x,
+                                           const int y,
+                                           double &alpha,
+                                           double &delta)
+{
+    double xAng, yAng;
+    double azHoriz, elHoriz;
+    ac::screenPoint2screenAngles(x,
+                                 y,
+                                 _telescope.delta,
+                                 _starcatReader->segment().field(),
+                                 _screen,
+                                 xAng,
+                                 yAng);
+    ac::screen2horiz(_telescope.azHoriz,
+                     _telescope.elHoriz,
+                     xAng,
+                     yAng,
+                     azHoriz,
+                     elHoriz);
+    ac::horiz2iieqt(azHoriz,
+                    elHoriz,
+                    _telescope.LST,
+                    _telescope.latitude,
+                    alpha,
+                    delta);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::setScreenSize(const int width,

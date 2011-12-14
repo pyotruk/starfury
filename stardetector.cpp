@@ -37,7 +37,9 @@ void StarDetector::inputFrame(Frame *f,
                           _artifactBox->timeMarker());
     _artifactBox->lock().unlock();
 
-    emit screenStarsReady(_artifactBox);
+    emit screenStarsReady(_artifactBox,
+                          _target.x(),
+                          _target.y());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarDetector::filtering(Frame &f)

@@ -29,6 +29,8 @@ public slots:
     void setScreenSize(const int width,
                        const int height);
 private:
+    static const double __deg2rad = 0.017453292519943295769236907684886;
+    static const double __rad2deg = 57.295779513082320876798154814105;
     static const int _timeout = 20;
     static const int _defaultScreenWidth  = 640;
     static const int _defaultScreenHeight = 480;
@@ -38,6 +40,7 @@ private:
     SkySegment       *_segment;
     SnUdpSrv         *_snServer;
     QSize             _screen;
+    TelescopeVector   _telescope;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc(const TelescopeVector&,
@@ -47,9 +50,15 @@ private:
     void catStar2screenStar(const TelescopeVector&,
                             Star&,
                             Artifact&);
+    void screenTarget2catTarget(const TelescopeVector&,
+                                const int x,
+                                const int y,
+                                double &alpha,
+                                double &delta);
 private slots:
     void inputTelescopeVector(TelescopeVector*,
                               QReadWriteLock*);
+    void inputTarget(int x, int y);
 signals:
     void catStarsReady(ArtifactBox*);
 };

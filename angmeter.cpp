@@ -35,7 +35,9 @@ void Angmeter::saveSettings(QSettings *s)
     s->setValue(SKEY_SIMILAR_EPS, _similarEps);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::inputScreenStars(ArtifactBox *a)
+void Angmeter::inputScreenStars(ArtifactBox *a,
+                                int xTarget,
+                                int yTarget)
 {
     a->lock().lockForRead();
     _picStars = a->data();
@@ -45,12 +47,15 @@ void Angmeter::inputScreenStars(ArtifactBox *a)
     t.start();
 
     _tribox.lock().lockForWrite();
-    this->proc();
+    this->equation();
     _tribox.lock().unlock();
 
-    qDebug() << "Angmeter proc delay: " << t.elapsed();
+    qDebug() << "Angmeter equation delay: " << t.elapsed();
 
     emit sendTriangles(&_tribox);
+
+    this->measureWork(xTarget, yTarget);
+    emit sendTarget(xTarget, yTarget);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputCatStars(ArtifactBox *a)
@@ -60,7 +65,7 @@ void Angmeter::inputCatStars(ArtifactBox *a)
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::proc()
+void Angmeter::equation()
 {
     art::selectOnCircle(_picStars,
                         QPoint(_screen.width() / 2, _screen.height() / 2),
@@ -101,7 +106,11 @@ void Angmeter::proc()
                              _equalEps,
                              _picStars,
                              _catStars);
-
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::measureWork(int &xTarget,
+                           int &yTarget)
+{
     calcLinCor(_picStars,
                _catStars,
                _lincor);
@@ -111,6 +120,15 @@ void Angmeter::proc()
     qDebug() << "a2 = " << _lincor.a2
              << "    b2 = " << _lincor.b2
              << "    c2 = " << _lincor.c2;
+    int x0 = xTarget;
+    int y0 = yTarget;
+    conversion(_lincor,
+               xTarget, yTarget,
+               xTarget, yTarget);
+    int dx = xTarget - x0;
+    int dy = yTarget - y0;
+    qDebug() << "dx = " << dx
+             << "    dy = " << dy;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,
