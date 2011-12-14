@@ -71,7 +71,7 @@ void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
     emit catStarsReady(_starBox);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTarget(int x, int y)
+void StarcatScreen::inputTarget(double x, double y)
 {
     double alpha, delta;
     this->screenTarget2catTarget(_telescope,
@@ -134,8 +134,8 @@ void StarcatScreen::catStar2screenStar(const TelescopeVector &t,
 }
 ////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::screenTarget2catTarget(const TelescopeVector &t,
-                                           const int x,
-                                           const int y,
+                                           const double x,
+                                           const double y,
                                            double &alpha,
                                            double &delta)
 {

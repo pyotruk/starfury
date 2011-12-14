@@ -9,10 +9,10 @@
 #include <QMouseEvent>
 #include <QtAlgorithms>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "frame.h"
-#include "drawhelpfun.h"
-#include "artifact.h"
-#include "triangle.h"
+#include "boxes/frame.h"
+#include "utils/drawhelpfun.h"
+#include "boxes/artifact.h"
+#include "astrometry/triangle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace Ui {

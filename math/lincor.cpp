@@ -2,9 +2,9 @@
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-void calcLinCor(const ArtifactVector &picStars,
-                const ArtifactVector &catStars,
-                LinCor &lincor)
+void lincor::cook(const ArtifactVector &picStars,
+                  const ArtifactVector &catStars,
+                  LinCor &lincor)
 {
     if(picStars.empty() || catStars.empty())    return;
 
@@ -49,11 +49,11 @@ void calcLinCor(const ArtifactVector &picStars,
     lincor.c2 = (Myc - lincor.a2 * Mx - lincor.b2 * My) / n;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void conversion(const LinCor &lincor,
-                const int xPic,
-                const int yPic,
-                int &xCat,
-                int &yCat)
+void lincor::conversion(const LinCor &lincor,
+                        const int xPic,
+                        const int yPic,
+                        double &xCat,
+                        double &yCat)
 {
     xCat = lincor.a1 * xPic + lincor.b1 * yPic + lincor.c1;
     yCat = lincor.a2 * xPic + lincor.b2 * yPic + lincor.c2;

@@ -8,11 +8,11 @@
 #include <QPoint>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "opencv.hpp"
-#include "cvhelpfun.h"
-#include "frame.h"
-#include "astrocalc.h"
-#include "adapters.h"
-#include "artifact.h"
+#include "utils/cvhelpfun.h"
+#include "boxes/frame.h"
+#include "math/astrocalc.h"
+#include "utils/adapters.h"
+#include "boxes/artifact.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class StarDetector : public QThread
 {

@@ -9,9 +9,9 @@
 #include <QSize>
 #include <QSettings>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "strobgeometry.h"
-#include "cvhelpfun.h"
-#include "frame.h"
+#include "strob/strobgeometry.h"
+#include "utils/cvhelpfun.h"
+#include "boxes/frame.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 #define SKEY_STROB_STDDEV_THRESHOLD "/Strob/StdDevThreshold"

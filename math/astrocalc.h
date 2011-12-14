@@ -113,8 +113,8 @@ void screenAngles2screenPoint(const double angleX,
                               int &y);
 ////////////////////////////////////////////////////////////////////////////////
  //no field rotation !
-void screenPoint2screenAngles(const int x,
-                              const int y,
+void screenPoint2screenAngles(const double x,
+                              const double y,
                               const double starDelta,
                               const QSizeF &field,
                               const QSize  &screen,

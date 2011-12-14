@@ -9,9 +9,9 @@
 #include <QPoint>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "globalskeys.h"
-#include "astrocalc.h"
-#include "triangle.h"
-#include "lincor.h"
+#include "math/astrocalc.h"
+#include "astrometry/triangle.h"
+#include "math/lincor.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 #define SKEY_MAX_STAR_QUANTITY        "/Angmeter/MaxStarQuantity"
@@ -43,12 +43,13 @@ private:
     int            _maxStarQuantity;
     double         _equalEps;
     double         _similarEps;
-    LinCor         _lincor;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void equation();
-    void measureWork(int &xTarget,
-                     int &yTarget);
+    void correctTarget(const int xPic,
+                       const int yPic,
+                       double &xCat,
+                       double &yCat);
 private slots:
     void inputScreenStars(ArtifactBox*,
                           int xTarget,
@@ -56,7 +57,7 @@ private slots:
     void inputCatStars(ArtifactBox*);
 signals:
     void sendTriangles(TriangleBox*);
-    void sendTarget(int x, int y);
+    void sendTarget(double x, double y);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

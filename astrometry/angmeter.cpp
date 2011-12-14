@@ -54,8 +54,10 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
 
     emit sendTriangles(&_tribox);
 
-    this->measureWork(xTarget, yTarget);
-    emit sendTarget(xTarget, yTarget);
+    double xCat, yCat; //в экранной СК в плоскости каталога
+    this->correctTarget(xTarget, yTarget,
+                        xCat, yCat);
+    emit sendTarget(xCat, yCat);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputCatStars(ArtifactBox *a)
@@ -108,25 +110,26 @@ void Angmeter::equation()
                              _catStars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::measureWork(int &xTarget,
-                           int &yTarget)
+void Angmeter::correctTarget(const int xPic,
+                             const int yPic,
+                             double &xCat,
+                             double &yCat)
 {
-    calcLinCor(_picStars,
-               _catStars,
-               _lincor);
-    qDebug() << "a1 = " << _lincor.a1
-             << "    b1 = " << _lincor.b1
-             << "    c1 = " << _lincor.c1;
-    qDebug() << "a2 = " << _lincor.a2
-             << "    b2 = " << _lincor.b2
-             << "    c2 = " << _lincor.c2;
-    int x0 = xTarget;
-    int y0 = yTarget;
-    conversion(_lincor,
-               xTarget, yTarget,
-               xTarget, yTarget);
-    int dx = xTarget - x0;
-    int dy = yTarget - y0;
+    LinCor linCor;
+    lincor::cook(_picStars,
+                 _catStars,
+                 linCor);
+    qDebug() << "a1 = " << linCor.a1
+             << "    b1 = " << linCor.b1
+             << "    c1 = " << linCor.c1;
+    qDebug() << "a2 = " << linCor.a2
+             << "    b2 = " << linCor.b2
+             << "    c2 = " << linCor.c2;
+    lincor::conversion(linCor,
+                       xPic, yPic,
+                       xCat, yCat);
+    double dx = xCat - (double)xPic;
+    double dy = yCat - (double)yPic;
     qDebug() << "dx = " << dx
              << "    dy = " << dy;
 }

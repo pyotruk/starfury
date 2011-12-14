@@ -9,13 +9,13 @@
 #include <QtAlgorithms>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "globalskeys.h"
-#include "snudpsrv.h"
-#include "starcatreader.h"
-#include "astrocalc.h"
-#include "skysegment.h"
-#include "star.h"
-#include "artifact.h"
-#include "adapters.h"
+#include "com/snudpsrv.h"
+#include "sky/starcatreader.h"
+#include "math/astrocalc.h"
+#include "sky/skysegment.h"
+#include "boxes/star.h"
+#include "boxes/artifact.h"
+#include "utils/adapters.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class StarcatScreen : public QThread
@@ -51,14 +51,14 @@ private:
                             Star&,
                             Artifact&);
     void screenTarget2catTarget(const TelescopeVector&,
-                                const int x,
-                                const int y,
+                                const double x,
+                                const double y,
                                 double &alpha,
                                 double &delta);
 private slots:
     void inputTelescopeVector(TelescopeVector*,
                               QReadWriteLock*);
-    void inputTarget(int x, int y);
+    void inputTarget(double x, double y); //в экранной СК в плоскости каталога
 signals:
     void catStarsReady(ArtifactBox*);
 };

@@ -12,50 +12,50 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    strob.cpp \
-    strobgeometry.cpp \
-    cvhelpfun.cpp \
-    frame.cpp \
-    sharedmem.cpp \
-    framerec.cpp \
-    snudpsrv.cpp \
-    artifact.cpp \
-    drawhelpfun.cpp \
-    skysegment.cpp \
-    starcatreader.cpp \
-    star.cpp \
-    guidecodec.cpp \
-    starcatscreen.cpp \
-    stardetector.cpp \
-    adapters.cpp \
-    triangle.cpp \
-    angmeter.cpp \
-    astrocalc.cpp \
-    lincor.cpp
+    strob/strob.cpp \
+    strob/strobgeometry.cpp \
+    utils/cvhelpfun.cpp \
+    boxes/frame.cpp \
+    com/sharedmem.cpp \
+    com/framerec.cpp \
+    com/snudpsrv.cpp \
+    boxes/artifact.cpp \
+    utils/drawhelpfun.cpp \
+    sky/skysegment.cpp \
+    sky/starcatreader.cpp \
+    boxes/star.cpp \
+    utils/guidecodec.cpp \
+    sky/starcatscreen.cpp \
+    detector/stardetector.cpp \
+    utils/adapters.cpp \
+    astrometry/triangle.cpp \
+    astrometry/angmeter.cpp \
+    math/astrocalc.cpp \
+    math/lincor.cpp
 
 HEADERS  += mainwindow.h \
-    strob.h \
-    strobgeometry.h \
-    cvhelpfun.h \
-    frame.h \
-    sharedmem.h \
-    framerec.h \
-    snudpsrv.h \
-    artifact.h \
-    drawhelpfun.h \
-    skysegment.h \
-    starcatreader.h \
-    star.h \
-    guidecodec.h \
-    starcatscreen.h \
-    stardetector.h \
-    astrocalc.h \
-    adapters.h \
+    strob/strob.h \
+    strob/strobgeometry.h \
+    utils/cvhelpfun.h \
+    boxes/frame.h \
+    com/sharedmem.h \
+    com/framerec.h \
+    com/snudpsrv.h \
+    boxes/artifact.h \
+    utils/drawhelpfun.h \
+    sky/skysegment.h \
+    sky/starcatreader.h \
+    boxes/star.h \
+    utils/guidecodec.h \
+    sky/starcatscreen.h \
+    detector/stardetector.h \
+    math/astrocalc.h \
+    utils/adapters.h \
     globalskeys.h \
-    triangle.h \
-    angmeter.h \
-    databox.h \
-    lincor.h
+    astrometry/triangle.h \
+    astrometry/angmeter.h \
+    boxes/databox.h \
+    math/lincor.h
 
 INCLUDEPATH += "C:/opencv231/include"
 

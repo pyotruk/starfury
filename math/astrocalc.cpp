@@ -259,16 +259,16 @@ void ac::screenAngles2screenPoint(const double angleX,
 }
 ////////////////////////////////////////////////////////////////////////////////
 //no field rotation !
-void ac::screenPoint2screenAngles(const int x,
-                                  const int y,
+void ac::screenPoint2screenAngles(const double x,
+                                  const double y,
                                   const double starDelta,
                                   const QSizeF &field,
                                   const QSize &screen,
                                   double &angleX,
                                   double &angleY)
 {
-    int x0 = -x + (screen.width() / 2);
-    int y0 = -y + (screen.height() / 2);
+    double x0 = -x + (screen.width() / 2);
+    double y0 = -y + (screen.height() / 2);
     QPointF pix2rad(field.width() / screen.width(),
                     field.height() / screen.height());
     angleX = x0 * pix2rad.x() * qAbs(qCos(starDelta));

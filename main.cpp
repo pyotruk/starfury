@@ -5,12 +5,12 @@
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "mainwindow.h"
-#include "framerec.h"
-#include "frame.h"
-#include "stardetector.h"
-#include "starcatscreen.h"
-#include "snudpsrv.h"
-#include "angmeter.h"
+#include "com/framerec.h"
+#include "boxes/frame.h"
+#include "detector/stardetector.h"
+#include "sky/starcatscreen.h"
+#include "com/snudpsrv.h"
+#include "astrometry/angmeter.h"
 /////////////////////////////////////////////////////////////////////////////////////
 #define FRAME_HEADER_SIZE 32
 /////////////////////////////////////////////////////////////////////////////////////
@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
                      &angmeter, SLOT(setScreenSize(int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&angmeter, SIGNAL(sendTarget(int,int)),
-                     &starcatScreen, SLOT(inputTarget(int,int)),
+    QObject::connect(&angmeter, SIGNAL(sendTarget(double,double)),
+                     &starcatScreen, SLOT(inputTarget(double,double)),
                      Qt::QueuedConnection);
 
     //gui <--> object connections
