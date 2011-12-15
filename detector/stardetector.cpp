@@ -19,7 +19,7 @@ void StarDetector::inputFrame(Frame *f,
                               int xTarget,
                               int yTarget)
 {
-    _target = QPoint(xTarget, yTarget);
+    _target.setCenter(QPointF(xTarget, yTarget));
 
     f->lock().lockForRead();
     _frame = *f;
@@ -32,14 +32,14 @@ void StarDetector::inputFrame(Frame *f,
                         _artifactBox->data(),
                         _magnThresh);
     this->deleteTarget(_artifactBox->data(),
-                       _target);
+                       _target.center());
     winfiletime2qdatetime(_frame.header().timeID,
                           _artifactBox->timeMarker());
     _artifactBox->lock().unlock();
 
     emit screenStarsReady(_artifactBox,
-                          _target.x(),
-                          _target.y());
+                          _target.center().x(),
+                          _target.center().y());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarDetector::filtering(Frame &f)
@@ -93,7 +93,7 @@ void StarDetector::findArtifacts(Frame &f,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarDetector::deleteTarget(ArtifactVector &a,
-                                QPoint &target)
+                                const QPointF &target)
 {
     const double eps = 2;
     double dist;

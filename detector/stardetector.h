@@ -27,21 +27,21 @@ private:
     QSettings      *_settings;
     ArtifactBox    *_artifactBox;
     Frame           _frame;
-    QPoint          _target;
+    Artifact        _target;
     void filtering(Frame&);
     void findArtifacts(Frame&,
                        ArtifactVector&,
                        double thresh);
     void deleteTarget(ArtifactVector&,
-                      QPoint &target);
+                      const QPointF &target);
 private slots:
     void inputFrame(Frame*,
                     int xTarget,
                     int yTarget);
 signals:
     void screenStarsReady(ArtifactBox*,
-                          int xTarget,
-                          int yTarget);
+                          double xTarget,
+                          double yTarget);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

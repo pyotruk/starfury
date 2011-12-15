@@ -48,17 +48,16 @@ private:
               ArtifactVector&,
               SkySegment&);
     void catStar2screenStar(const TelescopeVector&,
-                            Star&,
+                            const Star&,
                             Artifact&);
-    void screenTarget2catTarget(const TelescopeVector&,
-                                const double x,
-                                const double y,
-                                double &alpha,
-                                double &delta);
+    void screenStar2catStar(const TelescopeVector&,
+                            const Artifact&,
+                            Star&);
 private slots:
     void inputTelescopeVector(TelescopeVector*,
                               QReadWriteLock*);
-    void inputTarget(double x, double y); //в экранной СК в плоскости каталога
+    void inputTarget(double xTarget,
+                     double yTarget); //в экранной СК в плоскости каталога
 signals:
     void catStarsReady(ArtifactBox*);
     void sendMeasureError(double errAlpha,  //rad

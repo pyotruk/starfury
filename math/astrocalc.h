@@ -6,7 +6,7 @@
 #include <qmath.h>
 #include <QSize>
 #include <QSizeF>
-#include <QPoint>
+#include <QPointF>
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 #define PI          3.1415926535897932384626433832795
@@ -27,10 +27,10 @@ namespace ac
 double frac(const double x);
 int round(const double x);
 ////////////////////////////////////////////////////////////////////////////////
-double calcDistance(const QPoint &p1,
-                    const QPoint &p2);
-bool isEqual(const QPoint &p1,
-             const QPoint &p2,
+double calcDistance(const QPointF &p1,
+                    const QPointF &p2);
+bool isEqual(const QPointF &p1,
+             const QPointF &p2,
              const double eps);
 ////////////////////////////////////////////////////////////////////////////////
 void rad2degminsec(const double rad,
@@ -109,8 +109,8 @@ void screenAngles2screenPoint(const double angleX,
                               const double starDelta,
                               const QSizeF &field,
                               const QSize  &screen,
-                              int &x,
-                              int &y);
+                              double &x,
+                              double &y);
 ////////////////////////////////////////////////////////////////////////////////
  //no field rotation !
 void screenPoint2screenAngles(const double x,

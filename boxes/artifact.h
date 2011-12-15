@@ -3,7 +3,7 @@
 #ifndef ARTIFACT_H
 #define ARTIFACT_H
 /////////////////////////////////////////////////////////////////////////////////////
-#include <QPoint>
+#include <QPointF>
 #include <QVector>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "math/astrocalc.h"
@@ -14,17 +14,20 @@ class Artifact
 public:
     Artifact();
     Artifact(const Artifact&);
+    Artifact(const double x,
+             const double y,
+             const double magn = 0);
     Artifact& operator =(const Artifact&);
     bool operator ==(const Artifact &a) const {return this->_magnitude == a._magnitude;}
     bool operator !=(const Artifact &a) const {return this->_magnitude != a._magnitude;}
     bool operator <(const Artifact &a)  const {return this->_magnitude <  a._magnitude;}
-    const QPoint& center() const {return _center;}
+    const QPointF& center() const {return _center;}
     double magnitude() const {return _magnitude;}
-    void setCenter(const QPoint&);
-    void setMagnitude(const double);
+    void setCenter(const QPointF &p) {_center = p;}
+    void setMagnitude(const double m) {_magnitude = m;}
 private:
-    QPoint _center;
-    double _magnitude; //размер в усл.ед.
+    QPointF _center;
+    double  _magnitude; //размер в усл.ед.
 };
 /////////////////////////////////////////////////////////////////////////////////////
 typedef QVector<Artifact>       ArtifactVector;

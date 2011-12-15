@@ -13,15 +13,15 @@ int ac::round(const double x)
     return qFloor(0.5 + x);
 }
 ////////////////////////////////////////////////////////////////////////////////
-double ac::calcDistance(const QPoint &p1,
-                        const QPoint &p2)
+double ac::calcDistance(const QPointF &p1,
+                        const QPointF &p2)
 {
     return qSqrt( qPow((p1.x() - p2.x()), 2) +
                   qPow((p1.y() - p2.y()), 2) );
 }
 ////////////////////////////////////////////////////////////////////////////////
-bool ac::isEqual(const QPoint &p1,
-                 const QPoint &p2,
+bool ac::isEqual(const QPointF &p1,
+                 const QPointF &p2,
                  const double eps)
 {
     double dist = calcDistance(p1, p2);
@@ -247,13 +247,13 @@ void ac::screenAngles2screenPoint(const double angleX,
                                   const double starDelta,
                                   const QSizeF &field,
                                   const QSize  &screen,
-                                  int &x,
-                                  int &y)
+                                  double &x,
+                                  double &y)
 {
     QPointF rad2pix(screen.width() / field.width(),
                     screen.height() / field.height());
-    int x0 = round(angleX * rad2pix.x() / qAbs(qCos(starDelta)));
-    int y0 = round(angleY * rad2pix.y());
+    double x0 = angleX * rad2pix.x() / qAbs(qCos(starDelta));
+    double y0 = angleY * rad2pix.y();
     x = -x0 + (screen.width() / 2);
     y = -y0 + (screen.height() / 2);
 }

@@ -36,8 +36,8 @@ void Angmeter::saveSettings(QSettings *s)
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputScreenStars(ArtifactBox *a,
-                                int xTarget,
-                                int yTarget)
+                                double xTarget,
+                                double yTarget)
 {
     a->lock().lockForRead();
     _picStars = a->data();
@@ -54,10 +54,10 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
 
     emit sendTriangles(&_tribox);
 
-    double xCat, yCat; //в экранной СК в плоскости каталога
-    this->correctTarget(xTarget, yTarget,
-                        xCat, yCat);
-    emit sendTarget(xCat, yCat);
+    Artifact target(xTarget, yTarget);
+    this->correctTarget(target);
+    emit sendTarget(target.center().x(),
+                    target.center().y());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputCatStars(ArtifactBox *a)
@@ -110,10 +110,7 @@ void Angmeter::equation()
                              _catStars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::correctTarget(const int xPic,
-                             const int yPic,
-                             double &xCat,
-                             double &yCat)
+void Angmeter::correctTarget(Artifact &target)
 {
     LinCor linCor;
     lincor::cook(_picStars,
@@ -125,13 +122,16 @@ void Angmeter::correctTarget(const int xPic,
     qDebug() << "a2 = " << linCor.a2
              << "    b2 = " << linCor.b2
              << "    c2 = " << linCor.c2;
+    double xCat, yCat;
     lincor::conversion(linCor,
-                       xPic, yPic,
+                       target.center().x(),
+                       target.center().y(),
                        xCat, yCat);
-    double dx = xCat - (double)xPic;
-    double dy = yCat - (double)yPic;
+    double dx = xCat - target.center().x();
+    double dy = yCat - target.center().y();
     qDebug() << "dx = " << dx
              << "    dy = " << dy;
+    target.setCenter(QPoint(xCat, yCat));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,

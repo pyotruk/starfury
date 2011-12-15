@@ -71,14 +71,16 @@ void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
     emit catStarsReady(_starBox);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTarget(double x, double y)
+void StarcatScreen::inputTarget(double xTarget,
+                                double yTarget)
 {
-    double alpha, delta;
-    this->screenTarget2catTarget(_telescope,
-                                 x, y,
-                                 alpha, delta);
-    double errAlpha = _telescope.alpha - alpha;
-    double errDelta = _telescope.delta - delta;
+    Artifact picTarget(xTarget, yTarget);
+    Star catTarget;
+    this->screenStar2catStar(_telescope,
+                             picTarget,
+                             catTarget);
+    double errAlpha = _telescope.alpha - catTarget.alpha();
+    double errDelta = _telescope.delta - catTarget.delta();
     emit sendMeasureError(errAlpha, errDelta);
     qDebug() << "errAlpha = " << errAlpha * __rad2deg * 3600
              << "    errDelta = " << errDelta * __rad2deg * 3600;
@@ -111,56 +113,57 @@ void StarcatScreen::proc(const TelescopeVector &t,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::catStar2screenStar(const TelescopeVector &t,
-                                       Star &catStar,
-                                       Artifact &screenStar)
+                                       const Star &s,
+                                       Artifact &a)
 {
     double starAzimuth, starElevation;
     double starAngleX, starAngleY;
-    ac::iieqt2horiz(catStar.alpha(), catStar.delta(),
+    ac::iieqt2horiz(s.alpha(), s.delta(),
                     t.LST, t.latitude,
                     starAzimuth, starElevation);
     ac::horiz2screen(t.azHoriz, t.elHoriz,
                      starAzimuth, starElevation,
                      starAngleX, starAngleY);
-    int x, y;
+    double x, y;
     ac::screenAngles2screenPoint(starAngleX,
                                  starAngleY,
-                                 catStar.delta(),
+                                 s.delta(),
                                  _segment->field(),
                                  _screen,
                                  x,
                                  y);
-    screenStar.setCenter(QPoint(x, y));
-    screenStar.setMagnitude(ac::calcStarRadius(qAbs(catStar.magnitude())));
+    a.setCenter(QPointF(x, y));
+    a.setMagnitude(ac::calcStarRadius(qAbs(s.magnitude())));
 }
 ////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::screenTarget2catTarget(const TelescopeVector &t,
-                                           const double x,
-                                           const double y,
-                                           double &alpha,
-                                           double &delta)
+void StarcatScreen::screenStar2catStar(const TelescopeVector &t,
+                                       const Artifact &a,
+                                       Star &s)
 {
     double xAng, yAng;
     double azHoriz, elHoriz;
-    ac::screenPoint2screenAngles(x,
-                                 y,
-                                 _telescope.delta,
+    double alpha, delta;
+    ac::screenPoint2screenAngles(a.center().x(),
+                                 a.center().y(),
+                                 t.delta,
                                  _starcatReader->segment().field(),
                                  _screen,
                                  xAng,
                                  yAng);
-    ac::screen2horiz(_telescope.azHoriz,
-                     _telescope.elHoriz,
+    ac::screen2horiz(t.azHoriz,
+                     t.elHoriz,
                      xAng,
                      yAng,
                      azHoriz,
                      elHoriz);
     ac::horiz2iieqt(azHoriz,
                     elHoriz,
-                    _telescope.LST,
-                    _telescope.latitude,
+                    t.LST,
+                    t.latitude,
                     alpha,
                     delta);
+    s.setAlpha(alpha);
+    s.setDelta(delta);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::setScreenSize(const int width,

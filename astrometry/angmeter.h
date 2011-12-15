@@ -32,9 +32,9 @@ private:
     static const int _timeout = 20;
     static const int _defaultScreenWidth  = 640;
     static const int _defaultScreenHeight = 480;
-    static const int _defaultMaxStarQuantity = 15;
-    static const double _defaultEqualEps   = 2.0;
-    static const double _defaultSimilarEps = 0.25;
+    static const int _defaultMaxStarQuantity = 8;
+    static const double _defaultEqualEps   = 3.0;
+    static const double _defaultSimilarEps = 0.005;
     QSettings     *_settings;
     QSize          _screen;
     ArtifactVector _picStars;
@@ -46,18 +46,16 @@ private:
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void equation();
-    void correctTarget(const int xPic,
-                       const int yPic,
-                       double &xCat,
-                       double &yCat);
+    void correctTarget(Artifact&);
 private slots:
     void inputScreenStars(ArtifactBox*,
-                          int xTarget,
-                          int yTarget);
+                          double xTarget,
+                          double yTarget);
     void inputCatStars(ArtifactBox*);
 signals:
     void sendTriangles(TriangleBox*);
-    void sendTarget(double x, double y);
+    void sendTarget(double xTarget,
+                    double yTarget);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

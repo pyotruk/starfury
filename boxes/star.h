@@ -13,12 +13,12 @@ public:
     bool operator ==(const Star &s) const {return this->_magnitude == s._magnitude;}
     bool operator !=(const Star &s) const {return this->_magnitude != s._magnitude;}
     bool operator <(const Star &s)  const {return this->_magnitude <  s._magnitude;}
-    void setAlpha(const double);
-    void setDelta(const double);
-    void setMagnitude(const double);
-    const double alpha(); //rad
-    const double delta(); //rad
-    const double magnitude();
+    void setAlpha(const double alpha) {_alpha = alpha;}
+    void setDelta(const double delta) {_delta = delta;}
+    void setMagnitude(const double magn) {_magnitude = magn;}
+    const double alpha() const {return _alpha;} //rad
+    const double delta() const {return _delta;} //rad
+    const double magnitude() const {return _magnitude;}
 private:
     double _alpha;
     double _delta;

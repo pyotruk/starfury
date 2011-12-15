@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    QSettings settings("NIIPP", "astrobot");
+    QSettings settings("petr_klukvenny", "starfury");
 
     //per-thread data
     Frame          frame0, frame1;
@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frame1Ready(Frame*,int,int)),
                      &starDetector, SLOT(inputFrame(Frame*,int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*,int,int)),
-                     &angmeter, SLOT(inputScreenStars(ArtifactBox*,int,int)),
+    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*,double,double)),
+                     &angmeter, SLOT(inputScreenStars(ArtifactBox*,double,double)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
                      &angmeter, SLOT(inputCatStars(ArtifactBox*)),
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
                      &w, SLOT(inputFrame(Frame*)),
                      Qt::QueuedConnection);
 
-    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*,int,int)),
+    QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*,double,double)),
                      &w, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),

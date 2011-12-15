@@ -6,7 +6,7 @@
 
 QT       += core gui \
          network
-TARGET = astrobot
+TARGET = starfury
 TEMPLATE = app
 
 

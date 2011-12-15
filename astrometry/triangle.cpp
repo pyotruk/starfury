@@ -11,12 +11,12 @@ bool tri::isEqual(const ArtifactTriangle &t1,
                   const ArtifactTriangle &t2,
                   const double eps)
 {
-    QPoint p1[3]; //массив точек
+    QPointF p1[3]; //массив точек
     p1[0] = t1.t()[0].center();
     p1[1] = t1.t()[1].center();
     p1[2] = t1.t()[2].center();
 
-    QPoint p2[3]; //массив точек
+    QPointF p2[3]; //массив точек
     p2[0] = t2.t()[0].center();
     p2[1] = t2.t()[1].center();
     p2[2] = t2.t()[2].center();
