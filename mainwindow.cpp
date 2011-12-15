@@ -107,6 +107,7 @@ void MainWindow::drawTriangles(TriangleVector &tv,
                        t.t()[1].center(),
                        t.t()[2].center());
     }
+    tv.clear();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::drawAll(TriangleBoxData &d,

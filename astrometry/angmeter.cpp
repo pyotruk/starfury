@@ -22,8 +22,10 @@ void Angmeter::loadSettings(QSettings *s)
     int screenHeight = s->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
     _maxStarQuantity = s->value(SKEY_MAX_STAR_QUANTITY, _defaultMaxStarQuantity).toInt();
+    _equatedStarQuantity = s->value(SKEY_EQUATED_STAR_QUANTITY, _defaultEquatedStarQuantity).toInt();
     _equalEps = s->value(SKEY_EQUAL_EPS, _defaultEqualEps).toDouble();
     _similarEps = s->value(SKEY_SIMILAR_EPS, _defaultSimilarEps).toDouble();
+    _checkEps = s->value(SKEY_CHECK_EPS, _defaultCheckEps).toDouble();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::saveSettings(QSettings *s)
@@ -31,8 +33,17 @@ void Angmeter::saveSettings(QSettings *s)
     s->setValue(SKEY_SCREEN_WIDTH, _screen.width());
     s->setValue(SKEY_SCREEN_HEIGHT, _screen.height());
     s->setValue(SKEY_MAX_STAR_QUANTITY, _maxStarQuantity);
+    s->setValue(SKEY_EQUATED_STAR_QUANTITY, _equatedStarQuantity);
     s->setValue(SKEY_EQUAL_EPS, _equalEps);
     s->setValue(SKEY_SIMILAR_EPS, _similarEps);
+    s->setValue(SKEY_CHECK_EPS, _checkEps);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::setScreenSize(const int width,
+                             const int height)
+{
+    _screen.setWidth(width);
+    _screen.setHeight(height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputScreenStars(ArtifactBox *a,
@@ -50,14 +61,28 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
     this->equation();
     _tribox.lock().unlock();
 
+    LinCor cor;
+    lincor::cook(_picStars,
+                 _catStars,
+                 cor);
+
+    if(this->checkEquation(_picStars, _catStars, cor, _defaultCheckEps))
+    {
+        qDebug() << "a1 = " << cor.a1
+                 << "    b1 = " << cor.b1
+                 << "    c1 = " << cor.c1;
+        qDebug() << "a2 = " << cor.a2
+                 << "    b2 = " << cor.b2
+                 << "    c2 = " << cor.c2;
+
+        emit sendTriangles(&_tribox);
+        Artifact target(xTarget, yTarget);
+        this->correctTarget(cor, target);
+        emit sendTarget(target.center().x(),
+                        target.center().y());
+    }
+
     qDebug() << "Angmeter equation delay: " << t.elapsed();
-
-    emit sendTriangles(&_tribox);
-
-    Artifact target(xTarget, yTarget);
-    this->correctTarget(target);
-    emit sendTarget(target.center().x(),
-                    target.center().y());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputCatStars(ArtifactBox *a)
@@ -110,20 +135,11 @@ void Angmeter::equation()
                              _catStars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::correctTarget(Artifact &target)
+void Angmeter::correctTarget(const LinCor &cor,
+                             Artifact &target)
 {
-    LinCor linCor;
-    lincor::cook(_picStars,
-                 _catStars,
-                 linCor);
-    qDebug() << "a1 = " << linCor.a1
-             << "    b1 = " << linCor.b1
-             << "    c1 = " << linCor.c1;
-    qDebug() << "a2 = " << linCor.a2
-             << "    b2 = " << linCor.b2
-             << "    c2 = " << linCor.c2;
     double xCat, yCat;
-    lincor::conversion(linCor,
+    lincor::conversion(cor,
                        target.center().x(),
                        target.center().y(),
                        xCat, yCat);
@@ -134,14 +150,31 @@ void Angmeter::correctTarget(Artifact &target)
     target.setCenter(QPoint(xCat, yCat));
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::setScreenSize(const int width,
-                             const int height)
+bool Angmeter::checkEquation(const ArtifactVector &picStars,
+                             const ArtifactVector &catStars,
+                             const LinCor &cor,
+                             const double eps)
 {
-    _screen.setWidth(width);
-    _screen.setHeight(height);
+    if(picStars.size() < _equatedStarQuantity)    return false;
+    if(catStars.size() < _equatedStarQuantity)    return false;
+    double x, y;
+    for(ArtifactVector::const_iterator itPic = picStars.constBegin(),
+                                       itCat = catStars.constBegin();
+        itPic < picStars.constEnd();
+        ++itPic, ++itCat)
+    {
+        lincor::conversion(cor,
+                           itPic->center().x(),
+                           itPic->center().y(),
+                           x,
+                           y);
+        if(!art::isEqual(*itCat, Artifact(x, y), eps))
+        {
+            return false;
+        }
+    }
+    return true;
 }
-/////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
