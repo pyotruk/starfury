@@ -103,18 +103,28 @@ void tri::cookTriangles(ArtifactVector &a,
                         TriangleVector &t)
 {
     t.clear();
+    ComboVector comboVec;
+    int i, j, k;
+    i = 0;
     for(ArtifactVector::iterator
-        i = a.begin(); i < a.end(); ++i)
+        it1 = a.begin(); it1 < a.end(); ++it1, ++i)
     {
+        j = 0;
         for(ArtifactVector::iterator
-            j = a.begin(); j < a.end(); ++j)
+            it2 = a.begin(); it2 < a.end(); ++it2, ++j)
         {
-            if(j == i)    continue;
+            if(it2 == it1)    continue;
+            k = 0;
             for(ArtifactVector::iterator
-                k = a.begin(); k < a.end(); ++k)
+                it3 = a.begin(); it3 < a.end(); ++it3, ++k)
             {
-                if((k == i) || (k == j))    continue;
-                t.push_back(ArtifactTriangle(*i, *j, *k));
+                if((it3 == it1) || (it3 == it2))    continue;
+                Combo c(i, j, k);
+                if(!comb::isContain(comboVec, c))
+                {
+                    t.push_back(ArtifactTriangle(*it1, *it2, *it3));
+                    comboVec.push_back(c);
+                }
             }
         }
     }

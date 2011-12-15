@@ -31,7 +31,8 @@ SOURCES += main.cpp\
     astrometry/triangle.cpp \
     astrometry/angmeter.cpp \
     math/astrocalc.cpp \
-    math/lincor.cpp
+    math/lincor.cpp \
+    boxes/combo.cpp
 
 HEADERS  += mainwindow.h \
     strob/strob.h \
@@ -55,7 +56,8 @@ HEADERS  += mainwindow.h \
     astrometry/triangle.h \
     astrometry/angmeter.h \
     boxes/databox.h \
-    math/lincor.h
+    math/lincor.h \
+    boxes/combo.h
 
 INCLUDEPATH += "C:/opencv231/include"
 
@@ -68,6 +70,8 @@ LIBS += -L"C:/opencv231/lib" \
 
 
 FORMS += mainwindow.ui
+
+
 
 
 
