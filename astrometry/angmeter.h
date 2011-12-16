@@ -7,6 +7,7 @@
 #include <qmath.h>
 #include <QSize>
 #include <QPoint>
+#include <QString>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "globalskeys.h"
 #include "math/astrocalc.h"
@@ -14,11 +15,11 @@
 #include "math/lincor.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
-#define SKEY_MAX_STAR_QUANTITY        "/Angmeter/MaxStarQuantity"
-#define SKEY_EQUATED_STAR_QUANTITY    "/Angmeter/EquatedStarQuantity"
-#define SKEY_EQUAL_EPS                "/Angmeter/EqualEps"
-#define SKEY_SIMILAR_EPS              "/Angmeter/SimilarEps"
-#define SKEY_CHECK_EPS                "/Angmeter/CheckEps"
+static const QString __skeyMaxStarQuantity("/Angmeter/MaxStarQuantity");
+static const QString __skeyEquatedStarQuantity("/Angmeter/EquatedStarQuantity");
+static const QString __skeyEqualEps("/Angmeter/EqualEps");
+static const QString __skeySimilarEps("/Angmeter/SimilarEps");
+static const QString __skeyCheckEps("/Angmeter/CheckEps");
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class Angmeter : public QThread
@@ -31,6 +32,8 @@ public slots:
     void setScreenSize(const int width,
                        const int height);
 private:
+    Angmeter(const Angmeter&) {}
+    Angmeter& operator =(const Angmeter&) {return *this;}
     static const int _timeout = 20;
     static const int _defaultScreenWidth  = 640;
     static const int _defaultScreenHeight = 480;

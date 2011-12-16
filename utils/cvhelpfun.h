@@ -4,6 +4,8 @@
 #include <QRect>
 #include "opencv.hpp"
 /////////////////////////////////////////////////////////////////////////////////////
+namespace cvhelp
+{
 void qtRect2cvRect(const QRect &qtRect,
                    cv::Rect &cvRect);
 
@@ -16,5 +18,6 @@ bool isBelongToCvRect(const int x,
 
 void calcRectCenter(const cv::Rect &rect,
                     QPoint &center);
+}
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // CVHELPFUN_H

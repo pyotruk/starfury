@@ -19,10 +19,10 @@ typedef Artifact Triangle[3];
 class ArtifactTriangle
 {
 public:
-    ArtifactTriangle() {}
-    ArtifactTriangle(const Artifact &a,
-                     const Artifact &b,
-                     const Artifact &c)
+    explicit ArtifactTriangle() {}
+    explicit ArtifactTriangle(const Artifact &a,
+                              const Artifact &b,
+                              const Artifact &c)
     {_t[0] = a;  _t[1] = b;  _t[2] = c;}
     const Triangle& t() const {return _t;}
 private:
@@ -54,10 +54,10 @@ bool isSimilar(const ArtifactTriangle &t1, //проверка треугольников на подобие
                SimPath&);
 void deleteEqual(TriangleVector&,          //удал€ет повтор€ющиес€ треугольники
                  const double eps);
-void cookTriangles(ArtifactVector&,        //формирует вектор треугольников из вектора артефактов
+void cookTriangles(const ArtifactVector&,        //формирует вектор треугольников из вектора артефактов
                    TriangleVector&);
-void cookTriangleBox(TriangleBoxData&,     //формирует вектора с отождествлЄнными точками (артефактами)
-                     const double eps);    //и вектора с соответствующими им треугольниками
+void cookTriangleBox(TriangleBoxData&,     //формирует вектора с отождествлЄнными треугольниками
+                     const double eps);
 void triangles2Artifacts(const TriangleVector &tvPic,
                          const TriangleVector &tvCat,
                          const double equalEps,

@@ -14,8 +14,8 @@ StarcatScreen::StarcatScreen(QSettings *s,
     qDebug() << "starcatScreen::_starcatReader thread: " << _starcatReader->thread();
     qDebug() << "starcatScreen::_snServer thread: " << _snServer->thread();
     this->loadSettings(_settings);
-    QObject::connect(_snServer, SIGNAL(telescopeVectorReady(TelescopeVector*,QReadWriteLock*)),
-                     this, SLOT(inputTelescopeVector(TelescopeVector*,QReadWriteLock*)),
+    QObject::connect(_snServer, SIGNAL(telescopeVectorReady(const TelescopeVector*,QReadWriteLock*)),
+                     this, SLOT(inputTelescopeVector(const TelescopeVector*,QReadWriteLock*)),
                      Qt::QueuedConnection);
 
     this->start(QThread::NormalPriority);
@@ -33,18 +33,18 @@ StarcatScreen::~StarcatScreen()
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::loadSettings(QSettings *s)
 {
-    int screenWidth = s->value(SKEY_SCREEN_WIDTH, _defaultScreenWidth).toInt();
-    int screenHeight = s->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
+    int screenWidth = s->value(__skeyScreenWidth, _defaultScreenWidth).toInt();
+    int screenHeight = s->value(__skeyScreenHeight, _defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::saveSettings(QSettings *s)
 {
-    s->setValue(SKEY_SCREEN_WIDTH, _screen.width());
-    s->setValue(SKEY_SCREEN_HEIGHT, _screen.height());
+    s->setValue(__skeyScreenWidth, _screen.width());
+    s->setValue(__skeyScreenHeight, _screen.height());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTelescopeVector(TelescopeVector *t,
+void StarcatScreen::inputTelescopeVector(const TelescopeVector *t,
                                          QReadWriteLock  *lock)
 {
     lock->lockForRead();
@@ -87,7 +87,7 @@ void StarcatScreen::inputTarget(double xTarget,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::proc(const TelescopeVector &t,
-                         StarVector &s,
+                         const StarVector &s,
                          ArtifactVector &a,
                          SkySegment &seg)
 {
@@ -100,8 +100,8 @@ void StarcatScreen::proc(const TelescopeVector &t,
                     t.fieldHeight*/);
     a.clear();
     Artifact star;
-    StarVector::iterator it = s.begin();
-    for(; it < s.end(); ++it)
+    for(StarVector::const_iterator
+        it = s.constBegin(); it < s.constEnd(); ++it)
     {
         if(seg.isBelong(it->alpha(), it->delta()))
         {

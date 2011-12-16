@@ -7,10 +7,10 @@
 #include <QObject>
 #include <QReadWriteLock>
 #include <QDebug>
+#include <QString>
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-#define SKEY_UDPSERVER_PORT "/UdpServer/Port"
-#define TVA_UDPPACK_ID      0x44C5EB64038F4462 //8bytes
+static const QString __skeyUdpServerPort("/UdpServer/Port");
 /////////////////////////////////////////////////////////////////////////////////////
 struct TelescopeVector
 {
@@ -39,6 +39,8 @@ public:
     explicit SnUdpSrv(QSettings*);
     ~SnUdpSrv();
 private:
+    SnUdpSrv(const SnUdpSrv&) {}
+    SnUdpSrv& operator =(const SnUdpSrv&) {return *this;}
     static const quint16 _defaultPort = 4444;
     static const int  _timeout = 20;
     QSettings       *_settings;
@@ -51,7 +53,8 @@ private:
 private slots:
     void read();
 signals:
-    void telescopeVectorReady(TelescopeVector*, QReadWriteLock*);
+    void telescopeVectorReady(const TelescopeVector*,
+                              QReadWriteLock*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

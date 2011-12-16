@@ -8,13 +8,14 @@
 #include <QMouseEvent>
 #include <QSize>
 #include <QSettings>
+#include <QString>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "strob/strobgeometry.h"
 #include "utils/cvhelpfun.h"
 #include "boxes/frame.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
-#define SKEY_STROB_STDDEV_THRESHOLD "/Strob/StdDevThreshold"
+static const QString __skeyStrobStddevThreshold("/Strob/StdDevThreshold");
 /////////////////////////////////////////////////////////////////////////////////////
 class Strob : public QThread
 {
@@ -22,11 +23,16 @@ class Strob : public QThread
 public:
     explicit Strob(QSettings*);
     ~Strob();
-    double threshold();
-    int    pixThreshold();
-    StrobGeometry &geometry();
+    double threshold()        const {return _threshold;}
+    int    pixThreshold()     const {return _pixThreshold;}
+    StrobGeometry &geometry() const {return *_geometry;}
     void makeTracking(Frame*);
+public slots:
+    void clickTarget(QMouseEvent *mousePressEvent);
+    void setThreshold(const int pos);
 private:
+    Strob(const Strob&) {}
+    Strob& operator =(const Strob&) {return *this;}
     static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
     StrobGeometry *_geometry;
@@ -39,9 +45,6 @@ private:
                         int    &pixThreshold);
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-public slots:
-    void clickTarget(QMouseEvent *mousePressEvent);
-    void setThreshold(const int pos);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // STROB_H

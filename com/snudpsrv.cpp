@@ -19,12 +19,12 @@ SnUdpSrv::~SnUdpSrv()
 /////////////////////////////////////////////////////////////////////////////////////
 void SnUdpSrv::loadSettings(QSettings *s)
 {
-    _port = s->value(SKEY_UDPSERVER_PORT, _defaultPort).toInt();
+    _port = s->value(__skeyUdpServerPort, _defaultPort).toInt();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void SnUdpSrv::saveSettings(QSettings *s)
 {
-    s->setValue(SKEY_UDPSERVER_PORT, _port);
+    s->setValue(__skeyUdpServerPort, _port);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void SnUdpSrv::read()

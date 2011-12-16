@@ -99,24 +99,24 @@ found:
     return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void tri::cookTriangles(ArtifactVector &a,
+void tri::cookTriangles(const ArtifactVector &a,
                         TriangleVector &t)
 {
     t.clear();
     ComboVector comboVec;
     int i, j, k;
     i = 0;
-    for(ArtifactVector::iterator
-        it1 = a.begin(); it1 < a.end(); ++it1, ++i)
+    for(ArtifactVector::const_iterator
+        it1 = a.constBegin(); it1 < a.constEnd(); ++it1, ++i)
     {
         j = 0;
-        for(ArtifactVector::iterator
-            it2 = a.begin(); it2 < a.end(); ++it2, ++j)
+        for(ArtifactVector::const_iterator
+            it2 = a.constBegin(); it2 < a.constEnd(); ++it2, ++j)
         {
             if(it2 == it1)    continue;
             k = 0;
-            for(ArtifactVector::iterator
-                it3 = a.begin(); it3 < a.end(); ++it3, ++k)
+            for(ArtifactVector::const_iterator
+                it3 = a.constBegin(); it3 < a.constEnd(); ++it3, ++k)
             {
                 if((it3 == it1) || (it3 == it2))    continue;
                 Combo c(i, j, k);

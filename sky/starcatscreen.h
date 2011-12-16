@@ -29,6 +29,8 @@ public slots:
     void setScreenSize(const int width,
                        const int height);
 private:
+    StarcatScreen(const StarcatScreen&) {}
+    StarcatScreen& operator =(const StarcatScreen&) {return *this;}
     static const double __deg2rad = 0.017453292519943295769236907684886;
     static const double __rad2deg = 57.295779513082320876798154814105;
     static const int _timeout = 20;
@@ -44,7 +46,7 @@ private:
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc(const TelescopeVector&,
-              StarVector&,
+              const StarVector&,
               ArtifactVector&,
               SkySegment&);
     void catStar2screenStar(const TelescopeVector&,
@@ -54,7 +56,7 @@ private:
                             const Artifact&,
                             Star&);
 private slots:
-    void inputTelescopeVector(TelescopeVector*,
+    void inputTelescopeVector(const TelescopeVector*,
                               QReadWriteLock*);
     void inputTarget(double xTarget,
                      double yTarget); //в экранной СК в плоскости каталога

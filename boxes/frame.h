@@ -29,10 +29,10 @@ public:
     void attachRawData(const FrameHeader &header,
                        const void *data);
     void unattachRawData(); //do not forget!
-    uchar* data();
-    const FrameHeader& header();
-    QReadWriteLock& lock();
-    cv::Mat& asCvMat();
+    uchar* data()               const {return _data;}
+    const FrameHeader& header() const {return _header;}
+    QReadWriteLock& lock()      {return _lock;}
+    cv::Mat& asCvMat()          {return _cvmat;}
     void copyToQImage(QImage&);
 private:
     uchar         *_data;

@@ -1,7 +1,7 @@
 #include "strobgeometry.h"
 /////////////////////////////////////////////////////////////////////////////////////
-StrobGeometry::StrobGeometry(QSettings *settings) :
-    _settings(settings)
+StrobGeometry::StrobGeometry(QSettings *s) :
+    _settings(s)
 {
     loadSettings(_settings);
     setCenter(_refPoint);
@@ -12,34 +12,23 @@ StrobGeometry::~StrobGeometry()
     saveSettings(_settings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StrobGeometry::loadSettings(QSettings *settings)
+void StrobGeometry::loadSettings(QSettings *s)
 {
-    if(settings == 0)
-    {
-        setSide(_defaultInnerSide);
-        setRefPoint(QPoint(_defaultRefPointX, _defaultRefPointY));
-    }
-    else
-    {
-        setSide(settings->value(SKEY_STROBGEOMETRY_SIDE, _defaultInnerSide).toInt());
-        setRefPoint(QPoint(settings->value(SKEY_STROBGEOMETRY_REFPOINT_X, _defaultRefPointX).toInt(),
-                           settings->value(SKEY_STROBGEOMETRY_REFPOINT_Y, _defaultRefPointY).toInt()));
-    }
+    setSide(s->value(__skeyStrobSide, _defaultInnerSide).toInt());
+    setRefPoint(QPoint(s->value(__skeyStrobRefPointX, _defaultRefPointX).toInt(),
+                       s->value(__skeyStrobRefPointY, _defaultRefPointY).toInt()));
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void StrobGeometry::saveSettings(QSettings *settings)
+void StrobGeometry::saveSettings(QSettings *s)
 {
-    if(settings != 0)
-    {
-        settings->setValue(SKEY_STROBGEOMETRY_SIDE, _innerRect.width());
-        settings->setValue(SKEY_STROBGEOMETRY_REFPOINT_X, _refPoint.x());
-        settings->setValue(SKEY_STROBGEOMETRY_REFPOINT_Y, _refPoint.y());
-    }
+    s->setValue(__skeyStrobSide, _innerRect.width());
+    s->setValue(__skeyStrobRefPointX, _refPoint.x());
+    s->setValue(__skeyStrobRefPointY, _refPoint.y());
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::setSide(const int innerSide)
 {
-    int outerSide = (int)(floor(_sqrt2 * innerSide + 0.5));
+    int outerSide = (int)(floor(__sqrt2 * innerSide + 0.5));
     _innerRect.setSize(QSize(innerSide, innerSide));
     _outerRect.setSize(QSize(outerSide, outerSide));
 }
@@ -63,36 +52,6 @@ void StrobGeometry::setRect(const QRect &innerRect)
     setCenter(cen);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-int StrobGeometry::innerSide()
-{
-    return _innerRect.width();
-}
-/////////////////////////////////////////////////////////////////////////////////////
-int StrobGeometry::outerSide()
-{
-    return _outerRect.width();
-}
-/////////////////////////////////////////////////////////////////////////////////////
-QPoint &StrobGeometry::center()
-{
-    return _center;
-}
-/////////////////////////////////////////////////////////////////////////////////////
-QPoint &StrobGeometry::refPoint()
-{
-    return _refPoint;
-}
-/////////////////////////////////////////////////////////////////////////////////////
-const QRect &StrobGeometry::innerRect()
-{
-    return _innerRect;
-}
-/////////////////////////////////////////////////////////////////////////////////////
-const QRect &StrobGeometry::outerRect()
-{
-    return _outerRect;
-}
-/////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::checkRange(const QSize &imgSize)
 {
     QPoint cen = _center;
@@ -107,4 +66,10 @@ void StrobGeometry::checkRange(const QSize &imgSize)
     if(cen.y() > yMax)  cen.setY(yMax);
     setCenter(cen);
 }
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

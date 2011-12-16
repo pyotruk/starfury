@@ -29,12 +29,12 @@ StarcatReader::~StarcatReader()
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::loadSettings(QSettings *settings)
 {
-    _path = settings->value(SKEY_STARCATREADER_PATH, DEFAULT_CATALOG_PATH).toString();
-    _magnLim = settings->value(SKEY_STARCATREADER_MAGNLIM, _defaultMagnLim).toDouble();
-    double fieldWidth = settings->value(SKEY_FIELD_WIDTH, _defaultFieldWidth).toDouble() / 60 * __deg2rad;
-    double fieldHeight = settings->value(SKEY_FIELD_HEIGHT, _defaultFieldHeight).toDouble() / 60 * __deg2rad;
-    double segmentSide = settings->value(SKEY_STARCATREADER_SEGMENTSIDE, _defaultSegmentSide).toDouble();
-    double segmentEdge = settings->value(SKEY_STARCATREADER_SEGMENTEDGE, _defaultSegmentEdge).toDouble();
+    _path = settings->value(__skeyStarcatPath, __defaultStarcatPath).toString();
+    _magnLim = settings->value(__skeyStarcatMagnLim, _defaultMagnLim).toDouble();
+    double fieldWidth = settings->value(__skeyFieldWidth, _defaultFieldWidth).toDouble() / 60 * __deg2rad;
+    double fieldHeight = settings->value(__skeyFieldHeight, _defaultFieldHeight).toDouble() / 60 * __deg2rad;
+    double segmentSide = settings->value(__skeyStarcatSegmentSide, _defaultSegmentSide).toDouble();
+    double segmentEdge = settings->value(__skeyStarcatSegmentEdge, _defaultSegmentEdge).toDouble();
     _segment.setField(QSizeF(fieldWidth, fieldHeight));
     _segment.setSide(segmentSide);
     _segment.setEdge(segmentEdge);
@@ -42,12 +42,12 @@ void StarcatReader::loadSettings(QSettings *settings)
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::saveSettings(QSettings *settings)
 {
-    settings->setValue(SKEY_STARCATREADER_PATH, _path);
-    settings->setValue(SKEY_STARCATREADER_MAGNLIM, _magnLim);
-    settings->setValue(SKEY_FIELD_WIDTH, _segment.field().width() * __rad2deg * 60);
-    settings->setValue(SKEY_FIELD_HEIGHT, _segment.field().height() * __rad2deg * 60);
-    settings->setValue(SKEY_STARCATREADER_SEGMENTSIDE, _segment.side());
-    settings->setValue(SKEY_STARCATREADER_SEGMENTEDGE, _segment.edge());
+    settings->setValue(__skeyStarcatPath, _path);
+    settings->setValue(__skeyStarcatMagnLim, _magnLim);
+    settings->setValue(__skeyFieldWidth, _segment.field().width() * __rad2deg * 60);
+    settings->setValue(__skeyFieldHeight, _segment.field().height() * __rad2deg * 60);
+    settings->setValue(__skeyStarcatSegmentSide, _segment.side());
+    settings->setValue(__skeyStarcatSegmentEdge, _segment.edge());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::run()
@@ -98,18 +98,18 @@ void StarcatReader::switchBuffers()
 void StarcatReader::readNewSegment()
 {
     qint64 startPos, finPos;
-    calcPositionRange(_file->size(),
-                      _segment.rect().botLeft.delta,
-                      _segment.rect().topRight.delta,
-                      startPos,
-                      finPos);
+    guidecat::calcPositionRange(_file->size(),
+                                _segment.rect().botLeft.delta,
+                                _segment.rect().topRight.delta,
+                                startPos,
+                                finPos);
     _file->seek(startPos);
     Star star;
-    uchar *data = new uchar[BYTES_PER_STAR];
+    uchar *data = new uchar[__bytesPerStar];
     while(_file->pos() < finPos)
     {
-        _file->read((char*)data, BYTES_PER_STAR);
-        decodeStar(star, data);
+        _file->read((char*)data, __bytesPerStar);
+        guidecat::decodeStar(star, data);
         if(star.magnitude() < _magnLim)
         {
             if(_segment.isBelong(star.alpha(), star.delta()))
@@ -122,18 +122,6 @@ void StarcatReader::readNewSegment()
     qSort(*_starVec0);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-StarVector* StarcatReader::stars()
-{
-    return _starVec1;
-}
 /////////////////////////////////////////////////////////////////////////////////////
-SkySegment& StarcatReader::segment()
-{
-    return _segment;
-}
 /////////////////////////////////////////////////////////////////////////////////////
-QMutex* StarcatReader::mutex()
-{
-    return _mutex;
-}
 /////////////////////////////////////////////////////////////////////////////////////

@@ -18,11 +18,13 @@ public:
                            Frame *f0,
                            Frame *f1);
     ~FrameReceiver();
-    void stop();
-    Strob& strob();
+    void stop() {_stopped = true;}
+    Strob& strob() const {return *_strob;}
 protected:
     void run();
 private:
+    FrameReceiver(const FrameReceiver&) {}
+    FrameReceiver& operator =(const FrameReceiver&) {return *this;}
     static const int _timeout = 20;
     static const unsigned long _termTimeout = 500;
     QSettings      *_settings;
@@ -32,7 +34,8 @@ private:
     volatile bool   _stopped;
     Strob          *_strob;
     QSize           _bufSize;
-    void checkFrameSize(int width, int height);
+    void checkFrameSize(const int width,
+                        const int height);
     void fastProc(Frame*);
 signals:
     void frame0Ready(Frame*); //to Gui

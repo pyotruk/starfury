@@ -37,10 +37,10 @@ public:
     void setField(const QSizeF&);
     void setSide(const double);
     void setEdge(const double);
-    QSizeF& field();
-    double side();
-    double edge();
-    SkyRect& rect();
+    const QSizeF& field() const {return _field;}
+    double side() const {return _side;}
+    double edge() const {return _edge;}
+    const SkyRect& rect() const {return _rect;}
 private:
     static const double _defaultFieldWidth  = 0.1;
     static const double _defaultFieldHeight = 0.1;

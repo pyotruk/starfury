@@ -11,6 +11,7 @@ public:
     explicit DataBox();
     explicit DataBox(const DataBox<T>&);
     DataBox<T>& operator =(const DataBox<T>&);
+    const T&        data()       const {return _data;}
     T&              data()             {return _data;}
     QReadWriteLock& lock()             {return _lock;}
     QDateTime&      timeMarker()       {return _marker;}

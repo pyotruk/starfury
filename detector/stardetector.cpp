@@ -56,7 +56,7 @@ void StarDetector::filtering(Frame &f)
 /////////////////////////////////////////////////////////////////////////////////////
 void StarDetector::findArtifacts(Frame &f,
                                  ArtifactVector &a,
-                                 double thresh)
+                                 const double thresh)
 {
     a.clear();
     quint32 floodColor = 0x7F;
@@ -81,7 +81,7 @@ void StarDetector::findArtifacts(Frame &f,
                 magn = (double)rect.width;
                 if(magn > thresh)
                 {
-                    calcRectCenter(rect, center);
+                    cvhelp::calcRectCenter(rect, center);
                     art.setCenter(center);
                     art.setMagnitude(magn);
                     a.push_back(art);

@@ -7,11 +7,10 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/star.h"
 /////////////////////////////////////////////////////////////////////////////////////
-#define pi                3.1415926535897932384626433832795
-#define BYTES_PER_STAR    7      //кол-во байт на одну звезду в каталоге
-#define BLOCK_SIZE_DELTA  0.02   //[radians] размер блока в каталоге по склонению
-#define BLOCK_SIZE_STARS  175000 //размер блока в каталоге по кол-ву звёзд
-#define MARGIN_KOEF       1.55   //коэффициент запаса при расчёте размера рабочего блока
+static const int    __bytesPerStar = 7;       //кол-во байт на одну звезду в каталоге
+static const double __deltaPerBlock = 0.02;   //[radians] размер блока в каталоге по склонению
+static const int    __starsPerBlock = 175000; //размер блока в каталоге по кол-ву звёзд
+static const double __marginKoef = 1.55;      //коэффициент запаса при расчёте размера рабочего блока
 /////////////////////////////////////////////////////////////////////////////////////
 union Tib4
 {
@@ -19,13 +18,17 @@ union Tib4
     uchar b[4];
 };
 /////////////////////////////////////////////////////////////////////////////////////
-void decodeStar(Star &star, uchar *data);
-/////////////////////////////////////////////////////////////////////////////////////
-void   calcPositionRange(const qint64 streamSize,
-                         const double lowerDelta,
-                         const double upperDelta,
-                         qint64 &startPos,
-                         qint64 &finPos);
+namespace guidecat
+{
+void decodeStar(Star &star,
+                const uchar *data);
+
+void calcPositionRange(const qint64 streamSize,
+                       const double lowerDelta,
+                       const double upperDelta,
+                       qint64 &startPos,
+                       qint64 &finPos);
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

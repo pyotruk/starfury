@@ -22,6 +22,8 @@ public:
                           ArtifactBox*);
     ~StarDetector();
 private:
+    StarDetector(const StarDetector&) {}
+    StarDetector& operator =(const StarDetector&) {return *this;}
     static const int _timeout = 40;
     static const int _magnThresh = 2;
     QSettings      *_settings;
@@ -31,7 +33,7 @@ private:
     void filtering(Frame&);
     void findArtifacts(Frame&,
                        ArtifactVector&,
-                       double thresh);
+                       const double thresh);
     void deleteTarget(ArtifactVector&,
                       const QPointF &target);
 private slots:

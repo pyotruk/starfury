@@ -18,25 +18,25 @@ Angmeter::~Angmeter()
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::loadSettings(QSettings *s)
 {
-    int screenWidth = s->value(SKEY_SCREEN_WIDTH, _defaultScreenWidth).toInt();
-    int screenHeight = s->value(SKEY_SCREEN_HEIGHT, _defaultScreenHeight).toInt();
+    int screenWidth = s->value(__skeyScreenWidth, _defaultScreenWidth).toInt();
+    int screenHeight = s->value(__skeyScreenHeight, _defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
-    _maxStarQuantity = s->value(SKEY_MAX_STAR_QUANTITY, _defaultMaxStarQuantity).toInt();
-    _equatedStarQuantity = s->value(SKEY_EQUATED_STAR_QUANTITY, _defaultEquatedStarQuantity).toInt();
-    _equalEps = s->value(SKEY_EQUAL_EPS, _defaultEqualEps).toDouble();
-    _similarEps = s->value(SKEY_SIMILAR_EPS, _defaultSimilarEps).toDouble();
-    _checkEps = s->value(SKEY_CHECK_EPS, _defaultCheckEps).toDouble();
+    _maxStarQuantity = s->value(__skeyMaxStarQuantity, _defaultMaxStarQuantity).toInt();
+    _equatedStarQuantity = s->value(__skeyEquatedStarQuantity, _defaultEquatedStarQuantity).toInt();
+    _equalEps = s->value(__skeyEqualEps, _defaultEqualEps).toDouble();
+    _similarEps = s->value(__skeySimilarEps, _defaultSimilarEps).toDouble();
+    _checkEps = s->value(__skeyCheckEps, _defaultCheckEps).toDouble();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::saveSettings(QSettings *s)
 {
-    s->setValue(SKEY_SCREEN_WIDTH, _screen.width());
-    s->setValue(SKEY_SCREEN_HEIGHT, _screen.height());
-    s->setValue(SKEY_MAX_STAR_QUANTITY, _maxStarQuantity);
-    s->setValue(SKEY_EQUATED_STAR_QUANTITY, _equatedStarQuantity);
-    s->setValue(SKEY_EQUAL_EPS, _equalEps);
-    s->setValue(SKEY_SIMILAR_EPS, _similarEps);
-    s->setValue(SKEY_CHECK_EPS, _checkEps);
+    s->setValue(__skeyScreenWidth, _screen.width());
+    s->setValue(__skeyScreenHeight, _screen.height());
+    s->setValue(__skeyMaxStarQuantity, _maxStarQuantity);
+    s->setValue(__skeyEquatedStarQuantity, _equatedStarQuantity);
+    s->setValue(__skeyEqualEps, _equalEps);
+    s->setValue(__skeySimilarEps, _similarEps);
+    s->setValue(__skeyCheckEps, _checkEps);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,
@@ -112,13 +112,13 @@ void Angmeter::equation()
 
     tri::cookTriangles(_picStars,
                        _tribox.data().picTriangles);
-    tri::deleteEqual(_tribox.data().picTriangles,
-                     _equalEps);
+//    tri::deleteEqual(_tribox.data().picTriangles,
+//                     _equalEps);
 
     tri::cookTriangles(_catStars,
                        _tribox.data().catTriangles);
-    tri::deleteEqual(_tribox.data().catTriangles,
-                     _equalEps);
+//    tri::deleteEqual(_tribox.data().catTriangles,
+//                     _equalEps);
 
     qDebug() << "triangles TOTAL:  " << _tribox.data().picTriangles.size()
              << " (pic)    " << _tribox.data().catTriangles.size() << " (cat)";

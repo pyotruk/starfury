@@ -1,8 +1,8 @@
 #include "sharedmem.h"
 /////////////////////////////////////////////////////////////////////////////////////
-SharedMem::SharedMem(QSettings *settings)
+SharedMem::SharedMem(QSettings *s)
 {
-      _sharedSettings.settings = settings;
+      _sharedSettings.settings = s;
       loadSettings(_sharedSettings.settings);
 
       _mappedFile = OpenFileMapping(FILE_MAP_ALL_ACCESS,
@@ -37,32 +37,19 @@ SharedMem::~SharedMem()
     saveSettings(_sharedSettings.settings);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::loadSettings(QSettings *settings)
+void SharedMem::loadSettings(QSettings *s)
 {
-    if(settings == 0)
-    {
-        _sharedSettings.fileMapId = DEFAULT_SHARED_MEM_ID;
-        _sharedSettings.eventId = DEFAULT_SHARED_EVENT_ID;
-        _sharedSettings.mutexId = DEFAULT_SHARED_MUTEX_ID;
-    }
-    else
-    {
-        _sharedSettings.fileMapId = settings->value(SKEY_SHARED_MEM_ID, DEFAULT_SHARED_MEM_ID).toString();
-        _sharedSettings.eventId = settings->value(SKEY_SHARED_EVENT_ID, DEFAULT_SHARED_EVENT_ID).toString();
-        _sharedSettings.mutexId = settings->value(SKEY_SHARED_MUTEX_ID, DEFAULT_SHARED_MUTEX_ID).toString();
-    }
+    _sharedSettings.fileMapId = s->value(__skeySharedFileMapID, __defaultSharedFileMapID).toString();
+    _sharedSettings.eventId = s->value(__skeySharedEventID, __defaultSharedEventID).toString();
+    _sharedSettings.mutexId = s->value(__skeySharedMutexID, __defaultSharedMutexID).toString();
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::saveSettings(QSettings *settings)
+void SharedMem::saveSettings(QSettings *s)
 {
-    if(settings != 0)
-    {
-        settings->setValue(SKEY_SHARED_MEM_ID, _sharedSettings.fileMapId);
-        settings->setValue(SKEY_SHARED_EVENT_ID, _sharedSettings.eventId);
-        settings->setValue(SKEY_SHARED_MUTEX_ID, _sharedSettings.mutexId);
-    }
+    s->setValue(__skeySharedFileMapID, _sharedSettings.fileMapId);
+    s->setValue(__skeySharedEventID, _sharedSettings.eventId);
+    s->setValue(__skeySharedMutexID, _sharedSettings.mutexId);
 }
-
 ///////////////////////////////////////////////////////////////////////////////////////
 bool SharedMem::waitForData()
 {

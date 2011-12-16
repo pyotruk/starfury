@@ -21,12 +21,12 @@ Strob::~Strob()
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::loadSettings(QSettings *s)
 {
-    _threshold = s->value(SKEY_STROB_STDDEV_THRESHOLD, _defaultThreshold).toDouble();
+    _threshold = s->value(__skeyStrobStddevThreshold, _defaultThreshold).toDouble();
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::saveSettings(QSettings *s)
 {
-    s->setValue(SKEY_STROB_STDDEV_THRESHOLD, _threshold);
+    s->setValue(__skeyStrobStddevThreshold, _threshold);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::makeTracking(Frame *f)
@@ -36,8 +36,8 @@ void Strob::makeTracking(Frame *f)
                                 f->header().height));
     cv::Rect innerRect;
     cv::Rect outerRect;
-    qtRect2cvRect(_geometry->innerRect(), innerRect);
-    qtRect2cvRect(_geometry->outerRect(), outerRect);
+    cvhelp::qtRect2cvRect(_geometry->innerRect(), innerRect);
+    cvhelp::qtRect2cvRect(_geometry->outerRect(), outerRect);
     cv::Mat signalRoi(f->asCvMat(), innerRect);
     cv::Mat foneRoi(f->asCvMat(), outerRect);
 
@@ -63,7 +63,7 @@ void Strob::makeTracking(Frame *f)
         cv::TermCriteria crit(cv::TermCriteria::COUNT, 1, 0.1);
         cv::meanShift(f->asCvMat(), innerRect, crit);
         QRect newInnerRect;
-        cvRect2qtRect(innerRect, newInnerRect);
+        cvhelp::cvRect2qtRect(innerRect, newInnerRect);
         _geometry->setRect(newInnerRect);
     }
 }
@@ -96,19 +96,7 @@ void Strob::setThreshold(const int pos)
     _threshold = (double)pos;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-double Strob::threshold()
-{
-    return _threshold;
-}
 /////////////////////////////////////////////////////////////////////////////////////
-int Strob::pixThreshold()
-{
-    return _pixThreshold;
-}
 /////////////////////////////////////////////////////////////////////////////////////
-StrobGeometry &Strob::geometry()
-{
-    return *_geometry;
-}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
