@@ -11,6 +11,7 @@
 #include "sky/starcatscreen.h"
 #include "com/snudpsrv.h"
 #include "astrometry/angmeter.h"
+#include "logfile.h"
 /////////////////////////////////////////////////////////////////////////////////////
 #define FRAME_HEADER_SIZE 32
 /////////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +22,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     QSettings settings("petr_klukvenny", "starfury");
+    LogFile logFile("starfury-measerr");
 
     //per-thread data
     Frame          frame0, frame1;
@@ -34,6 +36,7 @@ int main(int argc, char *argv[])
     StarDetector  starDetector(&settings,
                                &screenStars);
     StarcatScreen starcatScreen(&settings,
+                                &logFile,
                                 &catStars);
     Angmeter      angmeter(&settings);
 
@@ -63,8 +66,8 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
                      &angmeter, SLOT(setScreenSize(int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&angmeter, SIGNAL(sendTarget(double,double)),
-                     &starcatScreen, SLOT(inputTarget(double,double)),
+    QObject::connect(&angmeter, SIGNAL(sendTarget(TargetBox*)),
+                     &starcatScreen, SLOT(inputTarget(TargetBox*)),
                      Qt::QueuedConnection);
 
     //gui <--> object connections

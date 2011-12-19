@@ -5,32 +5,13 @@
 #include <QtNetwork/QUdpSocket>
 #include <QSettings>
 #include <QObject>
-#include <QReadWriteLock>
 #include <QDebug>
 #include <QString>
 /////////////////////////////////////////////////////////////////////////////////////
+#include "boxes/telescope.h"
 /////////////////////////////////////////////////////////////////////////////////////
 static const QString __skeyUdpServerPort("/UdpServer/Port");
 /////////////////////////////////////////////////////////////////////////////////////
-struct TelescopeVector
-{
-    qint64 packID;
-    qint64 timeUTC;
-    double azAxis;
-    double elAxis;
-    double azVelAxis;
-    double elVelAxis;
-    double azOrient;
-    double elOrient;
-    double azHoriz;
-    double elHoriz;
-    double alpha;
-    double delta;
-    double LST;
-    double latitude;
-    double fieldWidth;
-    double fieldHeight;
-};
 ////////////////////////////////////////////////////////////////////////////////////
 class SnUdpSrv : public QObject
 {
@@ -44,8 +25,7 @@ private:
     static const quint16 _defaultPort = 4444;
     static const int  _timeout = 20;
     QSettings       *_settings;
-    TelescopeVector  _telescope;
-    QReadWriteLock   _lock;
+    TelescopeBox     _telescope;
     quint16          _port;
     QUdpSocket       _socket;
     void loadSettings(QSettings*);
@@ -53,8 +33,7 @@ private:
 private slots:
     void read();
 signals:
-    void telescopeVectorReady(const TelescopeVector*,
-                              QReadWriteLock*);
+    void telescopeStatusReady(TelescopeBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

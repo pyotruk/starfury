@@ -11,10 +11,12 @@ public:
     explicit DataBox();
     explicit DataBox(const DataBox<T>&);
     DataBox<T>& operator =(const DataBox<T>&);
-    const T&        data()       const {return _data;}
-    T&              data()             {return _data;}
-    QReadWriteLock& lock()             {return _lock;}
-    QDateTime&      timeMarker()       {return _marker;}
+    const T&         data()       const {return _data;}
+    T&               data()             {return _data;}
+    QReadWriteLock&  lock()             {return _lock;}
+    const QDateTime& timeMarker() const {return _marker;}
+    void             setTimeMarker(const QDateTime &t) {_marker = t;}
+    void             refreshTime() {this->setTimeMarker(QDateTime::currentDateTime());}
 private:
     T              _data;
     QReadWriteLock _lock;
@@ -25,7 +27,7 @@ private:
 template<typename T>
 DataBox<T>::DataBox()
 {
-    _marker = QDateTime::currentDateTime();
+    this->refreshTime();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 template<typename T>
@@ -45,6 +47,7 @@ DataBox<T>& DataBox<T>::operator =(const DataBox<T> &other)
     }
     return *this;
 }
+/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // DATABOX_H

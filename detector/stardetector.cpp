@@ -33,8 +33,10 @@ void StarDetector::inputFrame(Frame *f,
                         _magnThresh);
     this->deleteTarget(_artifactBox->data(),
                        _target.center());
-    winfiletime2qdatetime(_frame.header().timeID,
-                          _artifactBox->timeMarker());
+
+    QDateTime tMark = _artifactBox->timeMarker();
+    timeutils::winfiletime2qdatetime(_frame.header().timeID, tMark);
+    _artifactBox->setTimeMarker(tMark);
     _artifactBox->lock().unlock();
 
     emit screenStarsReady(_artifactBox,

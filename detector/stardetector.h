@@ -11,7 +11,7 @@
 #include "utils/cvhelpfun.h"
 #include "boxes/frame.h"
 #include "math/astrocalc.h"
-#include "utils/adapters.h"
+#include "utils/timeutils.h"
 #include "boxes/artifact.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class StarDetector : public QThread

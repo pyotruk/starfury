@@ -27,12 +27,14 @@ SOURCES += main.cpp\
     utils/guidecodec.cpp \
     sky/starcatscreen.cpp \
     detector/stardetector.cpp \
-    utils/adapters.cpp \
     astrometry/triangle.cpp \
     astrometry/angmeter.cpp \
     math/astrocalc.cpp \
     math/lincor.cpp \
-    boxes/combo.cpp
+    boxes/combo.cpp \
+    logfile.cpp \
+    utils/timeutils.cpp \
+    boxes/telescope.cpp
 
 HEADERS  += mainwindow.h \
     strob/strob.h \
@@ -51,13 +53,15 @@ HEADERS  += mainwindow.h \
     sky/starcatscreen.h \
     detector/stardetector.h \
     math/astrocalc.h \
-    utils/adapters.h \
     globalskeys.h \
     astrometry/triangle.h \
     astrometry/angmeter.h \
     boxes/databox.h \
     math/lincor.h \
-    boxes/combo.h
+    boxes/combo.h \
+    logfile.h \
+    utils/timeutils.h \
+    boxes/telescope.h
 
 INCLUDEPATH += "C:/opencv231/include"
 
@@ -70,6 +74,14 @@ LIBS += -L"C:/opencv231/lib" \
 
 
 FORMS += mainwindow.ui
+
+
+
+
+
+
+
+
 
 
 

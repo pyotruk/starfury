@@ -1,8 +1,10 @@
 #include "starcatscreen.h"
 /////////////////////////////////////////////////////////////////////////////////////
 StarcatScreen::StarcatScreen(QSettings *s,
+                             LogFile *log,
                              ArtifactBox *a) :
     _settings(s),
+    _log(log),
     _starBox(a),
     _starcatReader(new StarcatReader(_settings)),
     _segment(new SkySegment(_starcatReader->segment().field().width(),
@@ -14,8 +16,8 @@ StarcatScreen::StarcatScreen(QSettings *s,
     qDebug() << "starcatScreen::_starcatReader thread: " << _starcatReader->thread();
     qDebug() << "starcatScreen::_snServer thread: " << _snServer->thread();
     this->loadSettings(_settings);
-    QObject::connect(_snServer, SIGNAL(telescopeVectorReady(const TelescopeVector*,QReadWriteLock*)),
-                     this, SLOT(inputTelescopeVector(const TelescopeVector*,QReadWriteLock*)),
+    QObject::connect(_snServer, SIGNAL(telescopeStatusReady(TelescopeBox*)),
+                     this, SLOT(inputTelescopeStatus(TelescopeBox*)),
                      Qt::QueuedConnection);
 
     this->start(QThread::NormalPriority);
@@ -44,49 +46,63 @@ void StarcatScreen::saveSettings(QSettings *s)
     s->setValue(__skeyScreenHeight, _screen.height());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTelescopeVector(const TelescopeVector *t,
-                                         QReadWriteLock  *lock)
+void StarcatScreen::inputTelescopeStatus(TelescopeBox *t)
 {
-    lock->lockForRead();
-    _telescope = *t;
-    lock->unlock();
+    if(_telescopeVec.size() > _maxTelescopeVectorSize)
+        _telescopeVec.clear();
 
-    _starcatReader->refresh(_telescope.alpha,
-                            _telescope.delta/*,
-                            _telescope.fieldWidth,
-                            _telescope.fieldHeight*/);
+    t->lock().lockForRead();
+    _telescopeVec.push_back(t->data());
+    TelescopeStatus tscope = t->data();
+    t->lock().unlock();
+
+    _starcatReader->refresh(tscope.alpha,
+                            tscope.delta/*,
+                            tscope.fieldWidth,
+                            tscope.fieldHeight*/);
 
     _starBox->lock().lockForWrite();
 
     _starcatReader->mutex()->lock();
-    this->proc(_telescope,
+    this->proc(tscope,
                *(_starcatReader->stars()),
                _starBox->data(),
                *_segment);
     _starcatReader->mutex()->unlock();
 
-    winfiletime2qdatetime(_telescope.timeUTC, _starBox->timeMarker());
+    QDateTime tMark = _starBox->timeMarker();
+    timeutils::winfiletime2qdatetime(tscope.timeUTC, tMark);
+    _starBox->setTimeMarker(tMark);
+
     _starBox->lock().unlock();
 
     emit catStarsReady(_starBox);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTarget(double xTarget,
-                                double yTarget)
+void StarcatScreen::inputTarget(TargetBox *target)
 {
-    Artifact picTarget(xTarget, yTarget);
+    target->lock().lockForRead();
+    Artifact picTarget = target->data();
+    QDateTime t = target->timeMarker();
+    target->lock().unlock();
+
+    TelescopeStatus tscope = telescope::findNearestByTime(t, _telescopeVec);
+
     Star catTarget;
-    this->screenStar2catStar(_telescope,
+    this->screenStar2catStar(tscope,
                              picTarget,
                              catTarget);
-    double errAlpha = _telescope.alpha - catTarget.alpha();
-    double errDelta = _telescope.delta - catTarget.delta();
+    double errAlpha = tscope.alpha - catTarget.alpha();
+    double errDelta = tscope.delta - catTarget.delta();
     emit sendMeasureError(errAlpha, errDelta);
-    qDebug() << "errAlpha = " << errAlpha * __rad2deg * 3600
-             << "    errDelta = " << errDelta * __rad2deg * 3600;
+    double errAlphaMin = errAlpha * __rad2deg * 3600;
+    double errDeltaMin = errDelta * __rad2deg * 3600;
+    _log->write(QString::number(errAlphaMin) + " " + QString::number(errDeltaMin));
+    qDebug() << "errAlpha = " << errAlphaMin
+             << "    errDelta = " << errDeltaMin;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::proc(const TelescopeVector &t,
+void StarcatScreen::proc(const TelescopeStatus &t,
                          const StarVector &s,
                          ArtifactVector &a,
                          SkySegment &seg)
@@ -112,7 +128,7 @@ void StarcatScreen::proc(const TelescopeVector &t,
     qSort(a.begin(), a.end(), qGreater<Artifact>());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::catStar2screenStar(const TelescopeVector &t,
+void StarcatScreen::catStar2screenStar(const TelescopeStatus &t,
                                        const Star &s,
                                        Artifact &a)
 {
@@ -136,7 +152,7 @@ void StarcatScreen::catStar2screenStar(const TelescopeVector &t,
     a.setMagnitude(ac::calcStarRadius(qAbs(s.magnitude())));
 }
 ////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::screenStar2catStar(const TelescopeVector &t,
+void StarcatScreen::screenStar2catStar(const TelescopeStatus &t,
                                        const Artifact &a,
                                        Star &s)
 {

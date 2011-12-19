@@ -51,7 +51,7 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
                                 double yTarget)
 {
     a->lock().lockForRead();
-    _picStars = a->data();
+    _picStars = *a;
     a->lock().unlock();
 
     QTime t;
@@ -62,11 +62,14 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
     _tribox.lock().unlock();
 
     LinCor cor;
-    lincor::cook(_picStars,
-                 _catStars,
+    lincor::cook(_picStars.data(),
+                 _catStars.data(),
                  cor);
 
-    if(this->checkEquation(_picStars, _catStars, cor, _defaultCheckEps))
+    if(this->checkEquation(_picStars.data(),
+                           _catStars.data(),
+                           cor,
+                           _defaultCheckEps))
     {
         qDebug() << "a1 = " << cor.a1
                  << "    b1 = " << cor.b1
@@ -76,10 +79,14 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
                  << "    c2 = " << cor.c2;
 
         emit sendTriangles(&_tribox);
-        Artifact target(xTarget, yTarget);
-        this->correctTarget(cor, target);
-        emit sendTarget(target.center().x(),
-                        target.center().y());
+
+        _target.lock().lockForWrite();
+        _target.data().setCenter(QPointF(xTarget, yTarget));
+        this->correctTarget(cor, _target.data());
+        _target.setTimeMarker(_picStars.timeMarker());
+        _target.lock().unlock();
+
+        emit sendTarget(&_target);
     }
 
     qDebug() << "Angmeter equation delay: " << t.elapsed();
@@ -88,34 +95,34 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
 void Angmeter::inputCatStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
-    _catStars = a->data();
+    _catStars = *a;
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::equation()
 {
-    art::selectOnCircle(_picStars,
+    art::selectOnCircle(_picStars.data(),
                         QPoint(_screen.width() / 2, _screen.height() / 2),
                         _screen.height() / 2);
-    art::cutoff(_picStars,
+    art::cutoff(_picStars.data(),
                 _maxStarQuantity);
 
-    art::selectOnCircle(_catStars,
+    art::selectOnCircle(_catStars.data(),
                         QPoint(_screen.width() / 2, _screen.height() / 2),
                         _screen.height() / 2);
-    art::cutoff(_catStars,
+    art::cutoff(_catStars.data(),
                 _maxStarQuantity);
 
-    if(_catStars.size() > _picStars.size())
-        art::cutoff(_catStars,
-                    _picStars.size());
+    if(_catStars.data().size() > _picStars.data().size())
+        art::cutoff(_catStars.data(),
+                    _picStars.data().size());
 
-    tri::cookTriangles(_picStars,
+    tri::cookTriangles(_picStars.data(),
                        _tribox.data().picTriangles);
 //    tri::deleteEqual(_tribox.data().picTriangles,
 //                     _equalEps);
 
-    tri::cookTriangles(_catStars,
+    tri::cookTriangles(_catStars.data(),
                        _tribox.data().catTriangles);
 //    tri::deleteEqual(_tribox.data().catTriangles,
 //                     _equalEps);
@@ -131,8 +138,8 @@ void Angmeter::equation()
     tri::triangles2Artifacts(_tribox.data().picTriangles,
                              _tribox.data().catTriangles,
                              _equalEps,
-                             _picStars,
-                             _catStars);
+                             _picStars.data(),
+                             _catStars.data());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::correctTarget(const LinCor &cor,

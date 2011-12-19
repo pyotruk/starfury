@@ -29,14 +29,14 @@ void SnUdpSrv::saveSettings(QSettings *s)
 /////////////////////////////////////////////////////////////////////////////////////
 void SnUdpSrv::read()
 {
-    if(_socket.pendingDatagramSize() == sizeof(TelescopeVector))
+    if(_socket.pendingDatagramSize() == sizeof(TelescopeStatus))
     {
-        if(_lock.tryLockForWrite(_timeout))
+        if(_telescope.lock().tryLockForWrite(_timeout))
         {
-            _socket.readDatagram((char*)(&_telescope),
-                                  sizeof(TelescopeVector));
-            _lock.unlock();
-            emit telescopeVectorReady(&_telescope, &_lock);
+            _socket.readDatagram((char*)(&(_telescope.data())),
+                                  sizeof(TelescopeStatus));
+            _telescope.lock().unlock();
+            emit telescopeStatusReady(&_telescope);
         }
     }
 }

@@ -44,14 +44,15 @@ private:
     static const double _defaultCheckEps   = 2.0;
     QSettings     *_settings;
     QSize          _screen;
-    ArtifactVector _picStars;
-    ArtifactVector _catStars;
+    ArtifactBox    _picStars;
+    ArtifactBox    _catStars;
     TriangleBox    _tribox;
     int            _maxStarQuantity;
     int            _equatedStarQuantity;
     double         _equalEps;
     double         _similarEps;
     double         _checkEps;
+    TargetBox      _target;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void equation();
@@ -68,8 +69,7 @@ private slots:
     void inputCatStars(ArtifactBox*);
 signals:
     void sendTriangles(TriangleBox*);
-    void sendTarget(double xTarget,
-                    double yTarget);
+    void sendTarget(TargetBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
