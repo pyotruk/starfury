@@ -78,7 +78,17 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
                  << "    b2 = " << cor.b2
                  << "    c2 = " << cor.c2;
 
-        emit sendTriangles(&_tribox);
+        //emit sendTriangles(&_tribox);
+
+        _eqPicStars.lock().lockForWrite();
+        _eqCatStars.lock().lockForWrite();
+        _eqPicStars = _picStars;
+        _eqCatStars = _catStars;
+        _eqCatStars.lock().unlock();
+        _eqPicStars.lock().unlock();
+
+        emit sendEquatedStars(&_eqPicStars, &_eqCatStars);
+
 
         _target.lock().lockForWrite();
         _target.data().setCenter(QPointF(xTarget, yTarget));
@@ -104,42 +114,54 @@ void Angmeter::equation()
     art::selectOnCircle(_picStars.data(),
                         QPoint(_screen.width() / 2, _screen.height() / 2),
                         _screen.height() / 2);
-    art::cutoff(_picStars.data(),
-                _maxStarQuantity);
+//    art::cutoff(_picStars.data(),
+//                _maxStarQuantity);
 
     art::selectOnCircle(_catStars.data(),
                         QPoint(_screen.width() / 2, _screen.height() / 2),
                         _screen.height() / 2);
-    art::cutoff(_catStars.data(),
-                _maxStarQuantity);
+//    art::cutoff(_catStars.data(),
+//                _maxStarQuantity);
 
-    if(_catStars.data().size() > _picStars.data().size())
-        art::cutoff(_catStars.data(),
-                    _picStars.data().size());
+//    if(_catStars.data().size() > _picStars.data().size())
+//        art::cutoff(_catStars.data(),
+//                    _picStars.data().size());
 
-    tri::cookTriangles(_picStars.data(),
-                       _tribox.data().picTriangles);
+    if(_picStars.data().size() > _catStars.data().size())
+    {
+        art::cutoff(_picStars.data(), _catStars.data().size());
+    }
+
+
+//    tri::cookTriangles(_picStars.data(),
+//                       _tribox.data().picTriangles);
 //    tri::deleteEqual(_tribox.data().picTriangles,
 //                     _equalEps);
 
-    tri::cookTriangles(_catStars.data(),
-                       _tribox.data().catTriangles);
+//    tri::cookTriangles(_catStars.data(),
+//                       _tribox.data().catTriangles);
 //    tri::deleteEqual(_tribox.data().catTriangles,
 //                     _equalEps);
 
-    qDebug() << "triangles TOTAL:  " << _tribox.data().picTriangles.size()
-             << " (pic)    " << _tribox.data().catTriangles.size() << " (cat)";
+//    qDebug() << "triangles TOTAL:  " << _tribox.data().picTriangles.size()
+//             << " (pic)    " << _tribox.data().catTriangles.size() << " (cat)";
 
-    tri::cookTriangleBox(_tribox.data(), _similarEps);
+//    tri::cookTriangleBox(_tribox.data(), _similarEps);
 
-    qDebug() << "triangles SIMILAR:  " << _tribox.data().picTriangles.size()
-             << " (pic)    " << _tribox.data().catTriangles.size() << " (cat)";
+//    qDebug() << "triangles SIMILAR:  " << _tribox.data().picTriangles.size()
+//             << " (pic)    " << _tribox.data().catTriangles.size() << " (cat)";
 
-    tri::triangles2Artifacts(_tribox.data().picTriangles,
-                             _tribox.data().catTriangles,
-                             _equalEps,
-                             _picStars.data(),
-                             _catStars.data());
+//    tri::triangles2Artifacts(_tribox.data().picTriangles,
+//                             _tribox.data().catTriangles,
+//                             _equalEps,
+//                             _picStars.data(),
+//                             _catStars.data());
+
+    id::equate(_picStars.data(),
+               _catStars.data(),
+               _similarEps,
+               _picStars.data(),
+               _catStars.data());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::correctTarget(const LinCor &cor,

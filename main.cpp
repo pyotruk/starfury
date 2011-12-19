@@ -82,8 +82,11 @@ int main(int argc, char *argv[])
                      &w, SLOT(inputCatStars(ArtifactBox*)),
                      Qt::QueuedConnection);
 
-    QObject::connect(&angmeter, SIGNAL(sendTriangles(TriangleBox*)),
-                     &w, SLOT(inputTriangles(TriangleBox*)),
+//    QObject::connect(&angmeter, SIGNAL(sendTriangles(TriangleBox*)),
+//                     &w, SLOT(inputTriangles(TriangleBox*)),
+//                     Qt::QueuedConnection);
+    QObject::connect(&angmeter, SIGNAL(sendEquatedStars(ArtifactBox*,ArtifactBox*)),
+                     &w, SLOT(inputEquatedStars(ArtifactBox*,ArtifactBox*)),
                      Qt::QueuedConnection);
 
     QObject::connect(&starcatScreen, SIGNAL(sendMeasureError(double,double)),

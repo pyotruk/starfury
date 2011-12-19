@@ -38,6 +38,8 @@ private:
     ArtifactBox     _artifactBox;
     ArtifactBox     _starBox;
     TriangleBox     _tribox;
+    ArtifactVector  _eqPicStars;
+    ArtifactVector  _eqCatStars;
     void checkImgSize();
     void adaptWindowSize(const QSize&);
     void markArtifacts(QImage&,
@@ -47,14 +49,23 @@ private:
     void drawTriangles(TriangleVector&,
                        const int width,
                        const QColor&);
-    void drawAll(TriangleBoxData&,
-                 ArtifactVector &picStars,
-                 ArtifactVector &catStars);
+//    void drawAll(TriangleBoxData&,
+//                 ArtifactVector &picStars,
+//                 ArtifactVector &catStars);
+    void drawStarConfig(ArtifactVector&,
+                        const int width,
+                        const QColor&);
+    void drawAll(ArtifactVector &picStars,
+                 ArtifactVector &catStars,
+                 ArtifactVector &eqPicStars,
+                 ArtifactVector &eqCatStars);
 private slots:
     void inputFrame(Frame*);
     void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
     void inputTriangles(TriangleBox*);
+    void inputEquatedStars(ArtifactBox *pic,
+                           ArtifactBox *cat);
     void inputMeasureError(double errAlpha,  //rad
                            double errDelta); //rad
     void paintEvent(QPaintEvent *);

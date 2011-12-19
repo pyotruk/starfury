@@ -13,6 +13,7 @@
 #include "math/astrocalc.h"
 #include "astrometry/triangle.h"
 #include "math/lincor.h"
+#include "astrometry/identifier.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyMaxStarQuantity("/Angmeter/MaxStarQuantity");
@@ -53,6 +54,8 @@ private:
     double         _similarEps;
     double         _checkEps;
     TargetBox      _target;
+    ArtifactBox    _eqPicStars; //equated
+    ArtifactBox    _eqCatStars; //equated
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void equation();
@@ -69,6 +72,8 @@ private slots:
     void inputCatStars(ArtifactBox*);
 signals:
     void sendTriangles(TriangleBox*);
+    void sendEquatedStars(ArtifactBox *pic,
+                          ArtifactBox *cat);
     void sendTarget(TargetBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////

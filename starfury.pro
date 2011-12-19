@@ -34,7 +34,8 @@ SOURCES += main.cpp\
     boxes/combo.cpp \
     logfile.cpp \
     utils/timeutils.cpp \
-    boxes/telescope.cpp
+    boxes/telescope.cpp \
+    astrometry/identifier.cpp
 
 HEADERS  += mainwindow.h \
     strob/strob.h \
@@ -61,7 +62,8 @@ HEADERS  += mainwindow.h \
     boxes/combo.h \
     logfile.h \
     utils/timeutils.h \
-    boxes/telescope.h
+    boxes/telescope.h \
+    astrometry/identifier.h
 
 INCLUDEPATH += "C:/opencv231/include"
 
@@ -74,6 +76,8 @@ LIBS += -L"C:/opencv231/lib" \
 
 
 FORMS += mainwindow.ui
+
+
 
 
 
