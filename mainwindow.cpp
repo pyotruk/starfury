@@ -94,22 +94,6 @@ void MainWindow::markStars(QImage &img,
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::drawTriangles(TriangleVector &tv,
-                               const int width,
-                               const QColor &color)
-{
-    foreach(ArtifactTriangle t, tv)
-    {
-        draw::triangle(_img,
-                       width,
-                       color,
-                       t.t()[0].center(),
-                       t.t()[1].center(),
-                       t.t()[2].center());
-    }
-    tv.clear();
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::drawStarConfig(ArtifactVector &av,
                                 const int width,
                                 const QColor &color)
@@ -179,13 +163,8 @@ void MainWindow::inputCatStars(ArtifactBox *a)
     a->lock().lockForRead();
     _starBox = *a;
     a->lock().unlock();
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////
-void MainWindow::inputTriangles(TriangleBox *t)
-{
-    t->lock().lockForRead();
-    _tribox = *t;
-    t->lock().unlock();
+
+    this->convertStarMagn(_starBox.data());
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 void MainWindow::inputEquatedStars(ArtifactBox *pic,
@@ -208,6 +187,16 @@ void MainWindow::inputMeasureError(double errAlpha,  //rad
                               QString::number(errDelta * __rad2deg * 3600));
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+void MainWindow::convertStarMagn(ArtifactVector &a) //пересчёт магнитуды звезды из каталога (зв.в.) в картинку
+{
+    double m;
+    ArtifactVector::iterator it = a.begin();
+    for(; it < a.end(); ++it)
+    {
+        m = it->magnitude();
+        it->setMagnitude(ac::calcStarRadius(m));
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 

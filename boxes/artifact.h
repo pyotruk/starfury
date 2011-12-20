@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QPointF>
 #include <QVector>
+#include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "math/astrocalc.h"
 #include "boxes/databox.h"
@@ -30,6 +31,8 @@ private:
     double  _magnitude; //размер в усл.ед.
 };
 /////////////////////////////////////////////////////////////////////////////////////
+QDebug& operator <<(QDebug&, const Artifact&);
+/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 typedef QVector<Artifact>       ArtifactVector;
 typedef DataBox<ArtifactVector> ArtifactBox;
@@ -39,8 +42,8 @@ typedef DataBox<Artifact>       TargetBox;
 namespace art
 {
 void selectOnCircle(ArtifactVector&,       //удаление артефактов, которые не попали на круг
-                    const QPoint &center,
-                    const int radius);
+                    const QPointF &center,
+                    const double radius);
 void cutoff(ArtifactVector&,               //обрезка вектора до нужной длины
             const int newLength);               //если newLenght больше текущей длины, то ничего не происходит
 bool isEqual(const Artifact &a1,           //проверка артефактов на равенство (совпадение центров масс)

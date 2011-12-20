@@ -3,37 +3,38 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QtAlgorithms>
 #include <QVector>
+#include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/artifact.h"
 #include "math/astrocalc.h"
 /////////////////////////////////////////////////////////////////////////////////////
-class StarPair
+class ArtifactPair
 {
 public:
-    explicit StarPair();
-    explicit StarPair(const Artifact &refStar,
-                      const Artifact &anyStar);
-    bool operator ==(const StarPair &other) const {return this->_dist == other._dist;}
-    bool operator !=(const StarPair &other) const {return this->_dist != other._dist;}
-    bool operator <(const StarPair &other)  const {return this->_dist <  other._dist;}
-    const Artifact& anyStar() const {return _any;}
-    const Artifact& refStar() const {return _ref;}
+    explicit ArtifactPair();
+    explicit ArtifactPair(const Artifact *refStar,
+                          const Artifact &anyStar);
+    bool operator ==(const ArtifactPair &other) const {return this->_dist == other._dist;}
+    bool operator !=(const ArtifactPair &other) const {return this->_dist != other._dist;}
+    bool operator <(const ArtifactPair &other)  const {return this->_dist <  other._dist;}
+    const Artifact& star() const {return _star;}
+    const Artifact* refStar() const {return _refStar;}
     double dist() const {return _dist;}
 private:
-    Artifact _ref;
-    Artifact _any;
-    double   _dist;
+    const Artifact *_refStar;
+    Artifact        _star;
+    double          _dist;
 };
 /////////////////////////////////////////////////////////////////////////////////////
-typedef QVector<StarPair> DistVector;
+typedef QVector<ArtifactPair> ArtifactPairVector;
 /////////////////////////////////////////////////////////////////////////////////////
 namespace id
 {
-void equate(const ArtifactVector &picStars,
-            const ArtifactVector &catStars,
+static const int __minStarQuantity = 2;
+void equate(ArtifactVector &picStars,
+            ArtifactVector &catStars,
             const double eps,
-            ArtifactVector &eqPicStars,
-            ArtifactVector &eqCatStars);
+            const QPointF &screenCenter);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 typedef QVector<double> QVector_double;

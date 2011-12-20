@@ -29,19 +29,31 @@ Artifact& Artifact::operator =(const Artifact &a)
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-void art::selectOnCircle(ArtifactVector &a,
-                         const QPoint &center,
-                         const int radius)
+QDebug& operator <<(QDebug &stream, const Artifact &a)
 {
-    double r = (double)radius;
+    stream << "x = " << a.center().x()
+           << "  y = " << a.center().y()
+           << "  magn = " << a.magnitude();
+    return stream;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+void art::selectOnCircle(ArtifactVector &a,
+                         const QPointF &center,
+                         const double radius)
+{
     double dist;
-    for(ArtifactVector::iterator
-        it = a.begin(); it < a.end(); ++it)
+    ArtifactVector::iterator it = a.begin();
+    while(it < a.end())
     {
         dist = ac::calcDistance(center, it->center());
-        if(dist > r)
+        if(dist > radius)
         {
-            a.erase(it);
+            it = a.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
 }

@@ -125,7 +125,7 @@ void StarcatScreen::proc(const TelescopeStatus &t,
             a.push_back(star);
         }
     }
-    qSort(a.begin(), a.end(), qGreater<Artifact>());
+    qSort(a.begin(), a.end());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::catStar2screenStar(const TelescopeStatus &t,
@@ -149,7 +149,7 @@ void StarcatScreen::catStar2screenStar(const TelescopeStatus &t,
                                  x,
                                  y);
     a.setCenter(QPointF(x, y));
-    a.setMagnitude(ac::calcStarRadius(qAbs(s.magnitude())));
+    a.setMagnitude(s.magnitude());
 }
 ////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::screenStar2catStar(const TelescopeStatus &t,

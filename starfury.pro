@@ -27,12 +27,10 @@ SOURCES += main.cpp\
     utils/guidecodec.cpp \
     sky/starcatscreen.cpp \
     detector/stardetector.cpp \
-    astrometry/triangle.cpp \
     astrometry/angmeter.cpp \
     math/astrocalc.cpp \
     math/lincor.cpp \
-    boxes/combo.cpp \
-    logfile.cpp \
+    common/logfile.cpp \
     utils/timeutils.cpp \
     boxes/telescope.cpp \
     astrometry/identifier.cpp
@@ -54,13 +52,12 @@ HEADERS  += mainwindow.h \
     sky/starcatscreen.h \
     detector/stardetector.h \
     math/astrocalc.h \
-    globalskeys.h \
-    astrometry/triangle.h \
+    common/globalskeys.h \
     astrometry/angmeter.h \
     boxes/databox.h \
     math/lincor.h \
     boxes/combo.h \
-    logfile.h \
+    common/logfile.h \
     utils/timeutils.h \
     boxes/telescope.h \
     astrometry/identifier.h

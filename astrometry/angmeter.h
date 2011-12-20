@@ -9,9 +9,8 @@
 #include <QPoint>
 #include <QString>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "globalskeys.h"
+#include "common/globalskeys.h"
 #include "math/astrocalc.h"
-#include "astrometry/triangle.h"
 #include "math/lincor.h"
 #include "astrometry/identifier.h"
 /////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +46,6 @@ private:
     QSize          _screen;
     ArtifactBox    _picStars;
     ArtifactBox    _catStars;
-    TriangleBox    _tribox;
     int            _maxStarQuantity;
     int            _equatedStarQuantity;
     double         _equalEps;
@@ -71,7 +69,6 @@ private slots:
                           double yTarget);
     void inputCatStars(ArtifactBox*);
 signals:
-    void sendTriangles(TriangleBox*);
     void sendEquatedStars(ArtifactBox *pic,
                           ArtifactBox *cat);
     void sendTarget(TargetBox*);

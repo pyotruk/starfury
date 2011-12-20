@@ -13,7 +13,7 @@
 #include <QFile>
 #include <QString>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "globalskeys.h"
+#include "common/globalskeys.h"
 #include "sky/skysegment.h"
 #include "boxes/star.h"
 #include "utils/guidecodec.h"

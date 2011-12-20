@@ -8,7 +8,7 @@
 #include <QSizeF>
 #include <QtAlgorithms>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "globalskeys.h"
+#include "common/globalskeys.h"
 #include "com/snudpsrv.h"
 #include "sky/starcatreader.h"
 #include "math/astrocalc.h"
@@ -17,7 +17,7 @@
 #include "boxes/artifact.h"
 #include "utils/timeutils.h"
 #include "boxes/telescope.h"
-#include "logfile.h"
+#include "common/logfile.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class StarcatScreen : public QThread
