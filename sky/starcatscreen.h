@@ -39,7 +39,7 @@ private:
     static const int _timeout = 20;
     static const int _defaultScreenWidth  = 640;
     static const int _defaultScreenHeight = 480;
-    static const int _maxTelescopeVectorSize = 8;
+    static const int _maxTelescopeVectorSize = 20;
     QSettings        *_settings;
     LogFile          *_log;
     ArtifactBox      *_starBox;

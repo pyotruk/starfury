@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <qmath.h>
 #include <QSize>
-#include <QPoint>
+#include <QPointF>
 #include <QString>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "common/globalskeys.h"
@@ -42,6 +42,7 @@ private:
     static const double _defaultEqualEps   = 3.0;
     static const double _defaultSimilarEps = 0.005;
     static const double _defaultCheckEps   = 2.0;
+    static const int _maxDelay = 10; //msec
     QSettings     *_settings;
     QSize          _screen;
     ArtifactBox    _picStars;

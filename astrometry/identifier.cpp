@@ -15,24 +15,39 @@ ArtifactPair::ArtifactPair(const Artifact *refStar,
 /////////////////////////////////////////////////////////////////////////////////////
 void cookPairVector(const ArtifactVector &av,
                     const Artifact &refStar,
+                    const double distEps,
                     ArtifactPairVector &pv)
 {
     pv.clear();
     ArtifactVector::const_iterator it = av.constBegin();
     for(; it < av.constEnd(); ++it)
     {
-        pv.push_back(ArtifactPair(&refStar, *it));
+        ArtifactPair pair(&refStar, *it);
+        if(pair.dist() > 0)
+        {
+            if(!pv.empty()) //удаление звёзд, имеющих одинаковое расстояние до опорной звезды
+            {
+                double deltaDist = qAbs(pair.dist() - pv.back().dist());
+                if(deltaDist < distEps)
+                {
+                    pv.pop_back();
+                    continue;
+                }
+            }
+
+            pv.push_back(pair);
+        }
     }
     qSort(pv); //по возрастанию расстояния от опорной звезды
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void extractRefStar(ArtifactVector &v,
-                    const QPointF  &picCenter,
-                    Artifact       &refStar)
+void findRefStar(const ArtifactVector &v,
+                 const QPointF        &picCenter,
+                 Artifact             &refStar)
 {
     ArtifactVector candidates; //звёзды одинаковой и максимальной яркости (кандидаты на опорную)
-    ArtifactVector::iterator it = v.begin();
-    for(; it < v.end(); ++it)
+    ArtifactVector::const_iterator it = v.constBegin();
+    for(; it < v.constEnd(); ++it)
     {
         candidates.push_back(*it);
         if(*it != *(it + 1))
@@ -45,15 +60,12 @@ void extractRefStar(ArtifactVector &v,
     {
         Artifact cen(picCenter.x(), picCenter.y()); //гипотетическая звезда, находящаяся в центре кадра
         ArtifactPairVector pairs;
-        cookPairVector(v, cen, pairs);
+        cookPairVector(candidates, cen, 0, pairs);
         refStar = pairs.first().star();
-        it = qBinaryFind(v.begin(), v.begin() + candidates.size(), refStar);
-        v.erase(it);
     }
     else
     {
-        refStar = v.first();
-        v.pop_front();
+        refStar = v.front();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -123,32 +135,33 @@ void id::equate(ArtifactVector &picStars,
     if(picStars.size() < __minStarQuantity)     return;
     if(catStars.size() < __minStarQuantity)     return;
 
+    if(picStars.size() > catStars.size())
+    {
+        art::cutoff(picStars, catStars.size());
+    }
+    if(catStars.size() > picStars.size())
+    {
+        art::cutoff(catStars, picStars.size());
+    }
+
     Artifact picRefStar;
     Artifact catRefStar;
-    extractRefStar(picStars,
-                   screenCenter,
-                   picRefStar);
-    extractRefStar(catStars,
-                   screenCenter,
-                   catRefStar);
+    findRefStar(picStars,
+                screenCenter,
+                picRefStar);
+    findRefStar(catStars,
+                screenCenter,
+                catRefStar);
 
     ArtifactPairVector picPairs, catPairs;
-    cookPairVector(picStars, picRefStar, picPairs);
-    cookPairVector(catStars, catRefStar, catPairs);
-    if(picPairs.size() > catPairs.size())
-    {
-        cutoff(picPairs, catPairs.size());
-    }
-    if(catPairs.size() > picPairs.size())
-    {
-        cutoff(catPairs, picPairs.size());
-    }
+    cookPairVector(picStars, picRefStar, __distEps, picPairs);
+    cookPairVector(catStars, catRefStar, __distEps, catPairs);
 
     QVector_double ratioVec; //массив отношений расстояний
     cookRatioVector(picPairs, catPairs, ratioVec);
 
     QVector_int posVec; //массив с позициями отношений расстояний, равных опорному (первое)
-                        //т.е. отождествляемые звёзды имеют те же позиции
+                        //т.е. отождествляемые звёзды имеют те же позиции в ArtifactPairVector
     findEqualRatios(ratioVec, eps, posVec);
     if(posVec.empty())    return;
 

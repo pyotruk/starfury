@@ -54,6 +54,12 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
     _picStars = *a;
     a->lock().unlock();
 
+    int dt = qAbs(_picStars.timeMarker().time().msecsTo(_catStars.timeMarker().time()));
+    if(dt > _maxDelay)
+    {
+        return;
+    }
+
     QTime t;
     t.start();
 
@@ -114,6 +120,8 @@ void Angmeter::equation()
     art::selectOnCircle(_catStars.data(),
                         screenCenter,
                         screenCenter.y());
+    art::cutoff(_picStars.data(), _maxStarQuantity);
+    art::cutoff(_catStars.data(), _maxStarQuantity);
     id::equate(_picStars.data(),
                _catStars.data(),
                _similarEps,

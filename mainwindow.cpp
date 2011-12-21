@@ -118,12 +118,6 @@ void MainWindow::drawAll(ArtifactVector &picStars,
     this->checkImgSize();
     this->markArtifacts(_img, picStars);
     this->markStars(_img, catStars);
-//    this->drawTriangles(d.picTriangles,
-//                        2,
-//                        Qt::yellow);
-//    this->drawTriangles(d.catTriangles,
-//                        1,
-//                        Qt::cyan);
     this->drawStarConfig(eqPicStars,
                          2,
                          Qt::yellow);
@@ -141,9 +135,6 @@ void MainWindow::inputFrame(Frame *f)
 
     QTime time;
     time.start();
-//    this->drawAll(_tribox.data(),
-//                  _artifactBox.data(),
-//                  _starBox.data());
     this->drawAll(_artifactBox.data(),
                   _starBox.data(),
                   _eqPicStars,
