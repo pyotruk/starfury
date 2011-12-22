@@ -22,7 +22,7 @@ void  decodeADM( double &a, //rad
     y.b[2] = x[5];
     d = del * y.i - __pi/2;
 
-    m = x[6] / 10;
+    m = x[6] / 10.0;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void guidecat::decodeStar(Star &star,

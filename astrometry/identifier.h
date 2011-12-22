@@ -3,6 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QtAlgorithms>
 #include <QVector>
+#include <QPointF>
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/artifact.h"
@@ -31,16 +32,14 @@ typedef QVector<ArtifactPair> ArtifactPairVector;
 namespace id
 {
 static const int    __minStarQuantity = 3;
-static const double __distEps = 0.1; //считается, что расстояния равны с точностью до __distEps
+static const double __distEps = 0.1;          //считается, что расстояния равны с точностью до __distEps
+static const double __maxNearStarDist = 25.0; //если звёзды находятся ближе, то одна из них выбрасывается
 void equate(ArtifactVector &picStars,
             ArtifactVector &catStars,
             const double    similarEps,
-            const double    equalEps,
             const QPointF  &screenCenter);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-typedef QVector<double> QVector_double;
-typedef QVector<int>    QVector_int;
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

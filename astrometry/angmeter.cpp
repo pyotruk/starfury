@@ -87,7 +87,6 @@ void Angmeter::equation()
     id::equate(_rawPicStars.data(),
                _rawCatStars.data(),
                _similarEps,
-               _equalEps,
                screenCenter);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -126,9 +125,14 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
                            y);
         if(!art::isEqual(*itCat, Artifact(x, y), equalEps))
         {
+            qDebug() << "!!! check equation fail: " << "\n"
+                     << "       cat: " << *itCat << "\n"
+                     << "       pic: " << *itPic << "\n"
+                     << "       pic CONVERTED: " << "x = " << x << "    y = " << y;
             return false;
         }
     }
+    qDebug() << "check equation SUCCESS";
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////

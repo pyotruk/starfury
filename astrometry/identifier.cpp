@@ -94,74 +94,107 @@ void cutoff(ArtifactPairVector &a,     //обрезка вектора до нужной длины
     if(dif > 0)     a.erase(a.end() - dif, a.end());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void cookRatioVector(const ArtifactPairVector &picPairs,
-                     const ArtifactPairVector &catPairs,
-                     QVector_double &ratioVec)
-{
-    ArtifactPairVector::const_iterator itPic = picPairs.constBegin();
-    ArtifactPairVector::const_iterator itCat = catPairs.constBegin();
-    for(; itPic < picPairs.constEnd(); ++itPic, ++itCat)
-    {
-        ratioVec.push_back(itPic->dist() / itCat->dist());
-    }
-}
 /////////////////////////////////////////////////////////////////////////////////////
-void findEqualRatios(const QVector_double &ratioVec,
-                     const double eps,
-                     QVector_int &posVec)
+void deleteNearStars(ArtifactVector &a,
+                     const double eps)
 {
-    QVector_double::const_iterator it = ratioVec.constBegin();
-    double refRatio = *it;
-    for(int i = 0; it < ratioVec.constEnd(); ++it, ++i)
+    ArtifactVector::iterator it1 = a.begin();
+    while(it1 < a.end())
     {
-        if(qAbs(refRatio - *it) < eps)
+        ArtifactVector::iterator it2 = a.begin();
+        while(it2 < a.end())
         {
-            posVec.push_back(i);
+            if(it1 == it2)
+            {
+                ++it2;
+                continue;
+            }
+            if(art::isEqual(*it1, *it2, eps))
+            {
+                it2 = a.erase(it2);
+            }
+            else
+            {
+                ++it2;
+            }
         }
+        ++it1;
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void extractSimilarStars(const ArtifactPairVector &picPairs,
-                         const ArtifactPairVector &catPairs,
-                         const Artifact           &picRefStar,
-                         const Artifact           &catRefStar,
-                         const QVector_int        &posVec,
-                         ArtifactVector &eqPicStars,
-                         ArtifactVector &eqCatStars)
+void findSimilarStars(ArtifactPairVector &picPairs,
+                      ArtifactPairVector &catPairs,
+                      const Artifact   &picRefStar,
+                      const Artifact   &catRefStar,
+                      const double     eps,
+                      ArtifactVector     &eqPicStars,
+                      ArtifactVector     &eqCatStars)
 {
     eqPicStars.clear();
     eqCatStars.clear();
     eqPicStars.push_back(picRefStar);
     eqCatStars.push_back(catRefStar);
-    ArtifactPairVector::const_iterator itPic = picPairs.constBegin();
-    ArtifactPairVector::const_iterator itCat = catPairs.constBegin();
-    for(int i = 0; itPic < picPairs.constEnd(); ++itPic, ++itCat, ++i)
+    ArtifactPairVector::iterator itPic = picPairs.begin();
+    ArtifactPairVector::iterator itCat = catPairs.begin();
+    double refRatio = itPic->dist() / itCat->dist();
+    eqPicStars.push_back(itPic->star());
+    eqCatStars.push_back(itCat->star());
+    picPairs.pop_front();
+    catPairs.pop_front();
+
+    itPic = picPairs.begin();
+    while(itPic < picPairs.end())
     {
-        if(posVec.contains(i))
+        itCat = catPairs.begin();
+        bool found = false;
+        while(itCat < catPairs.end())
         {
-            eqPicStars.push_back(itPic->star());
-            eqCatStars.push_back(itCat->star());
+            double ratio = itPic->dist() / itCat->dist();
+            double diff = qAbs(refRatio - ratio);
+            if(diff < eps)
+            {
+                qDebug() << "SIMILAR: " << "diff = " << diff << "\n"
+                         << "   ref ratio: " << refRatio << "    ratio: " << ratio << "\n"
+                         << "       pic: " << itPic->star() << "\n"
+                         << "       cat: " << itCat->star() << "\n";
+                eqPicStars.push_back(itPic->star());
+                eqCatStars.push_back(itCat->star());
+                itPic = picPairs.erase(itPic);
+                itCat = catPairs.erase(itCat);
+                found = true;
+                break;
+            }
+            else
+            {
+                ++itCat;
+            }
+        }
+        if(!found)
+        {
+            ++itPic;
         }
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void id::equate(ArtifactVector &picStars,
                 ArtifactVector &catStars,
-                const double    similarEps,
-                const double    equalEps,
-                const QPointF  &screenCenter)
+                const double similarEps,
+                const QPointF &screenCenter)
 {
     if(picStars.size() < __minStarQuantity)     return;
     if(catStars.size() < __minStarQuantity)     return;
 
-//    if(picStars.size() > catStars.size())
-//    {
-//        art::cutoff(picStars, catStars.size());
-//    }
-//    if(catStars.size() > picStars.size())
-//    {
-//        art::cutoff(catStars, picStars.size());
-//    }
+    deleteNearStars(picStars, __maxNearStarDist);
+    deleteNearStars(catStars, __maxNearStarDist);
+
+    if(picStars.size() > catStars.size())
+    {
+        art::cutoff(picStars, catStars.size());
+    }
+    if(catStars.size() > picStars.size())
+    {
+        art::cutoff(catStars, picStars.size());
+    }
 
     Artifact picRefStar;
     Artifact catRefStar;
@@ -172,45 +205,18 @@ void id::equate(ArtifactVector &picStars,
                 screenCenter,
                 catRefStar);
 
-    if(!art::isEqual(picRefStar, catRefStar, equalEps))
-    {
-        qDebug() << "!!! ref stars is differ: " << "\n"
-                 << "       pic: " << picRefStar << "\n"
-                 << "       cat: " << catRefStar;
-        return;
-    }
-
     ArtifactPairVector picPairs, catPairs;
     cookPairVector(picStars, picRefStar, __distEps, picPairs);
     cookPairVector(catStars, catRefStar, __distEps, catPairs);
 
-    if(picPairs.size() > catPairs.size())
-    {
-        cutoff(picPairs, catPairs.size());
-    }
-    if(catPairs.size() > picPairs.size())
-    {
-        cutoff(catPairs, picPairs.size());
-    }
-
-    QVector_double ratioVec; //массив отношений расстояний
-    cookRatioVector(picPairs, catPairs, ratioVec);
-
-    qDebug() << "pairs quantity: " << ratioVec.size() << "\n"
-             << "   ratio vec: " << ratioVec;
-
-    QVector_int posVec; //массив с позициями отношений расстояний, равных опорному (первое)
-                        //т.е. отождествляемые звёзды имеют те же позиции в ArtifactPairVector
-    findEqualRatios(ratioVec, similarEps, posVec);
-
-    qDebug() << "similar: " << posVec.size();
-
-    if(posVec.empty())    return;
-
-    extractSimilarStars(picPairs, catPairs,
-                        picRefStar, catRefStar,
-                        posVec,
-                        picStars, catStars);
+    findSimilarStars(picPairs,
+                     catPairs,
+                     picRefStar,
+                     catRefStar,
+                     similarEps,
+                     picStars,
+                     catStars);
+    qDebug() << "FOUND  _" << picStars.size() << "_ similar stars";
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

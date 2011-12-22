@@ -58,7 +58,7 @@ void StarDetector::filtering(Frame &f)
 /////////////////////////////////////////////////////////////////////////////////////
 void StarDetector::findArtifacts(Frame &f,
                                  ArtifactVector &a,
-                                 const double thresh)
+                                 const double magnThresh)
 {
     a.clear();
     quint32 floodColor = 0x7F;
@@ -81,12 +81,19 @@ void StarDetector::findArtifacts(Frame &f,
             {
                 cv::floodFill(cvmat, cv::Point(x, y), floodColor, &rect);
                 magn = (double)rect.width;
-                if(magn > thresh)
+                if(magn > magnThresh)
                 {
                     cvhelp::calcRectCenter(rect, center);
-                    art.setCenter(center);
-                    art.setMagnitude(magn);
-                    a.push_back(art);
+//                    if(!this->isDoubleStar(rect, _maxHeightWidthDiff))
+//                    {
+                        art.setCenter(center);
+                        art.setMagnitude(magn);
+                        a.push_back(art);
+//                    }
+//                    else
+//                    {
+//                        qDebug() << "double star detected:  x = " << center.x() << "    y = " << center.y();
+//                    }
                 }
             }
         }
@@ -115,5 +122,17 @@ void StarDetector::deleteTarget(ArtifactVector &a,
     a.remove(targetIndex);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+bool StarDetector::isDoubleStar(const cv::Rect &rect,
+                                const int maxHeightWidthDiff)
+{
+    if(qAbs(rect.width - rect.height) > maxHeightWidthDiff)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

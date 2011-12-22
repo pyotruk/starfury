@@ -26,6 +26,7 @@ private:
     StarDetector& operator =(const StarDetector&) {return *this;}
     static const int _timeout = 40;
     static const int _magnThresh = 2;
+    static const int _maxHeightWidthDiff = 1; //для детектирования двойных звёзд (имеют вытянутую форму)
     QSettings      *_settings;
     ArtifactBox    *_artifactBox;
     Frame           _frame;
@@ -33,9 +34,11 @@ private:
     void filtering(Frame&);
     void findArtifacts(Frame&,
                        ArtifactVector&,
-                       const double thresh);
+                       const double magnThresh);
     void deleteTarget(ArtifactVector&,
                       const QPointF &target);
+    bool isDoubleStar(const cv::Rect&,  //прямоугольник из cv::floodFill
+                      const int maxHeightWidthDiff);
 private slots:
     void inputFrame(Frame*,
                     int xTarget,
