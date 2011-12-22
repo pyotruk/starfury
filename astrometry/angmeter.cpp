@@ -1,7 +1,13 @@
 #include "angmeter.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Angmeter::Angmeter(QSettings *s) :
-    _settings(s)
+Angmeter::Angmeter(QSettings *s,
+                   ArtifactBox *equatedPicStars,
+                   ArtifactBox *equatedCatStars,
+                   TargetBox   *target) :
+    _settings(s),
+    _equatedPicStars(equatedPicStars),
+    _equatedCatStars(equatedCatStars),
+    _target(target)
 {
     this->moveToThread(this);
     qDebug() << "equator thread: " << this->thread();
@@ -25,7 +31,6 @@ void Angmeter::loadSettings(QSettings *s)
     _equatedStarQuantity = s->value(__skeyEquatedStarQuantity, _defaultEquatedStarQuantity).toInt();
     _equalEps = s->value(__skeyEqualEps, _defaultEqualEps).toDouble();
     _similarEps = s->value(__skeySimilarEps, _defaultSimilarEps).toDouble();
-    _checkEps = s->value(__skeyCheckEps, _defaultCheckEps).toDouble();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::saveSettings(QSettings *s)
@@ -36,7 +41,6 @@ void Angmeter::saveSettings(QSettings *s)
     s->setValue(__skeyEquatedStarQuantity, _equatedStarQuantity);
     s->setValue(__skeyEqualEps, _equalEps);
     s->setValue(__skeySimilarEps, _similarEps);
-    s->setValue(__skeyCheckEps, _checkEps);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,
@@ -51,80 +55,39 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
                                 double yTarget)
 {
     a->lock().lockForRead();
-    _picStars = *a;
+    _rawPicStars = *a;
     a->lock().unlock();
-
-    int dt = qAbs(_picStars.timeMarker().time().msecsTo(_catStars.timeMarker().time()));
-    if(dt > _maxDelay)
-    {
-        return;
-    }
 
     QTime t;
     t.start();
 
-    this->equation();
+    this->proc(QPointF(xTarget, yTarget));
 
-    LinCor cor;
-    lincor::cook(_picStars.data(),
-                 _catStars.data(),
-                 cor);
-
-    if(this->checkEquation(_picStars.data(),
-                           _catStars.data(),
-                           cor,
-                           _defaultCheckEps))
-    {
-        qDebug() << "a1 = " << cor.a1
-                 << "    b1 = " << cor.b1
-                 << "    c1 = " << cor.c1;
-        qDebug() << "a2 = " << cor.a2
-                 << "    b2 = " << cor.b2
-                 << "    c2 = " << cor.c2;
-
-        _eqPicStars.lock().lockForWrite();
-        _eqCatStars.lock().lockForWrite();
-        _eqPicStars = _picStars;
-        _eqCatStars = _catStars;
-        _eqCatStars.lock().unlock();
-        _eqPicStars.lock().unlock();
-
-        emit sendEquatedStars(&_eqPicStars, &_eqCatStars);
-
-
-        _target.lock().lockForWrite();
-        _target.data().setCenter(QPointF(xTarget, yTarget));
-        this->correctTarget(cor, _target.data());
-        _target.setTimeMarker(_picStars.timeMarker());
-        _target.lock().unlock();
-
-        emit sendTarget(&_target);
-    }
-
-    qDebug() << "Angmeter equation delay: " << t.elapsed();
+    qDebug() << "Angmeter proc delay: " << t.elapsed();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputCatStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
-    _catStars = *a;
+    _rawCatStars = *a;
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::equation()
 {
     QPointF screenCenter(_screen.width() / 2, _screen.height() / 2);
-    art::selectOnCircle(_picStars.data(),
+    art::selectOnCircle(_rawPicStars.data(),
                         screenCenter,
                         screenCenter.y());
-    art::selectOnCircle(_catStars.data(),
+    art::selectOnCircle(_rawCatStars.data(),
                         screenCenter,
                         screenCenter.y());
-    art::cutoff(_picStars.data(), _maxStarQuantity);
-    art::cutoff(_catStars.data(), _maxStarQuantity);
-    id::equate(_picStars.data(),
-               _catStars.data(),
+    art::cutoff(_rawPicStars.data(), _maxStarQuantity);
+    art::cutoff(_rawCatStars.data(), _maxStarQuantity);
+    id::equate(_rawPicStars.data(),
+               _rawCatStars.data(),
                _similarEps,
+               _equalEps,
                screenCenter);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -146,7 +109,7 @@ void Angmeter::correctTarget(const LinCor &cor,
 bool Angmeter::checkEquation(const ArtifactVector &picStars,
                              const ArtifactVector &catStars,
                              const LinCor &cor,
-                             const double eps)
+                             const double equalEps)
 {
     if(picStars.size() < _equatedStarQuantity)    return false;
     if(catStars.size() < _equatedStarQuantity)    return false;
@@ -161,7 +124,7 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
                            itPic->center().y(),
                            x,
                            y);
-        if(!art::isEqual(*itCat, Artifact(x, y), eps))
+        if(!art::isEqual(*itCat, Artifact(x, y), equalEps))
         {
             return false;
         }
@@ -169,6 +132,74 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+bool Angmeter::checkTimeDelay(const ArtifactBox &a1,
+                              const ArtifactBox &a2,
+                              const int maxDelay)
+{
+    int dt = qAbs(a1.timeMarker().time().msecsTo(a2.timeMarker().time()));
+    if(dt > maxDelay)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::cookTarget(const QPointF &target,
+                          const QDateTime &timeMarker,
+                          const LinCor    &cor,
+                          TargetBox &targetBox)
+{
+    targetBox.data().setCenter(target);
+    this->correctTarget(cor, targetBox.data());
+    targetBox.setTimeMarker(timeMarker);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::proc(const QPointF &target)
+{
+    if(!this->checkTimeDelay(_rawPicStars, _rawCatStars, _maxDelay))
+    {
+        return;
+    }
+
+    this->equation();
+
+    LinCor cor;
+    lincor::cook(_rawPicStars.data(),
+                 _rawCatStars.data(),
+                 cor);
+
+    if(this->checkEquation(_rawPicStars.data(),
+                           _rawCatStars.data(),
+                           cor,
+                           _equalEps))
+    {
+        qDebug() << "a1 = " << cor.a1
+                 << "    b1 = " << cor.b1
+                 << "    c1 = " << cor.c1;
+        qDebug() << "a2 = " << cor.a2
+                 << "    b2 = " << cor.b2
+                 << "    c2 = " << cor.c2;
+
+        _equatedPicStars->lock().lockForWrite();
+        _equatedCatStars->lock().lockForWrite();
+        *_equatedPicStars = _rawPicStars;
+        *_equatedCatStars = _rawCatStars;
+        _equatedCatStars->lock().unlock();
+        _equatedPicStars->lock().unlock();
+        emit sendEquatedStars(_equatedPicStars, _equatedCatStars);
+
+        _target->lock().lockForWrite();
+        this->cookTarget(target,
+                         _rawPicStars.timeMarker(),
+                         cor,
+                         *_target);
+        _target->lock().unlock();
+        emit sendTarget(_target);
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

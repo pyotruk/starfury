@@ -13,6 +13,25 @@ ArtifactPair::ArtifactPair(const Artifact *refStar,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+bool distEqualTest(const ArtifactPair &p1,
+                   const ArtifactPair &p2,
+                   const double distEps)
+{
+    if(distEps <= 0)    return false;
+    double diff = qAbs(p1.dist() - p2.dist());
+    if(diff < distEps)
+    {
+        return true;
+        qDebug() << "!!! equal distances:" << "\n"
+                 << "       " << p1.star() << "\n"
+                 << "       " << p2.star();
+    }
+    else
+    {
+        return false;
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void cookPairVector(const ArtifactVector &av,
                     const Artifact &refStar,
                     const double distEps,
@@ -27,8 +46,7 @@ void cookPairVector(const ArtifactVector &av,
         {
             if(!pv.empty()) //удаление звёзд, имеющих одинаковое расстояние до опорной звезды
             {
-                double deltaDist = qAbs(pair.dist() - pv.back().dist());
-                if(deltaDist < distEps)
+                if(distEqualTest(pair, pv.back(), distEps))
                 {
                     pv.pop_back();
                     continue;
@@ -129,20 +147,21 @@ void extractSimilarStars(const ArtifactPairVector &picPairs,
 /////////////////////////////////////////////////////////////////////////////////////
 void id::equate(ArtifactVector &picStars,
                 ArtifactVector &catStars,
-                const double eps,
-                const QPointF &screenCenter)
+                const double    similarEps,
+                const double    equalEps,
+                const QPointF  &screenCenter)
 {
     if(picStars.size() < __minStarQuantity)     return;
     if(catStars.size() < __minStarQuantity)     return;
 
-    if(picStars.size() > catStars.size())
-    {
-        art::cutoff(picStars, catStars.size());
-    }
-    if(catStars.size() > picStars.size())
-    {
-        art::cutoff(catStars, picStars.size());
-    }
+//    if(picStars.size() > catStars.size())
+//    {
+//        art::cutoff(picStars, catStars.size());
+//    }
+//    if(catStars.size() > picStars.size())
+//    {
+//        art::cutoff(catStars, picStars.size());
+//    }
 
     Artifact picRefStar;
     Artifact catRefStar;
@@ -153,16 +172,39 @@ void id::equate(ArtifactVector &picStars,
                 screenCenter,
                 catRefStar);
 
+    if(!art::isEqual(picRefStar, catRefStar, equalEps))
+    {
+        qDebug() << "!!! ref stars is differ: " << "\n"
+                 << "       pic: " << picRefStar << "\n"
+                 << "       cat: " << catRefStar;
+        return;
+    }
+
     ArtifactPairVector picPairs, catPairs;
     cookPairVector(picStars, picRefStar, __distEps, picPairs);
     cookPairVector(catStars, catRefStar, __distEps, catPairs);
 
+    if(picPairs.size() > catPairs.size())
+    {
+        cutoff(picPairs, catPairs.size());
+    }
+    if(catPairs.size() > picPairs.size())
+    {
+        cutoff(catPairs, picPairs.size());
+    }
+
     QVector_double ratioVec; //массив отношений расстояний
     cookRatioVector(picPairs, catPairs, ratioVec);
 
+    qDebug() << "pairs quantity: " << ratioVec.size() << "\n"
+             << "   ratio vec: " << ratioVec;
+
     QVector_int posVec; //массив с позициями отношений расстояний, равных опорному (первое)
                         //т.е. отождествляемые звёзды имеют те же позиции в ArtifactPairVector
-    findEqualRatios(ratioVec, eps, posVec);
+    findEqualRatios(ratioVec, similarEps, posVec);
+
+    qDebug() << "similar: " << posVec.size();
+
     if(posVec.empty())    return;
 
     extractSimilarStars(picPairs, catPairs,

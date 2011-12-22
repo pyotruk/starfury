@@ -26,19 +26,25 @@ int main(int argc, char *argv[])
 
     //per-thread data
     Frame          frame0, frame1;
-    ArtifactBox    screenStars;
-    ArtifactBox    catStars;
+    ArtifactBox    rawPicStars;
+    ArtifactBox    rawCatStars;
+    ArtifactBox    equatedPicStars;
+    ArtifactBox    equatedCatStars;
+    TargetBox      target;
 
     //threads
     FrameReceiver frameReceiver(&settings,
                                 &frame0,
                                 &frame1);
     StarDetector  starDetector(&settings,
-                               &screenStars);
+                               &rawPicStars);
     StarcatScreen starcatScreen(&settings,
                                 &logFile,
-                                &catStars);
-    Angmeter      angmeter(&settings);
+                                &rawCatStars);
+    Angmeter      angmeter(&settings,
+                           &equatedPicStars,
+                           &equatedCatStars,
+                           &target);
 
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "MainWidow w thread: " << w.thread();

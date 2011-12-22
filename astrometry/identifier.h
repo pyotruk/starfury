@@ -34,8 +34,9 @@ static const int    __minStarQuantity = 3;
 static const double __distEps = 0.1; //считается, что расстояния равны с точностью до __distEps
 void equate(ArtifactVector &picStars,
             ArtifactVector &catStars,
-            const double eps,
-            const QPointF &screenCenter);
+            const double    similarEps,
+            const double    equalEps,
+            const QPointF  &screenCenter);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 typedef QVector<double> QVector_double;
