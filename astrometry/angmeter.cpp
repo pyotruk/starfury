@@ -1,10 +1,12 @@
 #include "angmeter.h"
 /////////////////////////////////////////////////////////////////////////////////////
 Angmeter::Angmeter(QSettings *s,
+                   LogFile *log,
                    ArtifactBox *equatedPicStars,
                    ArtifactBox *equatedCatStars,
                    TargetBox   *target) :
     _settings(s),
+    _log(log),
     _equatedPicStars(equatedPicStars),
     _equatedCatStars(equatedCatStars),
     _target(target)
@@ -28,7 +30,7 @@ void Angmeter::loadSettings(QSettings *s)
     int screenHeight = s->value(__skeyScreenHeight, _defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
     _maxStarQuantity = s->value(__skeyMaxStarQuantity, _defaultMaxStarQuantity).toInt();
-    _equatedStarQuantity = s->value(__skeyEquatedStarQuantity, _defaultEquatedStarQuantity).toInt();
+    _minEquatedStarQuantity = s->value(__skeyMinEquatedStarQuantity, _defaultMinEquatedStarQuantity).toInt();
     _equalEps = s->value(__skeyEqualEps, _defaultEqualEps).toDouble();
     _similarEps = s->value(__skeySimilarEps, _defaultSimilarEps).toDouble();
     _nearStarDist = s->value(__skeyNearStarDist, _defaultNearStarDist).toDouble();
@@ -39,7 +41,7 @@ void Angmeter::saveSettings(QSettings *s)
     s->setValue(__skeyScreenWidth, _screen.width());
     s->setValue(__skeyScreenHeight, _screen.height());
     s->setValue(__skeyMaxStarQuantity, _maxStarQuantity);
-    s->setValue(__skeyEquatedStarQuantity, _equatedStarQuantity);
+    s->setValue(__skeyMinEquatedStarQuantity, _minEquatedStarQuantity);
     s->setValue(__skeyEqualEps, _equalEps);
     s->setValue(__skeySimilarEps, _similarEps);
     s->setValue(__skeyNearStarDist, _nearStarDist);
@@ -75,24 +77,6 @@ void Angmeter::inputCatStars(ArtifactBox *a)
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::equation()
-{
-    QPointF screenCenter(_screen.width() / 2, _screen.height() / 2);
-    art::selectOnCircle(_rawPicStars.data(),
-                        screenCenter,
-                        screenCenter.y());
-    art::selectOnCircle(_rawCatStars.data(),
-                        screenCenter,
-                        screenCenter.y());
-    art::cutoff(_rawPicStars.data(), _maxStarQuantity);
-    art::cutoff(_rawCatStars.data(), _maxStarQuantity);
-    id::equate(_rawPicStars.data(),
-               _rawCatStars.data(),
-               _similarEps,
-               _nearStarDist,
-               screenCenter);
-}
-/////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::correctTarget(const LinCor &cor,
                              Artifact &target)
 {
@@ -113,8 +97,6 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
                              const LinCor &cor,
                              const double equalEps)
 {
-    if(picStars.size() < _equatedStarQuantity)    return false;
-    if(catStars.size() < _equatedStarQuantity)    return false;
     double x, y;
     for(ArtifactVector::const_iterator itPic = picStars.constBegin(),
                                        itCat = catStars.constBegin();
@@ -128,10 +110,7 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
                            y);
         if(!art::isEqual(*itCat, Artifact(x, y), equalEps))
         {
-            qDebug() << "!!! check equation fail: " << "\n"
-                     << "       cat: " << *itCat << "\n"
-                     << "       pic: " << *itPic << "\n"
-                     << "       pic CONVERTED: " << "x = " << x << "    y = " << y;
+            qDebug() << "!!! check equation FAIL: " << "\n";
             return false;
         }
     }
@@ -171,7 +150,34 @@ void Angmeter::proc(const QPointF &target)
         return;
     }
 
-    this->equation();
+    int ret = identifier::equate(_rawPicStars.data(),
+                                 _rawCatStars.data(),
+                                 _screen,
+                                 _similarEps,
+                                 _nearStarDist,
+                                 _maxStarQuantity,
+                                 _minEquatedStarQuantity);
+    if(ret != identifier::__SUCCESS)
+    {
+        _log->write(QString::number(ret));
+        return;
+    }
+
+    _log->write(QString::number(_rawPicStars.data().front().center().x()) + " " + //pic refStar0
+                QString::number(_rawPicStars.data().front().center().y()) + " " +
+                QString::number(_rawPicStars.data().front().magnitude())  + " " +
+
+                QString::number(_rawPicStars.data()[1].center().x()) + " " + //pic refStar1
+                QString::number(_rawPicStars.data()[1].center().y()) + " " +
+                QString::number(_rawPicStars.data()[1].magnitude())  + " " +
+
+                QString::number(_rawCatStars.data().front().center().x()) + " " + //cat refStar0
+                QString::number(_rawCatStars.data().front().center().y()) + " " +
+                QString::number(_rawCatStars.data().front().magnitude())  + " " +
+
+                QString::number(_rawCatStars.data()[1].center().x()) + " " + //cat refStar1
+                QString::number(_rawCatStars.data()[1].center().y()) + " " +
+                QString::number(_rawCatStars.data()[1].magnitude())  + " ");
 
     LinCor cor;
     lincor::cook(_rawPicStars.data(),
@@ -183,13 +189,6 @@ void Angmeter::proc(const QPointF &target)
                            cor,
                            _equalEps))
     {
-        qDebug() << "a1 = " << cor.a1
-                 << "    b1 = " << cor.b1
-                 << "    c1 = " << cor.c1;
-        qDebug() << "a2 = " << cor.a2
-                 << "    b2 = " << cor.b2
-                 << "    c2 = " << cor.c2;
-
         _equatedPicStars->lock().lockForWrite();
         _equatedCatStars->lock().lockForWrite();
         *_equatedPicStars = _rawPicStars;

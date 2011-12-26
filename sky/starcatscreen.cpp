@@ -86,7 +86,11 @@ void StarcatScreen::inputTarget(TargetBox *target)
     QDateTime t = target->timeMarker();
     target->lock().unlock();
 
-    TelescopeStatus tscope = telescope::findNearestByTime(t, _telescopeVec);
+    qint64 minDelay;
+    TelescopeStatus tscope = telescope::findNearestByTime(t,
+                                                          _telescopeVec,
+                                                          minDelay);
+    qDebug() << "min delay: " << minDelay;
 
     Star catTarget;
     this->screenStar2catStar(tscope,
@@ -97,7 +101,13 @@ void StarcatScreen::inputTarget(TargetBox *target)
     emit sendMeasureError(errAlpha, errDelta);
     double errAlphaMin = errAlpha * __rad2deg * 3600;
     double errDeltaMin = errDelta * __rad2deg * 3600;
-    _log->write(QString::number(errAlphaMin) + " " + QString::number(errDeltaMin));
+    _log->write(QString::number(errAlphaMin) + " " +
+                QString::number(errDeltaMin) + " " +
+                QString::number(catTarget.alpha()) + " " +
+                QString::number(catTarget.delta()) + " " +
+                QString::number(tscope.alpha) + " " +
+                QString::number(tscope.delta) + " " +
+                QString::number(minDelay) + " ");
     qDebug() << "errAlpha = " << errAlphaMin
              << "    errDelta = " << errDeltaMin;
 }

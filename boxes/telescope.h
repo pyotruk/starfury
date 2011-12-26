@@ -36,7 +36,8 @@ typedef QVector<TelescopeStatus> TelescopeVector;
 namespace telescope
 {
     const TelescopeStatus& findNearestByTime(const QDateTime&,
-                                             const TelescopeVector&);
+                                             const TelescopeVector&,
+                                             qint64 &minDelay);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

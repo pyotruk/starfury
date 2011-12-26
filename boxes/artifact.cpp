@@ -42,6 +42,7 @@ void art::selectOnCircle(ArtifactVector &a,     //удаление артефактов, которые н
                          const QPointF &center,
                          const double radius)
 {
+    if(a.empty())    return;
     double dist;
     ArtifactVector::iterator it = a.begin();
     while(it < a.end())
@@ -61,6 +62,7 @@ void art::selectOnCircle(ArtifactVector &a,     //удаление артефактов, которые н
 void art::cutoff(ArtifactVector &a,     //обрезка вектора до нужной длины
                  const int newLength)       //если newLenght больше текущей длины, то ничего не происходит
 {
+    if(a.empty())    return;
     int dif = a.size() - newLength;
     if(dif > 0)     a.erase(a.end() - dif, a.end());
 }

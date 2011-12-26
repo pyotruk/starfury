@@ -2,7 +2,8 @@
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 const TelescopeStatus& telescope::findNearestByTime(const QDateTime &t,
-                                                    const TelescopeVector &v)
+                                                    const TelescopeVector &v,
+                                                    qint64 &minDelay)
 {
     qint64 dt;
     qint64 dtMin = 0xFFFFFFFF;
@@ -19,7 +20,7 @@ const TelescopeStatus& telescope::findNearestByTime(const QDateTime &t,
             f = it;
         }
     }
-    qDebug() << "dt: " << dtMin;
+    minDelay = dtMin;
     return *f;
 }
 /////////////////////////////////////////////////////////////////////////////////////

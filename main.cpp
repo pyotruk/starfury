@@ -13,7 +13,6 @@
 #include "astrometry/angmeter.h"
 #include "common/logfile.h"
 /////////////////////////////////////////////////////////////////////////////////////
-#define FRAME_HEADER_SIZE 32
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +21,8 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     MainWindow w;
     QSettings settings("petr_klukvenny", "starfury");
-    LogFile logFile("starfury-measerr");
+    LogFile targetLog("starfury-target");
+    LogFile starsLog("starfury-stars");
 
     //per-thread data
     Frame          frame0, frame1;
@@ -39,9 +39,10 @@ int main(int argc, char *argv[])
     StarDetector  starDetector(&settings,
                                &rawPicStars);
     StarcatScreen starcatScreen(&settings,
-                                &logFile,
+                                &targetLog,
                                 &rawCatStars);
     Angmeter      angmeter(&settings,
+                           &starsLog,
                            &equatedPicStars,
                            &equatedCatStars,
                            &target);

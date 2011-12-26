@@ -4,6 +4,7 @@
 #include <QtAlgorithms>
 #include <QVector>
 #include <QPointF>
+#include <QSize>
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/artifact.h"
@@ -29,14 +30,21 @@ private:
 /////////////////////////////////////////////////////////////////////////////////////
 typedef QVector<ArtifactPair> ArtifactPairVector;
 /////////////////////////////////////////////////////////////////////////////////////
-namespace id
+namespace identifier
 {
+//return values
+static const int __SUCCESS                = 0;
+static const int __TOO_LESS_RAW_STARS     = -1; //less than __minStarQuantity
+static const int __TOO_LESS_EQUATED_STARS = -2; //less than minEquatedStarQuantity
+//
 static const int __minStarQuantity = 3;
-void equate(ArtifactVector &picStars,
-            ArtifactVector &catStars,
-            const double    similarEps,
-            const double    nearStarDist,
-            const QPointF  &screenCenter);
+int equate(ArtifactVector &picStars,
+           ArtifactVector &catStars,
+           const QSize    &screen,
+           const double    similarEps,
+           const double    nearStarDist,
+           const int       maxStarQuantity,
+           const int       minEquatedStarQuantity);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
