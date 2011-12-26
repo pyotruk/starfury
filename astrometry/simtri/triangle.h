@@ -13,6 +13,7 @@
 #include "math/astrocalc.h"
 #include "boxes/databox.h"
 #include "astrometry/simtri/combo.h"
+#include "astrometry/astrometry.h"
 /////////////////////////////////////////////////////////////////////////////////////
 typedef Artifact Triangle[3];
 /////////////////////////////////////////////////////////////////////////////////////
@@ -43,26 +44,18 @@ typedef DataBox<TriangleBoxData> TriangleBox;
 typedef int SimPath[3]; //путь подоби€ (соответствие сторон треугольников)
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-namespace tri
+namespace simtri
 {
-bool isEqual(const ArtifactTriangle &t1,   //проверка треугольников на равенство (совпадение вершин)
-             const ArtifactTriangle &t2,
-             const double eps);
-bool isSimilar(const ArtifactTriangle &t1, //проверка треугольников на подобие
-               const ArtifactTriangle &t2,
-               const double eps,
-               SimPath&);
-void deleteEqual(TriangleVector&,          //удал€ет повтор€ющиес€ треугольники
-                 const double eps);
-void cookTriangles(const ArtifactVector&,        //формирует вектор треугольников из вектора артефактов
-                   TriangleVector&);
-void cookTriangleBox(TriangleBoxData&,     //формирует вектора с отождествлЄнными треугольниками
-                     const double eps);
-void triangles2Artifacts(const TriangleVector &tvPic,
-                         const TriangleVector &tvCat,
-                         const double equalEps,
-                         ArtifactVector &picStars,
-                         ArtifactVector &catStars);
+static const double __equalEps = 2.0;
+static const int    __maxStarQuantityForSimtriMethod = 8;
+//
+int equate(ArtifactVector &picStars,
+           ArtifactVector &catStars,
+           const QSize    &screen,
+           const double    similarEps,
+           const double    nearStarDist,
+           int       maxStarQuantity,
+           const int       minEquatedStarQuantity);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

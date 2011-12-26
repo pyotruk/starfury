@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     boxes/telescope.cpp \
     astrometry/freevec/freevec.cpp \
     astrometry/simtri/triangle.cpp \
-    astrometry/simtri/combo.cpp
+    astrometry/simtri/combo.cpp \
+    astrometry/astrometry.cpp
 
 HEADERS  += mainwindow.h \
     strob/strob.h \
@@ -64,7 +65,8 @@ HEADERS  += mainwindow.h \
     boxes/telescope.h \
     astrometry/freevec/freevec.h \
     astrometry/simtri/triangle.h \
-    astrometry/simtri/combo.h
+    astrometry/simtri/combo.h \
+    astrometry/astrometry.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -78,6 +80,12 @@ LIBS += -L"C:/opencv231/lib" \
 
 
 FORMS += mainwindow.ui
+
+
+
+
+
+
 
 
 

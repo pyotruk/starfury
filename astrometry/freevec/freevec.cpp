@@ -113,64 +113,6 @@ void cutoff(ArtifactPairVector &a,     //обрезка вектора до нужной длины
     if(dif > 0)     a.erase(a.end() - dif, a.end());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
-void deleteNearStars(ArtifactVector &a,
-                     const double eps)
-{
-    if(a.empty())    return;
-    ArtifactVector::iterator it1 = a.begin();
-    while(it1 < a.end())
-    {
-        ArtifactVector::iterator it2 = a.begin();
-        while(it2 < a.end())
-        {
-            if(it1 == it2)
-            {
-                ++it2;
-                continue;
-            }
-            if(art::isEqual(*it1, *it2, eps))
-            {
-                it2 = a.erase(it2);
-            }
-            else
-            {
-                ++it2;
-            }
-        }
-        ++it1;
-    }
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void precook(ArtifactVector &picStars,
-             ArtifactVector &catStars,
-             const QSize  &screen,
-             const int    maxStarQuantity,
-             const double nearStarDist)
-{
-    QPointF screenCenter(screen.width() / 2, screen.height() / 2);
-    art::selectOnCircle(picStars,
-                        screenCenter,
-                        screenCenter.y());
-    art::selectOnCircle(catStars,
-                        screenCenter,
-                        screenCenter.y());
-    art::cutoff(picStars, maxStarQuantity);
-    art::cutoff(catStars, maxStarQuantity);
-
-    deleteNearStars(picStars, nearStarDist);
-    deleteNearStars(catStars, nearStarDist);
-
-    if(picStars.size() > catStars.size())
-    {
-        art::cutoff(picStars, catStars.size());
-    }
-    if(catStars.size() > picStars.size())
-    {
-        art::cutoff(catStars, picStars.size());
-    }
-}
-/////////////////////////////////////////////////////////////////////////////////////
 void findSimilarStars(ArtifactPairVector &picPairs,
                       ArtifactPairVector &catPairs,
                       const Artifact   &picRefStar0,
@@ -234,17 +176,17 @@ int freevec::equate(ArtifactVector &picStars,
                     const int       maxStarQuantity,
                     const int       minEquatedStarQuantity)
 {
-    if(picStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
-    if(catStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
+    if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
+    if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
 
-    precook(picStars,
-            catStars,
-            screen,
-            maxStarQuantity,
-            nearStarDist);
+    astrometry::precook(picStars,
+                        catStars,
+                        screen,
+                        maxStarQuantity,
+                        nearStarDist);
 
-    if(picStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
-    if(catStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
+    if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
+    if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
 
     QPointF screenCenter(screen.width() / 2, screen.height() / 2);
     Artifact picRefStar0, picRefStar1;
@@ -278,10 +220,10 @@ int freevec::equate(ArtifactVector &picStars,
 
     qDebug() << "TOTAL  _" << picStars.size() << "_ similar stars";
 
-    if(picStars.size() < minEquatedStarQuantity)    return __TOO_LESS_EQUATED_STARS;
-    if(catStars.size() < minEquatedStarQuantity)    return __TOO_LESS_EQUATED_STARS;
+    if(picStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
+    if(catStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
 
-    return __SUCCESS;
+    return astrometry::__SUCCESS;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

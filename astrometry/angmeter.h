@@ -12,8 +12,9 @@
 #include "common/globalskeys.h"
 #include "math/astrocalc.h"
 #include "math/lincor.h"
-#include "astrometry/freevec/freevec.h"
 #include "common/logfile.h"
+#include "astrometry/freevec/freevec.h"
+#include "astrometry/simtri/triangle.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyMaxStarQuantity("/Angmeter/MaxStarQuantity");
@@ -46,7 +47,7 @@ private:
     static const int _defaultMinEquatedStarQuantity = 4;
     static const double _defaultEqualEps     = 2.0;
     static const double _defaultSimilarEps   = 0.01;
-    static const double _defaultNearStarDist = 25.0;
+    static const double _defaultNearStarDist = 20.0;
     static const int _maxDelay = 10; //msec
     int            _maxStarQuantity;
     int            _minEquatedStarQuantity;
