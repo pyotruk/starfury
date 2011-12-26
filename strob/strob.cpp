@@ -1,7 +1,9 @@
 #include "strob.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Strob::Strob(QSettings *s) :
+Strob::Strob(QSettings *s,
+             LogFile *log) :
     _settings(s),
+    _log(log),
     _geometry(new StrobGeometry(_settings))
 {
     this->moveToThread(this);
@@ -66,6 +68,11 @@ void Strob::makeTracking(Frame *f)
         cvhelp::cvRect2qtRect(innerRect, newInnerRect);
         _geometry->setRect(newInnerRect);
     }
+
+    int dx, dy;
+    _geometry->getError(dx, dy);
+    _log->write(QString::number(dx) + " " +
+                QString::number(dy));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::calcThresholds(const cv::Mat &signalRoi,

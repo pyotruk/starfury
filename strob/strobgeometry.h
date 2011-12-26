@@ -28,6 +28,7 @@ public:
     const QRect &innerRect() const {return _innerRect;}
     const QRect &outerRect() const {return _outerRect;}
     void checkRange(const QSize &imgSize);
+    void getError(int &dx, int &dy) const;
 public slots:
     void setSide(const int innerSide);
     void setCenter(const QPoint &center);

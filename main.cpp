@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
     QSettings settings("petr_klukvenny", "starfury");
     LogFile targetLog("starfury-target");
     LogFile starsLog("starfury-stars");
+    LogFile strobLog("starfury-strob");
 
     //per-thread data
     Frame          frame0, frame1;
@@ -32,8 +33,11 @@ int main(int argc, char *argv[])
     ArtifactBox    equatedCatStars;
     TargetBox      target;
 
-    //threads
+    //singletons
+    Strob         strob(&settings,
+                        &strobLog);
     FrameReceiver frameReceiver(&settings,
+                                &strob,
                                 &frame0,
                                 &frame1);
     StarDetector  starDetector(&settings,

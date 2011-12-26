@@ -1,14 +1,15 @@
 #include "framerec.h"
 /////////////////////////////////////////////////////////////////////////////////////
 FrameReceiver::FrameReceiver(QSettings *s,
+                             Strob *strob,
                              Frame *f0,
                              Frame *f1) :
     _settings(s),
+    _strob(strob),
     _frame0(f0),
     _frame1(f1),
     _sharedMem(new SharedMem(s)),
-    _stopped(false),
-    _strob(new Strob(s))
+    _stopped(false)
 {
     this->moveToThread(this);
     this->start(QThread::NormalPriority);
@@ -18,7 +19,6 @@ FrameReceiver::~FrameReceiver()
 {
     this->stop();
     if(!this->wait(_termTimeout))   this->terminate();
-    delete _strob;
     delete _sharedMem;
 }
 /////////////////////////////////////////////////////////////////////////////////////

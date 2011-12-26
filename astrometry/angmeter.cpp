@@ -157,11 +157,7 @@ void Angmeter::proc(const QPointF &target)
                                  _nearStarDist,
                                  _maxStarQuantity,
                                  _minEquatedStarQuantity);
-    if(ret != identifier::__SUCCESS)
-    {
-        _log->write(QString::number(ret));
-        return;
-    }
+    if(ret != identifier::__SUCCESS)    return;
 
     _log->write(QString::number(_rawPicStars.data().front().center().x()) + " " + //pic refStar0
                 QString::number(_rawPicStars.data().front().center().y()) + " " +

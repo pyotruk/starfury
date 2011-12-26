@@ -13,6 +13,7 @@
 #include "strob/strobgeometry.h"
 #include "utils/cvhelpfun.h"
 #include "boxes/frame.h"
+#include "common/logfile.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyStrobStddevThreshold("/Strob/StdDevThreshold");
@@ -21,7 +22,8 @@ class Strob : public QThread
 {
     Q_OBJECT
 public:
-    explicit Strob(QSettings*);
+    explicit Strob(QSettings*,
+                   LogFile*);
     ~Strob();
     double threshold()        const {return _threshold;}
     int    pixThreshold()     const {return _pixThreshold;}
@@ -35,6 +37,7 @@ private:
     Strob& operator =(const Strob&) {return *this;}
     static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
+    LogFile       *_log;
     StrobGeometry *_geometry;
     double        _threshold; //порог обнаружения в единицах СКО
     int           _pixThreshold; //порог по яркости пиксела (используется для бинаризации cv::threshold)

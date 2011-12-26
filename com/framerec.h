@@ -15,6 +15,7 @@ class FrameReceiver : public QThread
     Q_OBJECT
 public:
     explicit FrameReceiver(QSettings*,
+                           Strob*,
                            Frame *f0,
                            Frame *f1);
     ~FrameReceiver();
@@ -28,11 +29,11 @@ private:
     static const int _timeout = 20;
     static const unsigned long _termTimeout = 500;
     QSettings      *_settings;
+    Strob          *_strob;
     Frame          *_frame0;
     Frame          *_frame1;
     SharedMem      *_sharedMem;
     volatile bool   _stopped;
-    Strob          *_strob;
     QSize           _bufSize;
     void checkFrameSize(const int width,
                         const int height);
