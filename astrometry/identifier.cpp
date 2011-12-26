@@ -15,11 +15,11 @@ ArtifactPair::ArtifactPair(const Artifact *refStar,
 /////////////////////////////////////////////////////////////////////////////////////
 bool distEqualTest(const ArtifactPair &p1,
                    const ArtifactPair &p2,
-                   const double distEps)
+                   const double distRatioEps)
 {
-    if(distEps <= 0)    return false;
-    double diff = qAbs(p1.dist() - p2.dist());
-    if(diff < distEps)
+    if(distRatioEps <= 0)    return false;
+    double ratioDiff = qAbs(1 - (p1.dist() / p2.dist()));
+    if(ratioDiff < distRatioEps)
     {
         return true;
         qDebug() << "!!! equal distances:" << "\n"
@@ -179,13 +179,14 @@ void findSimilarStars(ArtifactPairVector &picPairs,
 void id::equate(ArtifactVector &picStars,
                 ArtifactVector &catStars,
                 const double similarEps,
+                const double nearStarDist,
                 const QPointF &screenCenter)
 {
     if(picStars.size() < __minStarQuantity)     return;
     if(catStars.size() < __minStarQuantity)     return;
 
-    deleteNearStars(picStars, __maxNearStarDist);
-    deleteNearStars(catStars, __maxNearStarDist);
+    deleteNearStars(picStars, nearStarDist);
+    deleteNearStars(catStars, nearStarDist);
 
     if(picStars.size() > catStars.size())
     {
@@ -206,8 +207,8 @@ void id::equate(ArtifactVector &picStars,
                 catRefStar);
 
     ArtifactPairVector picPairs, catPairs;
-    cookPairVector(picStars, picRefStar, __distEps, picPairs);
-    cookPairVector(catStars, catRefStar, __distEps, catPairs);
+    cookPairVector(picStars, picRefStar, similarEps, picPairs);
+    cookPairVector(catStars, catRefStar, similarEps, catPairs);
 
     findSimilarStars(picPairs,
                      catPairs,

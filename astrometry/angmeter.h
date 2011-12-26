@@ -19,6 +19,7 @@ static const QString __skeyMaxStarQuantity("/Angmeter/MaxStarQuantity");
 static const QString __skeyEquatedStarQuantity("/Angmeter/EquatedStarQuantity");
 static const QString __skeyEqualEps("/Angmeter/EqualEps");
 static const QString __skeySimilarEps("/Angmeter/SimilarEps");
+static const QString __skeyNearStarDist("/Angmeter/NearStarDist");
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class Angmeter : public QThread
@@ -41,13 +42,15 @@ private:
     static const int _defaultScreenHeight = 480;
     static const int _defaultMaxStarQuantity     = 8;
     static const int _defaultEquatedStarQuantity = 4;
-    static const double _defaultEqualEps   = 2.0;
-    static const double _defaultSimilarEps = 0.01;
+    static const double _defaultEqualEps     = 2.0;
+    static const double _defaultSimilarEps   = 0.01;
+    static const double _defaultNearStarDist = 25.0;
     static const int _maxDelay = 10; //msec
     int            _maxStarQuantity;
     int            _equatedStarQuantity;
     double         _equalEps;
     double         _similarEps;
+    double         _nearStarDist;
     QSettings     *_settings;
     ArtifactBox   *_equatedPicStars;
     ArtifactBox   *_equatedCatStars;

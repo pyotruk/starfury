@@ -31,6 +31,7 @@ void Angmeter::loadSettings(QSettings *s)
     _equatedStarQuantity = s->value(__skeyEquatedStarQuantity, _defaultEquatedStarQuantity).toInt();
     _equalEps = s->value(__skeyEqualEps, _defaultEqualEps).toDouble();
     _similarEps = s->value(__skeySimilarEps, _defaultSimilarEps).toDouble();
+    _nearStarDist = s->value(__skeyNearStarDist, _defaultNearStarDist).toDouble();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::saveSettings(QSettings *s)
@@ -41,6 +42,7 @@ void Angmeter::saveSettings(QSettings *s)
     s->setValue(__skeyEquatedStarQuantity, _equatedStarQuantity);
     s->setValue(__skeyEqualEps, _equalEps);
     s->setValue(__skeySimilarEps, _similarEps);
+    s->setValue(__skeyNearStarDist, _nearStarDist);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,
@@ -87,6 +89,7 @@ void Angmeter::equation()
     id::equate(_rawPicStars.data(),
                _rawCatStars.data(),
                _similarEps,
+               _nearStarDist,
                screenCenter);
 }
 /////////////////////////////////////////////////////////////////////////////////////
