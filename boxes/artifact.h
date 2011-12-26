@@ -49,6 +49,9 @@ void cutoff(ArtifactVector&,               //обрезка вектора до нужной длины
 bool isEqual(const Artifact &a1,           //проверка артефактов на равенство (совпадение центров масс)
              const Artifact &a2,
              const double eps);
+bool isContain(const ArtifactVector &v,
+               const Artifact &a,
+               const double eps);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

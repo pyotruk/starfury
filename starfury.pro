@@ -33,7 +33,9 @@ SOURCES += main.cpp\
     common/logfile.cpp \
     utils/timeutils.cpp \
     boxes/telescope.cpp \
-    astrometry/identifier.cpp
+    astrometry/freevec/freevec.cpp \
+    astrometry/simtri/triangle.cpp \
+    astrometry/simtri/combo.cpp
 
 HEADERS  += mainwindow.h \
     strob/strob.h \
@@ -60,7 +62,10 @@ HEADERS  += mainwindow.h \
     common/logfile.h \
     utils/timeutils.h \
     boxes/telescope.h \
-    astrometry/identifier.h
+    astrometry/freevec/freevec.h \
+    astrometry/simtri/triangle.h \
+    astrometry/simtri/combo.h
+
 
 INCLUDEPATH += "C:/opencv231/include"
 

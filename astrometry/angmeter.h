@@ -12,7 +12,7 @@
 #include "common/globalskeys.h"
 #include "math/astrocalc.h"
 #include "math/lincor.h"
-#include "astrometry/identifier.h"
+#include "astrometry/freevec/freevec.h"
 #include "common/logfile.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys

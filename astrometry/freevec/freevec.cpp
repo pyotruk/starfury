@@ -1,4 +1,4 @@
-#include "identifier.h"
+#include "freevec.h"
 /////////////////////////////////////////////////////////////////////////////////////
 ArtifactPair::ArtifactPair() :
     _dist(0)
@@ -226,13 +226,13 @@ void findSimilarStars(ArtifactPairVector &picPairs,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-int identifier::equate(ArtifactVector &picStars,
-                       ArtifactVector &catStars,
-                       const QSize    &screen,
-                       const double    similarEps,
-                       const double    nearStarDist,
-                       const int       maxStarQuantity,
-                       const int       minEquatedStarQuantity)
+int freevec::equate(ArtifactVector &picStars,
+                    ArtifactVector &catStars,
+                    const QSize    &screen,
+                    const double    similarEps,
+                    const double    nearStarDist,
+                    const int       maxStarQuantity,
+                    const int       minEquatedStarQuantity)
 {
     if(picStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
     if(catStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;

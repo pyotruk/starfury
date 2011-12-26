@@ -150,14 +150,14 @@ void Angmeter::proc(const QPointF &target)
         return;
     }
 
-    int ret = identifier::equate(_rawPicStars.data(),
-                                 _rawCatStars.data(),
-                                 _screen,
-                                 _similarEps,
-                                 _nearStarDist,
-                                 _maxStarQuantity,
-                                 _minEquatedStarQuantity);
-    if(ret != identifier::__SUCCESS)    return;
+    int ret = freevec::equate(_rawPicStars.data(),
+                              _rawCatStars.data(),
+                              _screen,
+                              _similarEps,
+                              _nearStarDist,
+                              _maxStarQuantity,
+                              _minEquatedStarQuantity);
+    if(ret != freevec::__SUCCESS)    return;
 
     _log->write(QString::number(_rawPicStars.data().front().center().x()) + " " + //pic refStar0
                 QString::number(_rawPicStars.data().front().center().y()) + " " +
