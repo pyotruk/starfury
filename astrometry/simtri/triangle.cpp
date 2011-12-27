@@ -146,17 +146,18 @@ void deleteEqual(TriangleVector &t,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 //формирует вектора с отождествлёнными треугольниками
-void cookTriangleBox(TriangleBoxData &d,
-                     const double eps)
+void findSimilarTriangles(TriangleVector &picTriangles,
+                          TriangleVector &catTriangles,
+                          const double eps)
 {
     SimPath sim;
     TriangleVector tvPic;
     TriangleVector tvCat;
     for(TriangleVector::iterator
-        itPic = d.picTriangles.begin(); itPic < d.picTriangles.end(); ++itPic)
+        itPic = picTriangles.begin(); itPic < picTriangles.end(); ++itPic)
     {
         for(TriangleVector::iterator
-            itCat = d.catTriangles.begin(); itCat < d.catTriangles.end(); ++itCat)
+            itCat = catTriangles.begin(); itCat < catTriangles.end(); ++itCat)
         {
             if(isSimilar(*itPic, *itCat, eps, sim))
             {
@@ -168,15 +169,15 @@ void cookTriangleBox(TriangleBoxData &d,
             }
         }
     }
-    d.picTriangles = tvPic;
-    d.catTriangles = tvCat;
+    picTriangles = tvPic;
+    catTriangles = tvCat;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void triangles2Artifacts(const TriangleVector &tvPic,
-                         const TriangleVector &tvCat,
-                         const double equalEps,
-                         ArtifactVector &picStars,
-                         ArtifactVector &catStars)
+void extractArtifacts(const TriangleVector &tvPic,
+                      const TriangleVector &tvCat,
+                      const double equalEps,
+                      ArtifactVector &picStars,
+                      ArtifactVector &catStars)
 {
     picStars.clear();
     catStars.clear();
@@ -210,30 +211,32 @@ int simtri::equate(ArtifactVector &picStars,
     if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
     if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
 
-    TriangleBoxData tribox;
+    TriangleVector picTriangles;
+    TriangleVector catTriangles;
+
     cookTriangles(picStars,
-                  tribox.picTriangles);
-    deleteEqual(tribox.picTriangles,
+                  picTriangles);
+    deleteEqual(picTriangles,
                 __equalEps);
 
     cookTriangles(catStars,
-                  tribox.catTriangles);
-    deleteEqual(tribox.catTriangles,
+                  catTriangles);
+    deleteEqual(catTriangles,
                 __equalEps);
 
-    qDebug() << "triangles TOTAL:  " << tribox.picTriangles.size()
-             << " (pic)    " << tribox.catTriangles.size() << " (cat)";
+    qDebug() << "triangles TOTAL:  " << picTriangles.size()
+             << " (pic)    " << catTriangles.size() << " (cat)";
 
-    cookTriangleBox(tribox, similarEps);
+    findSimilarTriangles(picTriangles, catTriangles, similarEps);
 
-    qDebug() << "triangles SIMILAR:  " << tribox.picTriangles.size()
-             << " (pic)    " << tribox.catTriangles.size() << " (cat)";
+    qDebug() << "triangles SIMILAR:  " << picTriangles.size()
+             << " (pic)    " << catTriangles.size() << " (cat)";
 
-    triangles2Artifacts(tribox.picTriangles,
-                        tribox.catTriangles,
-                        __equalEps,
-                        picStars,
-                        catStars);
+    extractArtifacts(picTriangles,
+                     catTriangles,
+                     __equalEps,
+                     picStars,
+                     catStars);
 
     if(picStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
     if(catStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
