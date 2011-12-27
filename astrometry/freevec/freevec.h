@@ -37,8 +37,6 @@ int equate(ArtifactVector &picStars,
            ArtifactVector &catStars,
            const QSize    &screen,
            const double    similarEps,
-           const double    nearStarDist,
-           const int       maxStarQuantity,
            const int       minEquatedStarQuantity);
 }
 /////////////////////////////////////////////////////////////////////////////////////

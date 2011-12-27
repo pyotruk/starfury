@@ -51,10 +51,7 @@ static const int    __maxStarQuantityForSimtriMethod = 8;
 //
 int equate(ArtifactVector &picStars,
            ArtifactVector &catStars,
-           const QSize    &screen,
            const double    similarEps,
-           const double    nearStarDist,
-           int       maxStarQuantity,
            const int       minEquatedStarQuantity);
 }
 /////////////////////////////////////////////////////////////////////////////////////

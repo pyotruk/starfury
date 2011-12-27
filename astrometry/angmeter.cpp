@@ -34,6 +34,7 @@ void Angmeter::loadSettings(QSettings *s)
     _equalEps = s->value(__skeyEqualEps, _defaultEqualEps).toDouble();
     _similarEps = s->value(__skeySimilarEps, _defaultSimilarEps).toDouble();
     _nearStarDist = s->value(__skeyNearStarDist, _defaultNearStarDist).toDouble();
+    _method = (astrometry::METHOD)s->value(__skeyAstrometryMethod, _defaultMethod).toInt();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::saveSettings(QSettings *s)
@@ -45,6 +46,7 @@ void Angmeter::saveSettings(QSettings *s)
     s->setValue(__skeyEqualEps, _equalEps);
     s->setValue(__skeySimilarEps, _similarEps);
     s->setValue(__skeyNearStarDist, _nearStarDist);
+    s->setValue(__skeyAstrometryMethod, _method);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::setScreenSize(const int width,
@@ -150,20 +152,14 @@ void Angmeter::proc(const QPointF &target)
         return;
     }
 
-//    int ret = freevec::equate(_rawPicStars.data(),
-//                              _rawCatStars.data(),
-//                              _screen,
-//                              _similarEps,
-//                              _nearStarDist,
-//                              _maxStarQuantity,
-//                              _minEquatedStarQuantity);
-    int ret = simtri::equate(_rawPicStars.data(),
-                              _rawCatStars.data(),
-                              _screen,
-                              _similarEps,
-                              _nearStarDist,
-                              _maxStarQuantity,
-                              _minEquatedStarQuantity);
+    int ret = astrometry::equate(_rawPicStars.data(),
+                                 _rawCatStars.data(),
+                                 _screen,
+                                 _similarEps,
+                                 _nearStarDist,
+                                 _maxStarQuantity,
+                                 _minEquatedStarQuantity,
+                                 _method);
     if(ret != astrometry::__SUCCESS)    return;
 
     _log->write(QString::number(_rawPicStars.data().front().center().x()) + " " + //pic refStar0

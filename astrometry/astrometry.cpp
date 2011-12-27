@@ -28,11 +28,11 @@ void deleteNearStars(ArtifactVector &a,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void astrometry::precook(ArtifactVector &picStars,
-                         ArtifactVector &catStars,
-                         const QSize  &screen,
-                         const int    maxStarQuantity,
-                         const double nearStarDist)
+void precook(ArtifactVector &picStars,
+             ArtifactVector &catStars,
+             const QSize  &screen,
+             const int    maxStarQuantity,
+             const double nearStarDist)
 {
     QPointF screenCenter(screen.width() / 2, screen.height() / 2);
     art::selectOnCircle(picStars,
@@ -57,6 +57,55 @@ void astrometry::precook(ArtifactVector &picStars,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+int astrometry::equate(ArtifactVector &picStars,
+                       ArtifactVector &catStars,
+                       const QSize  &screen,
+                       const double similarEps,
+                       const double nearStarDist,
+                       const int maxStarQuantity,
+                       const int minEquatedStarQuantity,
+                       METHOD    method)
+{
+    if(picStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
+    if(catStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
+
+    int starQuantity;
+    if((method == SIMTRI) && (maxStarQuantity > simtri::__maxStarQuantityForSimtriMethod))
+    {
+        starQuantity = simtri::__maxStarQuantityForSimtriMethod;
+    }
+    else
+    {
+        starQuantity = maxStarQuantity;
+    }
+
+    precook(picStars,
+            catStars,
+            screen,
+            starQuantity,
+            nearStarDist);
+
+    switch(method)
+    {
+    case SIMTRI:
+        return simtri::equate(picStars,
+                              catStars,
+                              similarEps,
+                              minEquatedStarQuantity);
+        break;
+
+    case FREEVEC:
+        return freevec::equate(picStars,
+                               catStars,
+                               screen,
+                               similarEps,
+                               minEquatedStarQuantity);
+        break;
+
+    default:
+        return __UNKNOWN_ERROR;
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,8 @@
 #include <QSize>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/artifact.h"
+#include "astrometry/simtri/triangle.h"
+#include "astrometry/freevec/freevec.h"
 /////////////////////////////////////////////////////////////////////////////////////
 namespace astrometry
 {
@@ -11,14 +13,20 @@ namespace astrometry
 static const int __SUCCESS                = 0;
 static const int __TOO_LESS_RAW_STARS     = -1; //less than __minStarQuantity
 static const int __TOO_LESS_EQUATED_STARS = -2; //less than minEquatedStarQuantity
+static const int __UNKNOWN_ERROR          = -3; //when switch default (it is impossible)
+//methods
+enum METHOD {SIMTRI = 0, FREEVEC = 1};
 //
 static const int __minStarQuantity = 3;
 //
-void precook(ArtifactVector &picStars,
-             ArtifactVector &catStars,
-             const QSize  &screen,
-             const int    maxStarQuantity,
-             const double nearStarDist);
+int equate(ArtifactVector &picStars,
+           ArtifactVector &catStars,
+           const QSize    &screen,
+           const double    similarEps,
+           const double    nearStarDist,
+           const int       maxStarQuantity,
+           const int       minEquatedStarQuantity,
+           METHOD          method);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

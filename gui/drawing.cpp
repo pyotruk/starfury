@@ -1,4 +1,4 @@
-#include "drawhelpfun.h"
+#include "drawing.h"
 /////////////////////////////////////////////////////////////////////////////////////
 void draw::crossbuck(QImage &img,
                      const QPointF &center,
@@ -42,5 +42,58 @@ void draw::triangle(QImage &img,
     p.drawLine(p3, p1);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void draw::artifactMarks(QImage &img,
+                         ArtifactVector &a)
+{
+    ArtifactVector::iterator it = a.begin();
+    for(; it != a.end(); ++it)
+    {
+        draw::crossbuck(img,
+                        it->center(),
+                        (int)it->magnitude(),
+                        Qt::green);
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
+void draw::starMarks(QImage &img,
+                     ArtifactVector &s)
+{
+    ArtifactVector::iterator it = s.begin();
+    for(; it != s.end(); ++it)
+    {
+        draw::cross(img,
+                    it->center(),
+                    (int)it->magnitude(),
+                    Qt::magenta);
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void draw::starConfig(QImage &img,
+                      ArtifactVector &a,
+                      const int width,
+                      const QColor &color)
+{
+    QPainter p(&img);
+    p.setPen(QPen(color, width));
+    ArtifactVector::const_iterator it = a.constBegin();
+    Artifact refStar = *it;
+    ++it;
+    for(; it < a.constEnd(); ++it)
+    {
+        p.drawLine(refStar.center(), it->center());
+    }
+    a.clear();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+//пересчёт магнитуды звезды из каталога (зв.в.) в картинку
+void draw::convertStarMagn(ArtifactVector &a)
+{
+    double m;
+    ArtifactVector::iterator it = a.begin();
+    for(; it < a.end(); ++it)
+    {
+        m = it->magnitude();
+        it->setMagnitude(ac::calcStarRadius(m));
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////

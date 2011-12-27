@@ -172,19 +172,8 @@ int freevec::equate(ArtifactVector &picStars,
                     ArtifactVector &catStars,
                     const QSize    &screen,
                     const double    similarEps,
-                    const double    nearStarDist,
-                    const int       maxStarQuantity,
                     const int       minEquatedStarQuantity)
 {
-    if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
-    if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
-
-    astrometry::precook(picStars,
-                        catStars,
-                        screen,
-                        maxStarQuantity,
-                        nearStarDist);
-
     if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
     if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
 

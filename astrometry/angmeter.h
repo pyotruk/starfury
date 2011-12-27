@@ -13,8 +13,7 @@
 #include "math/astrocalc.h"
 #include "math/lincor.h"
 #include "common/logfile.h"
-#include "astrometry/freevec/freevec.h"
-#include "astrometry/simtri/triangle.h"
+#include "astrometry/astrometry.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyMaxStarQuantity("/Angmeter/MaxStarQuantity");
@@ -22,6 +21,7 @@ static const QString __skeyMinEquatedStarQuantity("/Angmeter/MinEquatedStarQuant
 static const QString __skeyEqualEps("/Angmeter/EqualEps");
 static const QString __skeySimilarEps("/Angmeter/SimilarEps");
 static const QString __skeyNearStarDist("/Angmeter/NearStarDist");
+static const QString __skeyAstrometryMethod("/Angmeter/AstrometryMethod");
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class Angmeter : public QThread
@@ -34,9 +34,12 @@ public:
                       ArtifactBox *equatedCatStars,
                       TargetBox   *target);
     ~Angmeter();
+    astrometry::METHOD method() const {return _method;}
 public slots:
     void setScreenSize(const int width,
                        const int height);
+    void setSimtriMethod()  {_method = astrometry::SIMTRI;}
+    void setFreevecMethod() {_method = astrometry::FREEVEC;}
 private:
     Angmeter(const Angmeter&) {}
     Angmeter& operator =(const Angmeter&) {return *this;}
@@ -49,19 +52,21 @@ private:
     static const double _defaultSimilarEps   = 0.01;
     static const double _defaultNearStarDist = 20.0;
     static const int _maxDelay = 10; //msec
-    int            _maxStarQuantity;
-    int            _minEquatedStarQuantity;
-    double         _equalEps;
-    double         _similarEps;
-    double         _nearStarDist;
-    QSettings     *_settings;
-    LogFile       *_log;
-    ArtifactBox   *_equatedPicStars;
-    ArtifactBox   *_equatedCatStars;
-    TargetBox     *_target;
-    QSize          _screen;
-    ArtifactBox    _rawPicStars;
-    ArtifactBox    _rawCatStars;
+    static const astrometry::METHOD _defaultMethod = astrometry::SIMTRI;
+    int                _maxStarQuantity;
+    int                _minEquatedStarQuantity;
+    double             _equalEps;
+    double             _similarEps;
+    double             _nearStarDist;
+    astrometry::METHOD _method;
+    QSettings         *_settings;
+    LogFile           *_log;
+    ArtifactBox       *_equatedPicStars;
+    ArtifactBox       *_equatedCatStars;
+    TargetBox         *_target;
+    QSize              _screen;
+    ArtifactBox        _rawPicStars;
+    ArtifactBox        _rawCatStars;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc(const QPointF &target);

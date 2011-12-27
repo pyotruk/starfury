@@ -204,26 +204,9 @@ void triangles2Artifacts(const TriangleVector &tvPic,
 /////////////////////////////////////////////////////////////////////////////////////
 int simtri::equate(ArtifactVector &picStars,
                    ArtifactVector &catStars,
-                   const QSize &screen,
                    const double similarEps,
-                   const double nearStarDist,
-                   int maxStarQuantity,
                    const int minEquatedStarQuantity)
 {
-    if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
-    if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
-
-    if(maxStarQuantity > simtri::__maxStarQuantityForSimtriMethod)
-    {
-        maxStarQuantity = simtri::__maxStarQuantityForSimtriMethod;
-    }
-
-    astrometry::precook(picStars,
-                        catStars,
-                        screen,
-                        maxStarQuantity,
-                        nearStarDist);
-
     if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
     if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
 

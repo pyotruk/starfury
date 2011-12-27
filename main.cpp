@@ -4,7 +4,8 @@
 #include <QSettings>
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "mainwindow.h"
+#include "gui/controlwindow.h"
+#include "gui/imagewindow.h"
 #include "com/framerec.h"
 #include "boxes/frame.h"
 #include "detector/stardetector.h"
@@ -19,7 +20,8 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+
+    //through obj
     QSettings settings("petr_klukvenny", "starfury");
     LogFile targetLog("starfury-target");
     LogFile starsLog("starfury-stars");
@@ -51,16 +53,19 @@ int main(int argc, char *argv[])
                            &equatedCatStars,
                            &target);
 
+    //gui
+    ControlWindow controlWin;
+    ImageWindow   imgWin;
+    //gui init
+    controlWin.initFace(frameReceiver.strob().geometry().innerSide(),
+                        (int)(frameReceiver.strob().threshold()),
+                        angmeter.method());
+
     qDebug() << "QApplication a thread: " << a.thread();
-    qDebug() << "MainWidow w thread: " << w.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
     qDebug() << "starDetector thread:" << starDetector.thread();
     qDebug() << "starcatScreen thread: " << starcatScreen.thread();
     qDebug() << "angmeter thread: " << angmeter.thread();
-
-    //form init
-    w.initFace(frameReceiver.strob().geometry().innerSide(),
-               (int)(frameReceiver.strob().threshold()));
 
     //object <--> object connections
     QObject::connect(&frameReceiver, SIGNAL(frame1Ready(Frame*,int,int)),
@@ -83,37 +88,38 @@ int main(int argc, char *argv[])
 
     //gui <--> object connections
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(Frame*)),
-                     &w, SLOT(inputFrame(Frame*)),
+                     &imgWin, SLOT(inputFrame(Frame*)),
                      Qt::QueuedConnection);
-
     QObject::connect(&starDetector, SIGNAL(screenStarsReady(ArtifactBox*,double,double)),
-                     &w, SLOT(inputScreenStars(ArtifactBox*)),
+                     &imgWin, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
-                     &w, SLOT(inputCatStars(ArtifactBox*)),
+                     &imgWin, SLOT(inputCatStars(ArtifactBox*)),
+                     Qt::QueuedConnection);    
+    QObject::connect(&angmeter, SIGNAL(sendEquatedStars(ArtifactBox*,ArtifactBox*)),
+                     &imgWin, SLOT(inputEquatedStars(ArtifactBox*,ArtifactBox*)),
                      Qt::QueuedConnection);
 
-//    QObject::connect(&angmeter, SIGNAL(sendTriangles(TriangleBox*)),
-//                     &w, SLOT(inputTriangles(TriangleBox*)),
-//                     Qt::QueuedConnection);
-    QObject::connect(&angmeter, SIGNAL(sendEquatedStars(ArtifactBox*,ArtifactBox*)),
-                     &w, SLOT(inputEquatedStars(ArtifactBox*,ArtifactBox*)),
+    QObject::connect(&imgWin, SIGNAL(mousePressEvent(QMouseEvent *)),
+                     &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),
                      Qt::QueuedConnection);
 
     QObject::connect(&starcatScreen, SIGNAL(sendMeasureError(double,double)),
-                     &w, SLOT(inputMeasureError(double,double)),
+                     &controlWin, SLOT(inputMeasureError(double,double)),
                      Qt::QueuedConnection);
 
-    QObject::connect(&w, SIGNAL(mousePressEvent(QMouseEvent *)),
-                     &(frameReceiver.strob()), SLOT(clickTarget(QMouseEvent *)),
-                     Qt::QueuedConnection);
-    QObject::connect(&w, SIGNAL(changeStrobSize(int)),
+    QObject::connect(&controlWin, SIGNAL(changeStrobSize(int)),
                      &(frameReceiver.strob().geometry()), SLOT(setSide(int)),
                      Qt::QueuedConnection);
-    QObject::connect(&w, SIGNAL(changeTrackingThreshold(int)),
+    QObject::connect(&controlWin, SIGNAL(changeTrackingThreshold(int)),
                      &(frameReceiver.strob()), SLOT(setThreshold(int)),
                      Qt::QueuedConnection);
+    QObject::connect(&controlWin, SIGNAL(setSimtriMethod()),
+                     &angmeter, SLOT(setSimtriMethod()));
+    QObject::connect(&controlWin, SIGNAL(setFreevecMethod()),
+                     &angmeter, SLOT(setFreevecMethod()));
 
-    w.show();
+    controlWin.show();
+    imgWin.show();
     return a.exec();
 }

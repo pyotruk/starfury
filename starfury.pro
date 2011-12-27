@@ -11,7 +11,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     strob/strob.cpp \
     strob/strobgeometry.cpp \
     utils/cvhelpfun.cpp \
@@ -20,7 +19,7 @@ SOURCES += main.cpp\
     com/framerec.cpp \
     com/snudpsrv.cpp \
     boxes/artifact.cpp \
-    utils/drawhelpfun.cpp \
+    gui/drawing.cpp \
     sky/skysegment.cpp \
     sky/starcatreader.cpp \
     boxes/star.cpp \
@@ -36,9 +35,11 @@ SOURCES += main.cpp\
     astrometry/freevec/freevec.cpp \
     astrometry/simtri/triangle.cpp \
     astrometry/simtri/combo.cpp \
-    astrometry/astrometry.cpp
+    astrometry/astrometry.cpp \
+    gui/controlwindow.cpp \
+    gui/imagewindow.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     strob/strob.h \
     strob/strobgeometry.h \
     utils/cvhelpfun.h \
@@ -47,7 +48,7 @@ HEADERS  += mainwindow.h \
     com/framerec.h \
     com/snudpsrv.h \
     boxes/artifact.h \
-    utils/drawhelpfun.h \
+    gui/drawing.h \
     sky/skysegment.h \
     sky/starcatreader.h \
     boxes/star.h \
@@ -66,7 +67,9 @@ HEADERS  += mainwindow.h \
     astrometry/freevec/freevec.h \
     astrometry/simtri/triangle.h \
     astrometry/simtri/combo.h \
-    astrometry/astrometry.h
+    astrometry/astrometry.h \
+    gui/controlwindow.h \
+    gui/imagewindow.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -79,7 +82,16 @@ LIBS += -L"C:/opencv231/lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 
-FORMS += mainwindow.ui
+FORMS += \
+    gui/controlwindow.ui
+
+
+
+
+
+
+
+
 
 
 
