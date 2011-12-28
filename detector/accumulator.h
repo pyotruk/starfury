@@ -11,7 +11,7 @@ public:
     explicit Accumulator() {}
     ~Accumulator() {}
     const Frame& frame() const {return _frame;}
-    void add(const Frame&);
+    const Frame& add(Frame&);
 private:
     Frame _frame;
     void checkSize(const Frame::Header&);

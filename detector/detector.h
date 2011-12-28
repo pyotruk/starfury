@@ -11,6 +11,7 @@
 #include "boxes/artifact.h"
 #include "utils/timeutils.h"
 #include "detector/detection.h"
+#include "detector/accumulator.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class Detector : public QThread
 {
@@ -30,6 +31,7 @@ private:
     ArtifactBox    *_artifactBox;
     Artifact        _target;
     Frame           _rawFrame;
+    Accumulator     _accum;
     void cookArtifacts();
 private slots:
     void inputFrame(Frame*,

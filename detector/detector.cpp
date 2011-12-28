@@ -37,6 +37,7 @@ void Detector::inputFrame(Frame *f,
     _rawFrame = *f;
     f->lock().unlock();
 
+    //_rawFrame = _accum.add(_rawFrame);
     detection::filtering(_rawFrame);
 
     _artifactBox->lock().lockForWrite();

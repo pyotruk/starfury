@@ -1,8 +1,10 @@
 #include "accumulator.h"
 /////////////////////////////////////////////////////////////////////////////////////
-void Accumulator::add(const Frame &f)
+const Frame& Accumulator::add(Frame &f)
 {
-
+    this->checkSize(f.header());
+    cv::add(f.asCvMat(), _frame.asCvMat(), _frame.asCvMat());
+    return _frame;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Accumulator::checkSize(const Frame::Header &newHeader)
