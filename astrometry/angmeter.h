@@ -77,9 +77,6 @@ private:
                        const double equalEps);
     void correctTarget(const LinCor&,
                        Artifact&);
-    bool checkTimeDelay(const ArtifactBox &a1,
-                        const ArtifactBox &a2,
-                        const int maxDelay);
     void cookTarget(const QPointF   &target,
                     const QDateTime &timeMarker,
                     const LinCor    &cor,

@@ -65,17 +65,22 @@ bool SharedMem::waitForData()
 //////////////////////////////////////////////////////////////////////////////////////
 void SharedMem::readFrame(Frame *frame)
 {
-    uchar *beginBuf = (uchar*)_sharedBuf;
-    FrameHeader *header = new FrameHeader;
-    memcpy((void*)header, (void*)beginBuf, sizeof(FrameHeader));
-    beginBuf += sizeof(FrameHeader);
-    Frame *f = new Frame;
-    f->attachRawData(*header, beginBuf);
-    *frame = *f;
-    f->unattachRawData();
+    uchar* buf = (uchar*)_sharedBuf;
+    const void *src = (void*)buf;
+    DataHeader header;
+    void *dst = &header;
+    memcpy(dst, src, sizeof(DataHeader));
+    buf += sizeof(DataHeader);
+    void *data = (void*)buf;
+    frame->copyFromRawData(data,
+                           header.width,
+                           header.height,
+                           header.depth);
+    QDateTime t;
+    timeutils::winfiletime2qdatetime(header.timeID, t);
+    frame->setTimeMarker(t);
+
     ReleaseMutex(_mutex);
     ResetEvent(_event);
-    delete header;
-    delete f;
 }
 //////////////////////////////////////////////////////////////////////////////////////

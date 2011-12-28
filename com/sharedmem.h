@@ -8,6 +8,7 @@
 #include <QString>
 //////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/frame.h"
+#include "utils/timeutils.h"
 //////////////////////////////////////////////////////////////////////////////////////
 //default values
 static const QString __defaultSharedFileMapID("{TVA2-MemoryID}");
@@ -17,6 +18,17 @@ static const QString __defaultSharedMutexID("{TVA2-MutexID}");
 static const QString __skeySharedFileMapID("/SharedMem/FileMapID");
 static const QString __skeySharedEventID("/SharedMem/EventID");
 static const QString __skeySharedMutexID("/SharedMem/MutexID");
+//////////////////////////////////////////////////////////////////////////////////////
+struct DataHeader
+{
+    qint64  timeID;
+    quint32 frameID;
+    quint32 dataSize; //[bytes] = depth * width * height
+    quint32 depth;    //bytes per pixel
+    quint32 width;
+    quint32 height;
+    quint32 plug;
+};
 //////////////////////////////////////////////////////////////////////////////////////
 struct SharedSettings
 {

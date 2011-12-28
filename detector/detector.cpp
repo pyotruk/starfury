@@ -24,10 +24,7 @@ void Detector::cookArtifacts()
                              _magnThresh);
     detection::deleteTarget(_artifactBox->data(),
                             _target.center());
-
-    QDateTime tMark = _artifactBox->timeMarker();
-    timeutils::winfiletime2qdatetime(_rawFrame.header().timeID, tMark);
-    _artifactBox->setTimeMarker(tMark);
+    _artifactBox->setTimeMarker(_rawFrame.timeMarker());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::inputFrame(Frame *f,

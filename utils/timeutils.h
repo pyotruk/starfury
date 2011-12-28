@@ -10,6 +10,9 @@ void winfiletime2qdatetime(const qint64 &fileTime,
                            QDateTime &qtTime);
 int msecFromDayBegin();
 int msecFromDayBegin(QDateTime&);
+bool checkTimeDelay(const QDateTime &t1,
+                    const QDateTime &t2,
+                    const int maxDelay);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

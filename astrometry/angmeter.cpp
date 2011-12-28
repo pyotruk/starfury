@@ -120,21 +120,6 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-bool Angmeter::checkTimeDelay(const ArtifactBox &a1,
-                              const ArtifactBox &a2,
-                              const int maxDelay)
-{
-    int dt = qAbs(a1.timeMarker().time().msecsTo(a2.timeMarker().time()));
-    if(dt > maxDelay)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-/////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::cookTarget(const QPointF &target,
                           const QDateTime &timeMarker,
                           const LinCor    &cor,
@@ -147,7 +132,9 @@ void Angmeter::cookTarget(const QPointF &target,
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::proc(const QPointF &target)
 {
-    if(!this->checkTimeDelay(_rawPicStars, _rawCatStars, _maxDelay))
+    if(!timeutils::checkTimeDelay(_rawPicStars.timeMarker(),
+                                  _rawCatStars.timeMarker(),
+                                  _maxDelay))
     {
         return;
     }

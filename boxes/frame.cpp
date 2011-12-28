@@ -4,31 +4,25 @@ Frame::Frame() :
     _data(new uchar[0])
 {}
 /////////////////////////////////////////////////////////////////////////////////////
-Frame::Frame(const Frame &f)
+Frame::Frame(const Frame &f) :
+    _data(new uchar[0])
 {
-    this->_header = f._header;
-    _data = new uchar[this->_header.dataSize];
-    memcpy(this->_data, f._data, this->_header.dataSize);
-    this->_cvmat = cv::Mat(this->_header.height,
-                           this->_header.width,
-                           CV_8UC1,
-                           this->_data);
+    this->setHeader(f.header());
+    memcpy(this->_data, f._data, _dataSize);
+    this->_timeMarker = f.timeMarker();
+    this->cookCvMat();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-Frame& Frame::operator =(const Frame &f)
+Frame::Frame(const quint32 width,
+             const quint32 height,
+             const quint32 depth) :
+    _data(new uchar[0])
 {
-    if(this != &f)
-    {
-        this->_header = f._header;
-        delete []_data;
-        _data = new uchar[this->_header.dataSize];
-        memcpy(this->_data, f._data, this->_header.dataSize);
-        this->_cvmat = cv::Mat(this->_header.height,
-                               this->_header.width,
-                               CV_8UC1,
-                               this->_data);
-    }
-    return *this;
+    this->setHeader(width,
+                    height,
+                    depth);
+    this->fillZeros();
+    this->cookCvMat();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Frame::~Frame()
@@ -36,29 +30,46 @@ Frame::~Frame()
     delete []_data;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::alloc(const FrameHeader &header)
+Frame& Frame::operator =(const Frame &f)
 {
-    this->_header = header;
-    delete []_data;
-    _data = new uchar[this->_header.dataSize];
-    this->_cvmat = cv::Mat(this->_header.height,
-                           this->_header.width,
-                           CV_8UC1,
-                           this->_data);
-    this->zeros();
+    if(this != &f)
+    {
+        this->setHeader(f.header());
+        memcpy(this->_data, f._data, _dataSize);
+        this->_timeMarker = f.timeMarker();
+        this->cookCvMat();
+    }
+    return *this;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::attachRawData(const FrameHeader &header,
-                          const void *data)
+void Frame::setHeader(const quint32 width,
+                      const quint32 height,
+                      const quint32 depth)
 {
-    _header = header;
-    delete []_data;
-    _data = (uchar*)data;
+    _header.width    = width;
+    _header.height   = height;
+    if(depth > __maxDepth)    _header.depth = __maxDepth;
+    else                      _header.depth = depth;
+    this->refreshDataSize();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::unattachRawData()
+void Frame::setHeader(const Header &h)
 {
-    _data = 0;
+    this->setHeader(h.width, h.height, h.depth);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Frame::copyFromRawData(const void *data,
+                            const quint32 width,
+                            const quint32 height,
+                            const quint32 depth)
+{
+    this->setHeader(width,
+                    height,
+                    depth);
+    const void *src = data;
+    void *dst = _data;
+    memcpy(dst, src, _dataSize);
+    this->cookCvMat();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::copyToQImage(QImage &img)
@@ -80,17 +91,48 @@ void Frame::copyToQImage(QImage &img)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::zeros()
+void Frame::fillZeros()
 {
     uchar *it = _data;
-    uchar *fin = _data + _header.dataSize + 1;
+    uchar *fin = _data + _dataSize + 1;
     for(; it < fin; ++it)
     {
         *it = 0;
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Frame::cookCvMat()
+{
+    this->_cvmat = cv::Mat(this->_header.height,
+                           this->_header.width,
+                           CV_8UC1,
+                           this->_data);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Frame::refreshDataSize()
+{
+    _dataSize = _header.width * _header.height * _header.depth;
+    delete []_data;
+    _data = new uchar[_dataSize];
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+//static members
+/////////////////////////////////////////////////////////////////////////////////////
+bool operator ==(const Frame::Header &h1,
+                 const Frame::Header &h2)
+{
+    return ((h1.width  == h2.width)  &&
+            (h1.height == h2.height) &&
+            (h1.depth  == h2.depth));
+}
+/////////////////////////////////////////////////////////////////////////////////////
+bool operator !=(const Frame::Header &h1,
+                 const Frame::Header &h2)
+{
+    return ((h1.width  != h2.width)  ||
+            (h1.height != h2.height) ||
+            (h1.depth  != h2.depth));
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

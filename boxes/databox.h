@@ -16,7 +16,7 @@ public:
     QReadWriteLock&  lock()             {return _lock;}
     const QDateTime& timeMarker() const {return _marker;}
     void             setTimeMarker(const QDateTime &t) {_marker = t;}
-    void             refreshTime() {this->setTimeMarker(QDateTime::currentDateTime());}
+    void             refreshTime() {this->setTimeMarker(QDateTime::currentDateTimeUtc());}
 private:
     T              _data;
     QReadWriteLock _lock;
