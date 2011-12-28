@@ -6,6 +6,7 @@
 #include <string.h>
 #include <QImage>
 #include <QDebug>
+/////////////////////////////////////////////////////////////////////////////////////
 #include "opencv.hpp"
 /////////////////////////////////////////////////////////////////////////////////////
 struct FrameHeader
@@ -26,7 +27,8 @@ public:
     explicit Frame(const Frame&);
     ~Frame();
     Frame& operator =(const Frame&);
-    void attachRawData(const FrameHeader &header,
+    void alloc(const FrameHeader&);
+    void attachRawData(const FrameHeader&,
                        const void *data);
     void unattachRawData(); //do not forget!
     uchar* data()               const {return _data;}
@@ -39,6 +41,7 @@ private:
     FrameHeader    _header;
     QReadWriteLock _lock;
     cv::Mat        _cvmat;
+    void zeros();
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

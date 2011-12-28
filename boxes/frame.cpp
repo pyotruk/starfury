@@ -7,7 +7,7 @@ Frame::Frame() :
 Frame::Frame(const Frame &f)
 {
     this->_header = f._header;
-    _data = new uchar[_header.dataSize];
+    _data = new uchar[this->_header.dataSize];
     memcpy(this->_data, f._data, this->_header.dataSize);
     this->_cvmat = cv::Mat(this->_header.height,
                            this->_header.width,
@@ -21,7 +21,7 @@ Frame& Frame::operator =(const Frame &f)
     {
         this->_header = f._header;
         delete []_data;
-        _data = new uchar[_header.dataSize];
+        _data = new uchar[this->_header.dataSize];
         memcpy(this->_data, f._data, this->_header.dataSize);
         this->_cvmat = cv::Mat(this->_header.height,
                                this->_header.width,
@@ -34,6 +34,18 @@ Frame& Frame::operator =(const Frame &f)
 Frame::~Frame()
 {
     delete []_data;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Frame::alloc(const FrameHeader &header)
+{
+    this->_header = header;
+    delete []_data;
+    _data = new uchar[this->_header.dataSize];
+    this->_cvmat = cv::Mat(this->_header.height,
+                           this->_header.width,
+                           CV_8UC1,
+                           this->_data);
+    this->zeros();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::attachRawData(const FrameHeader &header,
@@ -68,6 +80,15 @@ void Frame::copyToQImage(QImage &img)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Frame::zeros()
+{
+    uchar *it = _data;
+    uchar *fin = _data + _header.dataSize + 1;
+    for(; it < fin; ++it)
+    {
+        *it = 0;
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

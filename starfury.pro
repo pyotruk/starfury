@@ -25,7 +25,6 @@ SOURCES += main.cpp\
     boxes/star.cpp \
     utils/guidecodec.cpp \
     sky/starcatscreen.cpp \
-    detector/stardetector.cpp \
     astrometry/angmeter.cpp \
     math/astrocalc.cpp \
     math/lincor.cpp \
@@ -37,7 +36,11 @@ SOURCES += main.cpp\
     astrometry/simtri/combo.cpp \
     astrometry/astrometry.cpp \
     gui/controlwindow.cpp \
-    gui/imagewindow.cpp
+    gui/imagewindow.cpp \
+    gui/strobwnd.cpp \
+    detector/detector.cpp \
+    detector/detection.cpp \
+    detector/accumulator.cpp
 
 HEADERS  += \
     strob/strob.h \
@@ -54,7 +57,6 @@ HEADERS  += \
     boxes/star.h \
     utils/guidecodec.h \
     sky/starcatscreen.h \
-    detector/stardetector.h \
     math/astrocalc.h \
     common/globalskeys.h \
     astrometry/angmeter.h \
@@ -69,7 +71,11 @@ HEADERS  += \
     astrometry/simtri/combo.h \
     astrometry/astrometry.h \
     gui/controlwindow.h \
-    gui/imagewindow.h
+    gui/imagewindow.h \
+    gui/strobwnd.h \
+    detector/detector.h \
+    detector/detection.h \
+    detector/accumulator.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -84,6 +90,20 @@ LIBS += -L"C:/opencv231/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
