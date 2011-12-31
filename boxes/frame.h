@@ -1,6 +1,7 @@
 #ifndef FRAME_H
 #define FRAME_H
 /////////////////////////////////////////////////////////////////////////////////////
+#include <QDebug>
 #include <QtGlobal>
 #include <QReadWriteLock>
 #include <QImage>
@@ -29,7 +30,8 @@ public:
     const Header& header() const {return _header;}
     QReadWriteLock& lock() {return _lock;}
     const QDateTime& timeMarker() const {return _timeMarker;}
-    cv::Mat& asCvMat()     {return _cvmat;}
+    cv::Mat& asCvMat()             {return _cvmat;}
+    const cv::Mat& asCvMat() const {return _cvmat;}
     void setHeader(const quint32 width,      //data size changes too
                    const quint32 height,
                    const quint32 depth = 1); //bytes per pixel
@@ -60,6 +62,8 @@ bool operator ==(const Frame::Header &h1,
 bool operator !=(const Frame::Header &h1,
                  const Frame::Header &h2);
 /////////////////////////////////////////////////////////////////////////////////////
+QDebug operator<<(QDebug, const Frame::Header&);
+QDebug operator<<(QDebug, const Frame&);
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

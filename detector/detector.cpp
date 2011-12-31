@@ -37,7 +37,10 @@ void Detector::inputFrame(Frame *f,
     _rawFrame = *f;
     f->lock().unlock();
 
-    //_rawFrame = _accum.add(_rawFrame);
+    qDebug() << _rawFrame;
+//    _rawFrame = _accum.add(_rawFrame);
+    qDebug() << _rawFrame;
+
     detection::filtering(_rawFrame);
 
     _artifactBox->lock().lockForWrite();
