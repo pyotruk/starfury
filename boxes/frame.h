@@ -12,19 +12,38 @@
 class Frame
 {
 public:
-    struct Header
+    class Header
     {
-        quint32 depth;    //bytes per pixel
-        quint32 width;
-        quint32 height;
+    public:
+        explicit Header(const int width = 0,
+                        const int height = 0,
+                        const int depth = 1)
+            {this->setHeader(width, height, depth);}
+        explicit Header(const Header &h)
+            {this->setHeader(h.width(), h.height(), h.depth());}
+        Header& operator=(const Header &h);
+        int width()  const {return _width;}
+        int height() const {return _height;}
+        int depth()  const {return _depth;}
+        void setHeader(const int width,
+                       const int height,
+                       const int depth = 1);
+        void setHeader(const Header &h)
+            {this->setHeader(h.width(), h.height(), h.depth());}
+        quint64 dataSize() const {return _width * _height * _depth;}
+    private:
+        static const int __maxDepth = 2;
+        int _width;
+        int _height;
+        int _depth;    //bytes per pixel
     };
 
-    explicit Frame();
+    explicit Frame() : _data(new uchar[0]) {}
     explicit Frame(const Frame&);
-    explicit Frame(const quint32 width,
-                   const quint32 height,
-                   const quint32 depth = 1); //bytes per pixel
-    ~Frame();
+    explicit Frame(const int width,
+                   const int height,
+                   const int depth = 1); //bytes per pixel
+    ~Frame() {delete []_data;}
     Frame& operator =(const Frame&);
     uchar* data()          const {return _data;}
     const Header& header() const {return _header;}
@@ -32,27 +51,24 @@ public:
     const QDateTime& timeMarker() const {return _timeMarker;}
     cv::Mat& asCvMat()             {return _cvmat;}
     const cv::Mat& asCvMat() const {return _cvmat;}
-    void setHeader(const quint32 width,      //data size changes too
-                   const quint32 height,
-                   const quint32 depth = 1); //bytes per pixel
-    void setHeader(const Header&);
+    void setHeaderAndRealloc(const int width,      //data size changes too
+                             const int height,
+                             const int depth = 1); //bytes per pixel
+    void setHeaderAndRealloc(const Header&);
     void setTimeMarker(const QDateTime &t) {_timeMarker = t;}
     void copyFromRawData(const void *data,
-                         const quint32 width,
-                         const quint32 height,
-                         const quint32 depth = 1); //bytes per pixel
+                         const int width,
+                         const int height,
+                         const int depth = 1); //bytes per pixel
     void copyToQImage(QImage&);
     void fillZeros();
-    void refreshDataSize();
-
-    static const quint32 __maxDepth = 2;
 private:
     uchar         *_data;
-    quint64        _dataSize; //[bytes] = depth * width * height
     Header         _header;
     QReadWriteLock _lock;
     QDateTime      _timeMarker;
     cv::Mat        _cvmat;
+    void realloc(const Header&);
     void cookCvMat();
 };
 /////////////////////////////////////////////////////////////////////////////////////

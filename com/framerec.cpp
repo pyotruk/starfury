@@ -31,8 +31,8 @@ void FrameReceiver::run()
             if(_frame0->lock().tryLockForWrite(_timeout))
             {
                 _sharedMem->readFrame(_frame0);
-                this->checkFrameSize(_frame0->header().width,
-                                     _frame0->header().height);
+                this->checkFrameSize(_frame0->header().width(),
+                                     _frame0->header().height());
                 this->fastProc(_frame0);
                 _frame0->lock().unlock();
                 emit frame0Ready(_frame0); //to Gui

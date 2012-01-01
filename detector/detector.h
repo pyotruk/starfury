@@ -13,6 +13,9 @@
 #include "detector/detection.h"
 #include "detector/accumulator.h"
 /////////////////////////////////////////////////////////////////////////////////////
+//setting keys
+static const QString __skeyAccumCapacity("/Detector/AccumCapacity");
+/////////////////////////////////////////////////////////////////////////////////////
 class Detector : public QThread
 {
     Q_OBJECT
@@ -21,6 +24,10 @@ public:
                       Frame*,
                       ArtifactBox*);
     ~Detector();
+    const Accumulator& accum() const {return _accum;}
+public slots:
+    void setAccumCapacity(int cap) {_accum.setCapacity(cap);}
+    void setBinEnabled(bool b)     {_binEnabled = b;}
 private:
     Detector(const Detector&) {}
     Detector& operator =(const Detector&) {return *this;}
@@ -32,7 +39,10 @@ private:
     Artifact        _target;
     Frame           _rawFrame;
     Accumulator     _accum;
+    bool            _binEnabled;
     void cookArtifacts();
+    void loadSettings(QSettings*);
+    void saveSettings(QSettings*);
 private slots:
     void inputFrame(Frame*,
                     int xTarget,

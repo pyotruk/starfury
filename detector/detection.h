@@ -10,7 +10,9 @@
 /////////////////////////////////////////////////////////////////////////////////////
 namespace detection
 {
-void filtering(Frame&);
+void smooth(Frame&,
+            const int windowSize);
+void threshold(Frame&);
 void findArtifacts(Frame&,
                    ArtifactVector&,
                    const double magnThresh);

@@ -5,9 +5,11 @@ Detector::Detector(QSettings *s,
                    ArtifactBox *a) :
     _settings(s),
     _frame(f),
-    _artifactBox(a)
+    _artifactBox(a),
+    _binEnabled(true)
 {
     this->moveToThread(this);
+    this->loadSettings(_settings);
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -15,6 +17,18 @@ Detector::~Detector()
 {
     this->quit();
     this->wait();
+    this->saveSettings(_settings);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Detector::loadSettings(QSettings *s)
+{
+    int cap = s->value(__skeyAccumCapacity, Accumulator::_defaultCapacity).toInt();
+    _accum.setCapacity(cap);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Detector::saveSettings(QSettings *s)
+{
+    s->setValue(__skeyAccumCapacity, _accum.capacity());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::cookArtifacts()
@@ -37,11 +51,9 @@ void Detector::inputFrame(Frame *f,
     _rawFrame = *f;
     f->lock().unlock();
 
-    qDebug() << _rawFrame;
-//    _rawFrame = _accum.add(_rawFrame);
-    qDebug() << _rawFrame;
-
-    detection::filtering(_rawFrame);
+    detection::smooth(_rawFrame, 7);
+    _rawFrame = _accum.add(_rawFrame);
+    if(_binEnabled)    detection::threshold(_rawFrame);
 
     _artifactBox->lock().lockForWrite();
     this->cookArtifacts();

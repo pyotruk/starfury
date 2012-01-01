@@ -34,8 +34,8 @@ void Strob::saveSettings(QSettings *s)
 void Strob::makeTracking(Frame *f)
 {
     //создание, инициализация сигнального и фонового стробов
-    _geometry->checkRange(QSize(f->header().width,
-                                f->header().height));
+    _geometry->checkRange(QSize(f->header().width(),
+                                f->header().height()));
     cv::Rect innerRect;
     cv::Rect outerRect;
     cvhelp::qtRect2cvRect(_geometry->innerRect(), innerRect);

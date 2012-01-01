@@ -8,13 +8,23 @@
 class Accumulator
 {
 public:
-    explicit Accumulator() {}
+    static const int _defaultCapacity = 20;
+    explicit Accumulator(const int capacity = _defaultCapacity) :
+        _capacity(capacity), _num(0) {}
     ~Accumulator() {}
     const Frame& frame() const {return _frame;}
     const Frame& add(Frame&);
+    void setCapacity(const int capacity) {_capacity = capacity;}
+    int capacity() const {return _capacity;}
+    int num()      const {return _num;}
 private:
+    static const double _alpha = 1.0;
+    static const double _beta  = 1.0;
     Frame _frame;
+    int   _capacity; //ёмкость (кол-во накапливаемых кадров)
+    int   _num;      //текущее кол-во накопленных кадров
     void checkSize(const Frame::Header&);
+    void checkNum();
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -1,10 +1,18 @@
 #include "detection.h"
 /////////////////////////////////////////////////////////////////////////////////////
-void detection::filtering(Frame &f)
+void detection::smooth(Frame &f,
+                       const int windowSize)
 {
-    cv::blur(f.asCvMat(),
-             f.asCvMat(),
-             cv::Size(5, 5));
+//    cv::blur(f.asCvMat(),
+//             f.asCvMat(),
+//             cv::Size(windowSize, windowSize));
+    cv::medianBlur(f.asCvMat(),
+                   f.asCvMat(),
+                   windowSize);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void detection::threshold(Frame &f)
+{
     cv::threshold(f.asCvMat(),
                   f.asCvMat(),
                   0,
@@ -23,9 +31,9 @@ void detection::findArtifacts(Frame &f,
     QPoint center;
     cv::Mat cvmat = f.asCvMat();
     Artifact art;
-    int width  = f.header().width;
-    int height = f.header().height;
-    int depth  = f.header().depth;
+    int width  = f.header().width();
+    int height = f.header().height();
+    int depth  = f.header().depth();
     uchar *p0 = f.data();
     uchar *pix;
     for(int y=0; y < height; ++y)
@@ -53,6 +61,7 @@ void detection::findArtifacts(Frame &f,
 void detection::deleteTarget(ArtifactVector &a,
                              const QPointF &target)
 {
+    if(a.empty())    return;
     const double eps = 2;
     double dist;
     double minDist = 1000000;

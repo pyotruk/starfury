@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
     //gui init
     controlWnd.initFace(frameReceiver.strob().geometry().innerSide(),
                         (int)(frameReceiver.strob().threshold()),
-                        angmeter.method());
+                        angmeter.method(),
+                        detector.accum().capacity());
 
     qDebug() << "QApplication a thread: " << a.thread();
     qDebug() << "frameReceiver thread: " << frameReceiver.thread();
@@ -120,9 +121,18 @@ int main(int argc, char *argv[])
                      &(frameReceiver.strob()), SLOT(setThreshold(int)),
                      Qt::QueuedConnection);
     QObject::connect(&controlWnd, SIGNAL(setSimtriMethod()),
-                     &angmeter, SLOT(setSimtriMethod()));
+                     &angmeter, SLOT(setSimtriMethod()),
+                     Qt::QueuedConnection);
     QObject::connect(&controlWnd, SIGNAL(setFreevecMethod()),
-                     &angmeter, SLOT(setFreevecMethod()));
+                     &angmeter, SLOT(setFreevecMethod()),
+                     Qt::QueuedConnection);
+
+    QObject::connect(&controlWnd, SIGNAL(setAccumCapacity(int)),
+                     &detector, SLOT(setAccumCapacity(int)),
+                     Qt::QueuedConnection);
+    QObject::connect(&controlWnd, SIGNAL(setBinEnabled(bool)),
+                     &detector, SLOT(setBinEnabled(bool)),
+                     Qt::QueuedConnection);
 
     controlWnd.show();
     strobWnd.show();

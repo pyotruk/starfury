@@ -1,90 +1,107 @@
 #include "frame.h"
 /////////////////////////////////////////////////////////////////////////////////////
-Frame::Frame() :
-    _data(new uchar[0])
+void Frame::Header::setHeader(const int width,
+                              const int height,
+                              const int depth)
 {
-    this->setHeader(0, 0);
+    _width  = width;
+    _height = height;
+    if(depth > __maxDepth)    _depth = __maxDepth;
+    else                      _depth = depth;
 }
+/////////////////////////////////////////////////////////////////////////////////////
+Frame::Header& Frame::Header::operator=(const Header &h)
+{
+    if(this != &h)
+    {
+        this->setHeader(h.width(), h.height(), h.depth());
+    }
+    return *this;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 Frame::Frame(const Frame &f) :
     _data(new uchar[0])
 {
-    this->setHeader(f.header());
-    memcpy(this->_data, f._data, _dataSize);
+    _header.setHeader(f.header());
+    this->realloc(_header);
+    memcpy(this->_data, f._data, _header.dataSize());
     this->_timeMarker = f.timeMarker();
     this->cookCvMat();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-Frame::Frame(const quint32 width,
-             const quint32 height,
-             const quint32 depth) :
+Frame::Frame(const int width,
+             const int height,
+             const int depth) :
     _data(new uchar[0])
 {
-    this->setHeader(width,
-                    height,
-                    depth);
+    _header.setHeader(width, height, depth);
+    this->realloc(_header);
     this->fillZeros();
     this->cookCvMat();
-}
-/////////////////////////////////////////////////////////////////////////////////////
-Frame::~Frame()
-{
-    delete []_data;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Frame& Frame::operator =(const Frame &f)
 {
     if(this != &f)
     {
-        this->setHeader(f.header());
-        memcpy(this->_data, f._data, _dataSize);
+        _header.setHeader(f.header());
+        this->realloc(_header);
+        memcpy(this->_data, f._data, _header.dataSize());
         this->_timeMarker = f.timeMarker();
         this->cookCvMat();
     }
     return *this;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::setHeader(const quint32 width,
-                      const quint32 height,
-                      const quint32 depth)
+void Frame::realloc(const Header &h)
 {
-    _header.width    = width;
-    _header.height   = height;
-    if(depth > __maxDepth)    _header.depth = __maxDepth;
-    else                      _header.depth = depth;
-    this->refreshDataSize();
+    delete []_data;
+    _data = new uchar[h.dataSize()];
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::setHeader(const Header &h)
+void Frame::setHeaderAndRealloc(const int width,
+                                const int height,
+                                const int depth)
 {
-    this->setHeader(h.width, h.height, h.depth);
+    _header.setHeader(width, height, depth);
+    this->realloc(_header);
+    this->cookCvMat();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Frame::setHeaderAndRealloc(const Header &h)
+{
+    _header.setHeader(h);
+    this->realloc(_header);
+    this->cookCvMat();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::copyFromRawData(const void *data,
-                            const quint32 width,
-                            const quint32 height,
-                            const quint32 depth)
+                            const int width,
+                            const int height,
+                            const int depth)
 {
-    this->setHeader(width,
-                    height,
-                    depth);
+    _header.setHeader(width, height, depth);
+    this->realloc(_header);
     const void *src = data;
     void *dst = _data;
-    memcpy(dst, src, _dataSize);
+    memcpy(dst, src, _header.dataSize());
     this->cookCvMat();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::copyToQImage(QImage &img)
 {
-    img = QImage(_header.width,
-                 _header.height,
+    img = QImage(_header.width(),
+                 _header.height(),
                  QImage::Format_RGB32);
     uchar *ff = _data;
     QRgb *pLineStart, *pLineEnd;
-    for(uint j = 0; j < _header.height; ++j)
+    for(int j = 0; j < _header.height(); ++j)
     {
         pLineStart = (QRgb*)(img.scanLine(j));
-        pLineEnd = pLineStart + _header.width;
+        pLineEnd = pLineStart + _header.width();
         for(QRgb *pline = pLineStart; pline < pLineEnd; ++pline)
         {
             *pline = qRgba(*ff, *ff, *ff, 255);
@@ -96,7 +113,7 @@ void Frame::copyToQImage(QImage &img)
 void Frame::fillZeros()
 {
     uchar *it = _data;
-    uchar *fin = _data + _dataSize + 1;
+    uchar *fin = _data + _header.dataSize();
     for(; it < fin; ++it)
     {
         *it = 0;
@@ -105,45 +122,37 @@ void Frame::fillZeros()
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::cookCvMat()
 {
-    this->_cvmat = cv::Mat(this->_header.height,
-                           this->_header.width,
-                           CV_8UC1,
-                           this->_data);
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void Frame::refreshDataSize()
-{
-    _dataSize = _header.width * _header.height * _header.depth;
-    delete []_data;
-    _data = new uchar[_dataSize];
+    _cvmat = cv::Mat(_header.height(),
+                     _header.width(),
+                     CV_8UC1,
+                     _data);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-//static members
 /////////////////////////////////////////////////////////////////////////////////////
 bool operator ==(const Frame::Header &h1,
                  const Frame::Header &h2)
 {
-    return ((h1.width  == h2.width)  &&
-            (h1.height == h2.height) &&
-            (h1.depth  == h2.depth));
+    return ((h1.width()  == h2.width())  &&
+            (h1.height() == h2.height()) &&
+            (h1.depth()  == h2.depth()));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 bool operator !=(const Frame::Header &h1,
                  const Frame::Header &h2)
 {
-    return ((h1.width  != h2.width)  ||
-            (h1.height != h2.height) ||
-            (h1.depth  != h2.depth));
+    return ((h1.width()  != h2.width())  ||
+            (h1.height() != h2.height()) ||
+            (h1.depth()  != h2.depth()));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 QDebug operator<<(QDebug d, const Frame::Header &h)
 {
-    d << "     width  = " << h.width << "\n"
-      << "     height = " << h.height << "\n"
-      << "     depth  = " << h.depth;
+    d << "     width  = " << h.width() << "\n"
+      << "     height = " << h.height() << "\n"
+      << "     depth  = " << h.depth();
     return d;
 }
 /////////////////////////////////////////////////////////////////////////////////////
