@@ -62,7 +62,7 @@ private:
                             Star&);
 private slots:
     void inputTelescopeStatus(TelescopeBox*);
-    void inputTarget(TargetBox*); //в экранной СК в плоскости каталога
+    void inputTarget(ArtifactBox*); //в экранной СК в плоскости каталога
 signals:
     void catStarsReady(ArtifactBox*);
     void sendMeasureError(double errAlpha,  //rad

@@ -20,11 +20,15 @@ class Detector : public QThread
 {
     Q_OBJECT
 public:
+    enum MODE {TARGET_DETECTION = 0, STAR_DETECTION = 1};
+
     explicit Detector(QSettings*,
                       Frame*,
-                      ArtifactBox*);
+                      ArtifactBox *stars,
+                      ArtifactBox *target);
     ~Detector();
     const Accumulator& accum() const {return _accum;}
+    void setMode(MODE m) {_mode = m;}
 public slots:
     void setAccumCapacity(int cap) {_accum.setCapacity(cap);}
     void setBinEnabled(bool b)     {_binEnabled = b;}
@@ -35,23 +39,29 @@ private:
     static const int _magnThresh = 2;
     QSettings      *_settings;
     Frame          *_frame;
-    ArtifactBox    *_artifactBox;
-    Artifact        _target;
-    Frame           _rawFrame;
+    ArtifactBox    *_stars;
+    ArtifactBox    *_target;
+    Frame           _cache_Frame;
+    ArtifactBox     _cache_Stars;
+    ArtifactBox     _cache_Target;
     Accumulator     _accum;
     bool            _binEnabled;
-    void cookArtifacts();
+    MODE            _mode;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
+    void cookArtifacts();
+    void preproc();
+    void detectStars();
+    void detectTarget();
 private slots:
     void inputFrame(Frame*,
                     int xTarget,
                     int yTarget);
 signals:
     void sendFrame(Frame*);
-    void screenStarsReady(ArtifactBox*,
-                          double xTarget,
-                          double yTarget);
+    void screenStarsReady(ArtifactBox *stars,
+                          ArtifactBox *target);
+    void targetDetected(ArtifactBox*);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

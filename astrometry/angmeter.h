@@ -32,7 +32,7 @@ public:
                       LogFile*,
                       ArtifactBox *equatedPicStars,
                       ArtifactBox *equatedCatStars,
-                      TargetBox   *target);
+                      ArtifactBox *target);
     ~Angmeter();
     astrometry::METHOD method() const {return _method;}
 public slots:
@@ -63,13 +63,14 @@ private:
     LogFile           *_log;
     ArtifactBox       *_equatedPicStars;
     ArtifactBox       *_equatedCatStars;
-    TargetBox         *_target;
+    ArtifactBox       *_target;
     QSize              _screen;
-    ArtifactBox        _rawPicStars;
-    ArtifactBox        _rawCatStars;
+    ArtifactBox        _cache_PicStars;
+    ArtifactBox        _cache_CatStars;
+    ArtifactBox        _cache_Target;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void proc(const QPointF &target);
+    void proc();
     void equation();
     bool checkEquation(const ArtifactVector &picStars,
                        const ArtifactVector &catStars,
@@ -77,19 +78,15 @@ private:
                        const double equalEps);
     void correctTarget(const LinCor&,
                        Artifact&);
-    void cookTarget(const QPointF   &target,
-                    const QDateTime &timeMarker,
-                    const LinCor    &cor,
-                    TargetBox       &targetBox);
+    void cookTarget(const LinCor&);
 private slots:
-    void inputScreenStars(ArtifactBox*,
-                          double xTarget,
-                          double yTarget);
+    void inputScreenStars(ArtifactBox *stars,
+                          ArtifactBox *target);
     void inputCatStars(ArtifactBox*);
 signals:
     void sendEquatedStars(ArtifactBox *pic,
                           ArtifactBox *cat);
-    void sendTarget(TargetBox*);
+    void sendTarget(ArtifactBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -4,7 +4,7 @@ Angmeter::Angmeter(QSettings *s,
                    LogFile *log,
                    ArtifactBox *equatedPicStars,
                    ArtifactBox *equatedCatStars,
-                   TargetBox   *target) :
+                   ArtifactBox *target) :
     _settings(s),
     _log(log),
     _equatedPicStars(equatedPicStars),
@@ -56,18 +56,23 @@ void Angmeter::setScreenSize(const int width,
     _screen.setHeight(height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::inputScreenStars(ArtifactBox *a,
-                                double xTarget,
-                                double yTarget)
+void Angmeter::inputScreenStars(ArtifactBox *stars,
+                                ArtifactBox *target)
 {
-    a->lock().lockForRead();
-    _rawPicStars = *a;
-    a->lock().unlock();
+    stars->lock().lockForRead();
+    _cache_PicStars = *stars;
+    stars->lock().unlock();
+
+    target->lock().lockForRead();
+    _cache_Target = *target;
+    target->lock().unlock();
+
+    if(_cache_Target.data().empty())    return;
 
     QTime t;
     t.start();
 
-    this->proc(QPointF(xTarget, yTarget));
+    this->proc();
 
     qDebug() << "Angmeter proc delay: " << t.elapsed();
 }
@@ -75,7 +80,7 @@ void Angmeter::inputScreenStars(ArtifactBox *a,
 void Angmeter::inputCatStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
-    _rawCatStars = *a;
+    _cache_CatStars = *a;
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -120,27 +125,25 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::cookTarget(const QPointF &target,
-                          const QDateTime &timeMarker,
-                          const LinCor    &cor,
-                          TargetBox &targetBox)
+void Angmeter::cookTarget(const LinCor &cor)
 {
-    targetBox.data().setCenter(target);
-    this->correctTarget(cor, targetBox.data());
-    targetBox.setTimeMarker(timeMarker);
+    Artifact target = _cache_Target.data().front();
+    _cache_Target.data().clear();
+    this->correctTarget(cor, target);
+    _cache_Target.data().push_back(target);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::proc(const QPointF &target)
+void Angmeter::proc()
 {
-    if(!timeutils::checkTimeDelay(_rawPicStars.timeMarker(),
-                                  _rawCatStars.timeMarker(),
+    if(!timeutils::checkTimeDelay(_cache_PicStars.timeMarker(),
+                                  _cache_CatStars.timeMarker(),
                                   _maxDelay))
     {
         return;
     }
 
-    int ret = astrometry::equate(_rawPicStars.data(),
-                                 _rawCatStars.data(),
+    int ret = astrometry::equate(_cache_PicStars.data(),
+                                 _cache_CatStars.data(),
                                  _screen,
                                  _similarEps,
                                  _nearStarDist,
@@ -149,45 +152,43 @@ void Angmeter::proc(const QPointF &target)
                                  _method);
     if(ret != astrometry::__SUCCESS)    return;
 
-    _log->write(QString::number(_rawPicStars.data().front().center().x()) + " " + //pic refStar0
-                QString::number(_rawPicStars.data().front().center().y()) + " " +
-                QString::number(_rawPicStars.data().front().magnitude())  + " " +
+    _log->write(QString::number(_cache_PicStars.data().front().center().x()) + " " + //pic refStar0
+                QString::number(_cache_PicStars.data().front().center().y()) + " " +
+                QString::number(_cache_PicStars.data().front().magnitude())  + " " +
 
-                QString::number(_rawPicStars.data()[1].center().x()) + " " + //pic refStar1
-                QString::number(_rawPicStars.data()[1].center().y()) + " " +
-                QString::number(_rawPicStars.data()[1].magnitude())  + " " +
+                QString::number(_cache_PicStars.data()[1].center().x()) + " " + //pic refStar1
+                QString::number(_cache_PicStars.data()[1].center().y()) + " " +
+                QString::number(_cache_PicStars.data()[1].magnitude())  + " " +
 
-                QString::number(_rawCatStars.data().front().center().x()) + " " + //cat refStar0
-                QString::number(_rawCatStars.data().front().center().y()) + " " +
-                QString::number(_rawCatStars.data().front().magnitude())  + " " +
+                QString::number(_cache_CatStars.data().front().center().x()) + " " + //cat refStar0
+                QString::number(_cache_CatStars.data().front().center().y()) + " " +
+                QString::number(_cache_CatStars.data().front().magnitude())  + " " +
 
-                QString::number(_rawCatStars.data()[1].center().x()) + " " + //cat refStar1
-                QString::number(_rawCatStars.data()[1].center().y()) + " " +
-                QString::number(_rawCatStars.data()[1].magnitude())  + " ");
+                QString::number(_cache_CatStars.data()[1].center().x()) + " " + //cat refStar1
+                QString::number(_cache_CatStars.data()[1].center().y()) + " " +
+                QString::number(_cache_CatStars.data()[1].magnitude())  + " ");
 
     LinCor cor;
-    lincor::cook(_rawPicStars.data(),
-                 _rawCatStars.data(),
+    lincor::cook(_cache_PicStars.data(),
+                 _cache_CatStars.data(),
                  cor);
 
-    if(this->checkEquation(_rawPicStars.data(),
-                           _rawCatStars.data(),
+    if(this->checkEquation(_cache_PicStars.data(),
+                           _cache_CatStars.data(),
                            cor,
                            _equalEps))
     {
         _equatedPicStars->lock().lockForWrite();
         _equatedCatStars->lock().lockForWrite();
-        *_equatedPicStars = _rawPicStars;
-        *_equatedCatStars = _rawCatStars;
+        *_equatedPicStars = _cache_PicStars;
+        *_equatedCatStars = _cache_CatStars;
         _equatedCatStars->lock().unlock();
         _equatedPicStars->lock().unlock();
         emit sendEquatedStars(_equatedPicStars, _equatedCatStars);
 
+        this->cookTarget(cor);
         _target->lock().lockForWrite();
-        this->cookTarget(target,
-                         _rawPicStars.timeMarker(),
-                         cor,
-                         *_target);
+        *_target = _cache_Target;
         _target->lock().unlock();
         emit sendTarget(_target);
     }

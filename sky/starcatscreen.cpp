@@ -79,10 +79,15 @@ void StarcatScreen::inputTelescopeStatus(TelescopeBox *t)
     emit catStarsReady(_starBox);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTarget(TargetBox *target)
+void StarcatScreen::inputTarget(ArtifactBox *target)
 {
     target->lock().lockForRead();
-    Artifact picTarget = target->data();
+    if(target->data().empty())
+    {
+        target->lock().unlock();
+        return;
+    }
+    Artifact picTarget = target->data().front();
     QDateTime t = target->timeMarker();
     target->lock().unlock();
 
