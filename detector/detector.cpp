@@ -1,7 +1,7 @@
 #include "detector.h"
 /////////////////////////////////////////////////////////////////////////////////////
 Detector::Detector(QSettings *s,
-                   Frame *f,
+                   FrameBox *f,
                    ArtifactBox *stars,
                    ArtifactBox *target) :
     _settings(s),
@@ -36,7 +36,7 @@ void Detector::saveSettings(QSettings *s)
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::cookArtifacts()
 {
-    detection::findArtifacts(_cache_Frame,
+    detection::findArtifacts(_cache_Frame.data(),
                              _cache_Stars.data(),
                              _magnThresh);
     detection::deleteTarget(_cache_Stars.data(),
@@ -44,7 +44,7 @@ void Detector::cookArtifacts()
     _cache_Stars.setTimeMarker(_cache_Frame.timeMarker());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Detector::inputFrame(Frame *f,
+void Detector::inputFrame(FrameBox *f,
                           int xTarget,
                           int yTarget)
 {
@@ -74,10 +74,10 @@ void Detector::inputFrame(Frame *f,
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectStars()
 {
-    detection::smooth(_cache_Frame, 7);
+    detection::smooth(_cache_Frame.data(), 7);
     _cache_Frame = _accum.add(_cache_Frame);
 
-    if(_binEnabled)    detection::threshold(_cache_Frame);
+    if(_binEnabled)    detection::threshold(_cache_Frame.data());
 
     this->cookArtifacts();
 

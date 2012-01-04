@@ -17,7 +17,7 @@ public:
     explicit ImageWindow(QWidget *parent = 0) : QMainWindow(parent) {}
     ~ImageWindow() {}
 public slots:
-    void inputFrame(Frame*);
+    void inputFrame(FrameBox*);
 protected:
     QImage  _img;
     virtual void drawAll() {}

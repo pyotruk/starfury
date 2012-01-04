@@ -16,8 +16,8 @@ class FrameReceiver : public QThread
 public:
     explicit FrameReceiver(QSettings*,
                            Strob*,
-                           Frame *f0,
-                           Frame *f1);
+                           FrameBox *f0,
+                           FrameBox *f1);
     ~FrameReceiver();
     void stop() {_stopped = true;}
     Strob& strob() const {return *_strob;}
@@ -30,17 +30,17 @@ private:
     static const unsigned long _termTimeout = 500;
     QSettings      *_settings;
     Strob          *_strob;
-    Frame          *_frame0;
-    Frame          *_frame1;
+    FrameBox       *_frame0;
+    FrameBox       *_frame1;
     SharedMem      *_sharedMem;
     volatile bool   _stopped;
     QSize           _bufSize;
     void checkFrameSize(const int width,
                         const int height);
-    void fastProc(Frame*);
+    void fastProc(Frame&);
 signals:
-    void frame0Ready(Frame*); //to Gui
-    void frame1Ready(Frame*,  //to StarDetector
+    void frame0Ready(FrameBox*); //to Gui
+    void frame1Ready(FrameBox*,  //to StarDetector
                      int xTarget,
                      int yTarget);
     void frameSizeChanged(int width, int height);

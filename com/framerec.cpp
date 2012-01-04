@@ -2,8 +2,8 @@
 /////////////////////////////////////////////////////////////////////////////////////
 FrameReceiver::FrameReceiver(QSettings *s,
                              Strob *strob,
-                             Frame *f0,
-                             Frame *f1) :
+                             FrameBox *f0,
+                             FrameBox *f1) :
     _settings(s),
     _strob(strob),
     _frame0(f0),
@@ -31,9 +31,9 @@ void FrameReceiver::run()
             if(_frame0->lock().tryLockForWrite(_timeout))
             {
                 _sharedMem->readFrame(_frame0);
-                this->checkFrameSize(_frame0->header().width(),
-                                     _frame0->header().height());
-                this->fastProc(_frame0);
+                this->checkFrameSize(_frame0->data().header().width(),
+                                     _frame0->data().header().height());
+                this->fastProc(_frame0->data());
                 _frame0->lock().unlock();
                 emit frame0Ready(_frame0); //to Gui
             }
@@ -49,9 +49,9 @@ void FrameReceiver::run()
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void FrameReceiver::fastProc(Frame *f)
+void FrameReceiver::fastProc(Frame &f)
 {
-    _strob->makeTracking(f);
+    _strob->makeTracking(&f);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void FrameReceiver::checkFrameSize(const int width,

@@ -1,26 +1,26 @@
 #include "accumulator.h"
 /////////////////////////////////////////////////////////////////////////////////////
-const Frame& Accumulator::add(Frame &f)
+const FrameBox& Accumulator::add(FrameBox &f)
 {
-    this->checkSize(f.header());
+    this->checkSize(f.data().header());
     this->checkNum();
-    double mean = cv::mean(f.asCvMat())[0];
-    cv::addWeighted(f.asCvMat(),
+    double mean = cv::mean(f.data().asCvMat())[0];
+    cv::addWeighted(f.data().asCvMat(),
                     _alpha,
-                    _frame.asCvMat(),
+                    _frame.data().asCvMat(),
                     _beta,
                     0 - mean,
-                    _frame.asCvMat());
+                    _frame.data().asCvMat());
     _frame.setTimeMarker(f.timeMarker());
     return _frame;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Accumulator::checkSize(const Frame::Header &newHeader)
 {
-    if(_frame.header() != newHeader)
+    if(_frame.data().header() != newHeader)
     {
-        _frame.setHeaderAndRealloc(newHeader);
-        _frame.fillZeros();
+        _frame.data().setHeaderAndRealloc(newHeader);
+        _frame.data().fillZeros();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ void Accumulator::checkNum()
     if(_num > _capacity)
     {
         _num = 0;
-        _frame.fillZeros();
+        _frame.data().fillZeros();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

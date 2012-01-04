@@ -63,7 +63,7 @@ bool SharedMem::waitForData()
     return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////
-void SharedMem::readFrame(Frame *frame)
+void SharedMem::readFrame(FrameBox *frame)
 {
     uchar* buf = (uchar*)_sharedBuf;
     const void *src = (void*)buf;
@@ -72,10 +72,10 @@ void SharedMem::readFrame(Frame *frame)
     memcpy(dst, src, sizeof(DataHeader));
     buf += sizeof(DataHeader);
     void *data = (void*)buf;
-    frame->copyFromRawData(data,
-                           header.width,
-                           header.height,
-                           header.depth);
+    frame->data().copyFromRawData(data,
+                                  header.width,
+                                  header.height,
+                                  header.depth);
     QDateTime t;
     timeutils::winfiletime2qdatetime(header.timeID, t);
     frame->setTimeMarker(t);

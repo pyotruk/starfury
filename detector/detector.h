@@ -23,7 +23,7 @@ public:
     enum MODE {TARGET_DETECTION = 0, STAR_DETECTION = 1};
 
     explicit Detector(QSettings*,
-                      Frame*,
+                      FrameBox*,
                       ArtifactBox *stars,
                       ArtifactBox *target);
     ~Detector();
@@ -38,10 +38,10 @@ private:
     static const int _timeout = 40;
     static const int _magnThresh = 2;
     QSettings      *_settings;
-    Frame          *_frame;
+    FrameBox       *_frame;
     ArtifactBox    *_stars;
     ArtifactBox    *_target;
-    Frame           _cache_Frame;
+    FrameBox        _cache_Frame;
     ArtifactBox     _cache_Stars;
     ArtifactBox     _cache_Target;
     Accumulator     _accum;
@@ -54,11 +54,11 @@ private:
     void detectStars();
     void detectTarget();
 private slots:
-    void inputFrame(Frame*,
+    void inputFrame(FrameBox*,
                     int xTarget,
                     int yTarget);
 signals:
-    void sendFrame(Frame*);
+    void sendFrame(FrameBox*);
     void screenStarsReady(ArtifactBox *stars,
                           ArtifactBox *target);
     void targetDetected(ArtifactBox*);

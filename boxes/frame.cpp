@@ -28,7 +28,6 @@ Frame::Frame(const Frame &f) :
     _header.setHeader(f.header());
     this->realloc(_header);
     memcpy(this->_data, f._data, _header.dataSize());
-    this->_timeMarker = f.timeMarker();
     this->cookCvMat();
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +49,6 @@ Frame& Frame::operator =(const Frame &f)
         _header.setHeader(f.header());
         this->realloc(_header);
         memcpy(this->_data, f._data, _header.dataSize());
-        this->_timeMarker = f.timeMarker();
         this->cookCvMat();
     }
     return *this;
@@ -159,8 +157,7 @@ QDebug operator<<(QDebug d, const Frame::Header &h)
 QDebug operator<<(QDebug d, const Frame &f)
 {
     d << "Frame: " << f.data() << "\n"
-      << f.header() << "\n"
-      << "time marker: " << f.timeMarker();
+      << f.header();
     return d;
 }
 /////////////////////////////////////////////////////////////////////////////////////

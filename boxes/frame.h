@@ -3,11 +3,10 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QDebug>
 #include <QtGlobal>
-#include <QReadWriteLock>
 #include <QImage>
-#include <QDateTime>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "opencv.hpp"
+#include "boxes/databox.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class Frame
 {
@@ -47,15 +46,12 @@ public:
     Frame& operator =(const Frame&);
     uchar* data()          const {return _data;}
     const Header& header() const {return _header;}
-    QReadWriteLock& lock() {return _lock;}
-    const QDateTime& timeMarker() const {return _timeMarker;}
     cv::Mat& asCvMat()             {return _cvmat;}
     const cv::Mat& asCvMat() const {return _cvmat;}
     void setHeaderAndRealloc(const int width,      //data size changes too
                              const int height,
                              const int depth = 1); //bytes per pixel
     void setHeaderAndRealloc(const Header&);
-    void setTimeMarker(const QDateTime &t) {_timeMarker = t;}
     void copyFromRawData(const void *data,
                          const int width,
                          const int height,
@@ -65,8 +61,6 @@ public:
 private:
     uchar         *_data;
     Header         _header;
-    QReadWriteLock _lock;
-    QDateTime      _timeMarker;
     cv::Mat        _cvmat;
     void realloc(const Header&);
     void cookCvMat();
@@ -82,6 +76,7 @@ QDebug operator<<(QDebug, const Frame::Header&);
 QDebug operator<<(QDebug, const Frame&);
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+typedef DataBox<Frame> FrameBox;
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

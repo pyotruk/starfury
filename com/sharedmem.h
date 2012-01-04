@@ -44,7 +44,7 @@ public:
     explicit SharedMem(QSettings*);
     ~SharedMem();
     bool waitForData();
-    void readFrame(Frame *frame);
+    void readFrame(FrameBox *frame);
 private:
     SharedMem(const SharedMem&) {}
     SharedMem& operator =(const SharedMem&) {return *this;}

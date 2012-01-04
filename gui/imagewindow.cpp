@@ -19,10 +19,10 @@ void ImageWindow::checkImgSize()
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void ImageWindow::inputFrame(Frame *f)
+void ImageWindow::inputFrame(FrameBox *f)
 {
     f->lock().lockForRead();
-    f->copyToQImage(_img);
+    f->data().copyToQImage(_img);
     f->lock().unlock();
 
     this->drawAll();
