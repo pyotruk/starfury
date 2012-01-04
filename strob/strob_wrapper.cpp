@@ -30,9 +30,15 @@ void StrobWrapper::inputFrame(FrameBox *f)
                 QString::number(_strob->geometry().dy()));
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StrobWrapper::mouseClick(QMouseEvent *e)
+void StrobWrapper::setPos(QMouseEvent *e)
 {
     _strob->geometry().setCenter(e->pos());
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StrobWrapper::setPos(const int x,
+                          const int y)
+{
+    _strob->geometry().setCenter(x, y);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWrapper::setSide(const int s)

@@ -25,7 +25,7 @@ public:
     explicit Detector(QSettings*,
                       FrameBox*,
                       ArtifactBox *stars,
-                      ArtifactBox *target);
+                      ArtifactBox *targets);
     ~Detector();
     const Accumulator& accum() const {return _accum;}
     void setMode(MODE m) {_mode = m;}
@@ -40,10 +40,10 @@ private:
     QSettings      *_settings;
     FrameBox       *_frame;
     ArtifactBox    *_stars;
-    ArtifactBox    *_target;
+    ArtifactBox    *_targets;
     FrameBox        _cache_Frame;
     ArtifactBox     _cache_Stars;
-    ArtifactBox     _cache_Target;
+    ArtifactBox     _cache_Targets;
     Accumulator     _accum;
     bool            _binEnabled;
     MODE            _mode;
@@ -52,16 +52,18 @@ private:
     void cookArtifacts();
     void preproc();
     void detectStars();
-    void detectTarget();
+    void detectTargets();
 private slots:
     void inputFrame(FrameBox*);
-    void inputTarget(int xTarget,
-                     int yTarget);
+    void inputStrobPos(const int xTarget,
+                       const int yTarget);
 signals:
     void sendFrame(FrameBox*);
-    void screenStarsReady(ArtifactBox *stars,
-                          ArtifactBox *target);
-    void targetDetected(ArtifactBox*);
+    void artifactsReady(ArtifactBox *stars,
+                        ArtifactBox *targets);
+    void targetsDetected(ArtifactBox*); //for gui
+    void setStrobPos(const int x,
+                     const int y);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

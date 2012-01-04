@@ -23,8 +23,10 @@ private:
     LogFile *_log;
     Strob   *_strob;
 private slots:
-    void mouseClick(QMouseEvent*);
     void inputFrame(FrameBox*);
+    void setPos(QMouseEvent*);
+    void setPos(const int x,
+                const int y);
     void setSide(const int);
     void setThreshold(const int);
 signals:

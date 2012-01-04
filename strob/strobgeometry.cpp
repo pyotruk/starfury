@@ -40,6 +40,12 @@ void StrobGeometry::setCenter(const QPoint &center)
     _outerRect.moveCenter(_center);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void StrobGeometry::setCenter(const int x,
+                              const int y)
+{
+    this->setCenter(QPoint(x, y));
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::setRefPoint(const QPoint &refPoint)
 {
     _refPoint = refPoint;

@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
                      &detector, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&strobWrapper, SIGNAL(targetPos(int,int)),
-                     &detector, SLOT(inputTarget(int,int)),
+                     &detector, SLOT(inputStrobPos(int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&detector, SIGNAL(screenStarsReady(ArtifactBox*,ArtifactBox*)),
+    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*,ArtifactBox*)),
                      &angmeter, SLOT(inputScreenStars(ArtifactBox*,ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     QObject::connect(&strobWrapper, SIGNAL(frameReady(FrameBox*)),
                      &strobWnd, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
-    QObject::connect(&detector, SIGNAL(screenStarsReady(ArtifactBox*,ArtifactBox*)),
+    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*,ArtifactBox*)),
                      &strobWnd, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
 
     QObject::connect(&strobWnd, SIGNAL(mousePressEvent(QMouseEvent *)),
-                     &strobWrapper, SLOT(mouseClick(QMouseEvent*)),
+                     &strobWrapper, SLOT(setPos(QMouseEvent*)),
                      Qt::QueuedConnection);
 
     QObject::connect(&starcatScreen, SIGNAL(sendMeasureError(double,double)),

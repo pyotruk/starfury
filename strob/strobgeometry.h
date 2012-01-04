@@ -30,6 +30,8 @@ public:
     int dy() const {return _refPoint.y() - _center.y();}
     void setSide(const int innerSide);
     void setCenter(const QPoint &center);
+    void setCenter(const int x,
+                   const int y);
     void setRefPoint(const QPoint &refPoint);
 private:
     static const double __sqrt2 = 1.4142135623730950488016887242097;

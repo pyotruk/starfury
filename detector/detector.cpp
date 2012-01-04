@@ -3,11 +3,11 @@
 Detector::Detector(QSettings *s,
                    FrameBox *f,
                    ArtifactBox *stars,
-                   ArtifactBox *target) :
+                   ArtifactBox *targets) :
     _settings(s),
     _frame(f),
     _stars(stars),
-    _target(target),
+    _targets(targets),
     _binEnabled(true),
     _mode(TARGET_DETECTION)
 {
@@ -40,7 +40,7 @@ void Detector::cookArtifacts()
                              _cache_Stars.data(),
                              _magnThresh);
     detection::deleteTarget(_cache_Stars.data(),
-                            _cache_Target.data());
+                            _cache_Targets.data());
     _cache_Stars.setTimeMarker(_cache_Frame.timeMarker());
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ void Detector::inputFrame(FrameBox *f)
     switch(_mode)
     {
     case TARGET_DETECTION:
-        this->detectTarget();
+        this->detectTargets();
         break;
     case STAR_DETECTION:
         this->detectStars();
@@ -66,11 +66,15 @@ void Detector::inputFrame(FrameBox *f)
     emit sendFrame(_frame);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Detector::inputTarget(int xTarget, int yTarget)
+void Detector::inputStrobPos(const int xTarget,
+                             const int yTarget)
 {
-    _cache_Target.data().clear();
-    _cache_Target.data().push_back(Artifact(xTarget, yTarget));
-    _cache_Target.refreshTime();
+    if(_mode == STAR_DETECTION)
+    {
+        _cache_Targets.data().clear();
+        _cache_Targets.data().push_back(Artifact(xTarget, yTarget));
+        _cache_Targets.refreshTime();
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectStars()
@@ -82,26 +86,30 @@ void Detector::detectStars()
 
     this->cookArtifacts();
 
+    _targets->lock().lockForWrite();
     _stars->lock().lockForWrite();
     *_stars = _cache_Stars;
+    *_targets = _cache_Targets;
     _stars->lock().unlock();
-
-    _target->lock().lockForWrite();
-    *_target = _cache_Target;
-    _target->lock().unlock();
-
-    emit screenStarsReady(_stars, _target);
+    _targets->lock().unlock();
+    emit artifactsReady(_stars, _targets);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Detector::detectTarget()
+void Detector::detectTargets()
 {
     //work
     _mode = STAR_DETECTION;
 
-    _target->lock().lockForWrite();
-    *_target = _cache_Target;
-    _target->lock().unlock();
-    emit targetDetected(_target);
+    _targets->lock().lockForWrite();
+    *_targets = _cache_Targets;
+    _targets->lock().unlock();
+    emit targetsDetected(_targets);
+
+    if(!_cache_Targets.data().empty())
+    {
+        emit setStrobPos((int)_cache_Targets.data().front().center().x(),
+                         (int)_cache_Targets.data().front().center().y());
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
