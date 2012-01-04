@@ -43,10 +43,10 @@ void draw::triangle(QImage &img,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void draw::artifactMarks(QImage &img,
-                         ArtifactVector &a)
+                         const ArtifactVector &a)
 {
-    ArtifactVector::iterator it = a.begin();
-    for(; it != a.end(); ++it)
+    ArtifactVector::const_iterator it = a.constBegin();
+    for(; it != a.constEnd(); ++it)
     {
         draw::crossbuck(img,
                         it->center(),
@@ -56,10 +56,10 @@ void draw::artifactMarks(QImage &img,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void draw::starMarks(QImage &img,
-                     ArtifactVector &s)
+                     const ArtifactVector &s)
 {
-    ArtifactVector::iterator it = s.begin();
-    for(; it != s.end(); ++it)
+    ArtifactVector::const_iterator it = s.constBegin();
+    for(; it < s.constEnd(); ++it)
     {
         draw::cross(img,
                     it->center(),
@@ -69,7 +69,7 @@ void draw::starMarks(QImage &img,
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void draw::starConfig(QImage &img,
-                      ArtifactVector &a,
+                      const ArtifactVector &a,
                       const int width,
                       const QColor &color)
 {
@@ -82,8 +82,32 @@ void draw::starConfig(QImage &img,
     {
         p.drawLine(refStar.center(), it->center());
     }
-    a.clear();
 }
+/////////////////////////////////////////////////////////////////////////////////////
+void draw::targetMarks(QImage &img,
+                       const ArtifactVector &a,
+                       const QColor &color)
+{
+    QPainter p(&img);
+    const int width = 2;
+    const int size = 10;
+    p.setPen(QPen(color, width));
+    const int startAngle = 0 * 16;
+    const int spanAngle = 360 * 16;
+    ArtifactVector::const_iterator it = a.constBegin();
+    for(; it < a.constEnd(); ++it)
+    {
+        QRectF rect(QPointF(it->center().x() - size,
+                            it->center().y() - size),
+                    QPointF(it->center().x() + size,
+                            it->center().y() + size));
+        p.drawArc(rect, startAngle, spanAngle);
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 //пересчёт магнитуды звезды из каталога (зв.в.) в картинку
 void draw::convertStarMagn(ArtifactVector &a)

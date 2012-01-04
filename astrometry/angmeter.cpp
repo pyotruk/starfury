@@ -2,14 +2,14 @@
 /////////////////////////////////////////////////////////////////////////////////////
 Angmeter::Angmeter(QSettings *s,
                    LogFile *log,
-                   ArtifactBox *equatedPicStars,
-                   ArtifactBox *equatedCatStars,
-                   ArtifactBox *target) :
+                   ArtifactBox *picStars,
+                   ArtifactBox *catStars,
+                   ArtifactBox *targets) :
     _settings(s),
     _log(log),
-    _equatedPicStars(equatedPicStars),
-    _equatedCatStars(equatedCatStars),
-    _target(target)
+    _picStars(picStars),
+    _catStars(catStars),
+    _targets(targets)
 {
     this->moveToThread(this);
     this->loadSettings(_settings);
@@ -55,18 +55,21 @@ void Angmeter::setScreenSize(const int width,
     _screen.setHeight(height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::inputScreenStars(ArtifactBox *stars,
-                                ArtifactBox *target)
+void Angmeter::inputTargets(ArtifactBox *targets)
+{
+    targets->lock().lockForRead();
+    _cache_Targets = *targets;
+    targets->lock().unlock();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::inputScreenStars(ArtifactBox *stars)
 {
     stars->lock().lockForRead();
     _cache_PicStars = *stars;
     stars->lock().unlock();
 
-    target->lock().lockForRead();
-    _cache_Target = *target;
-    target->lock().unlock();
 
-    if(_cache_Target.data().empty())    return;
+    if(_cache_Targets.data().empty())    return;
 
     QTime t;
     t.start();
@@ -126,10 +129,10 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::cookTarget(const LinCor &cor)
 {
-    Artifact target = _cache_Target.data().front();
-    _cache_Target.data().clear();
+    Artifact target = _cache_Targets.data().front();
+    _cache_Targets.data().clear();
     this->correctTarget(cor, target);
-    _cache_Target.data().push_back(target);
+    _cache_Targets.data().push_back(target);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::proc()
@@ -140,6 +143,8 @@ void Angmeter::proc()
     {
         return;
     }
+
+    art::deleteTargets(_cache_PicStars.data(), _cache_Targets.data());
 
     int ret = astrometry::equate(_cache_PicStars.data(),
                                  _cache_CatStars.data(),
@@ -177,19 +182,19 @@ void Angmeter::proc()
                            cor,
                            _equalEps))
     {
-        _equatedPicStars->lock().lockForWrite();
-        _equatedCatStars->lock().lockForWrite();
-        *_equatedPicStars = _cache_PicStars;
-        *_equatedCatStars = _cache_CatStars;
-        _equatedCatStars->lock().unlock();
-        _equatedPicStars->lock().unlock();
-        emit sendEquatedStars(_equatedPicStars, _equatedCatStars);
+        _picStars->lock().lockForWrite();
+        _catStars->lock().lockForWrite();
+        *_picStars = _cache_PicStars;
+        *_catStars = _cache_CatStars;
+        _catStars->lock().unlock();
+        _picStars->lock().unlock();
+        emit sendEquatedStars(_picStars, _catStars);
 
         this->cookTarget(cor);
-        _target->lock().lockForWrite();
-        *_target = _cache_Target;
-        _target->lock().unlock();
-        emit sendTarget(_target);
+        _targets->lock().lockForWrite();
+        *_targets = _cache_Targets;
+        _targets->lock().unlock();
+        emit sendTargets(_targets);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -25,13 +25,16 @@ void triangle(QImage&,
               const QPointF &p3);
 /////////////////////////////////////////////////////////////////////////////////////
 void artifactMarks(QImage&,
-                   ArtifactVector&);
+                   const ArtifactVector&);
 void starMarks(QImage&,
-               ArtifactVector&);
+               const ArtifactVector&);
 void starConfig(QImage&,
-                ArtifactVector&,
+                const ArtifactVector&,
                 const int width,
                 const QColor&);
+void targetMarks(QImage&,
+                 const ArtifactVector&,
+                 const QColor&);
 /////////////////////////////////////////////////////////////////////////////////////
 void convertStarMagn(ArtifactVector&); //пересчёт магнитуды звезды из каталога (зв.в.) в картинку
 }

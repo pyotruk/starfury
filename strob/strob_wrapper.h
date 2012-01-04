@@ -7,6 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include "strob/strob.h"
 #include "boxes/frame.h"
+#include "boxes/artifact.h"
 #include "common/logfile.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class StrobWrapper : public QThread
@@ -14,16 +15,20 @@ class StrobWrapper : public QThread
     Q_OBJECT
 public:
     explicit StrobWrapper(QSettings*,
-                          LogFile*);
+                          LogFile*,
+                          ArtifactBox *targets);
     ~StrobWrapper();
     const Strob& strob() const {return *_strob;}
 private:
+    static const int _timeout = 20;
     StrobWrapper(const StrobWrapper&) {}
     StrobWrapper& operator =(const StrobWrapper&) {return *this;}
-    LogFile *_log;
-    Strob   *_strob;
+    LogFile     *_log;
+    ArtifactBox *_targets;
+    Strob       *_strob;
 private slots:
     void inputFrame(FrameBox*);
+    void targetsDetected();
     void setPos(QMouseEvent*);
     void setPos(const int x,
                 const int y);
@@ -31,7 +36,7 @@ private slots:
     void setThreshold(const int);
 signals:
     void frameReady(FrameBox*);
-    void targetPos(int xTarget, int yTarget);
+    void freshTargets(ArtifactBox*);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

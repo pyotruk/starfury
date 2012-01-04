@@ -16,8 +16,6 @@ void threshold(Frame&);
 void findArtifacts(Frame&,
                    ArtifactVector&,
                    const double magnThresh);
-void deleteTarget(ArtifactVector &stars,
-                  const ArtifactVector &target);
 bool isDoubleStar(const cv::Rect&);  //прямоугольник из cv::floodFill
 }
 /////////////////////////////////////////////////////////////////////////////////////

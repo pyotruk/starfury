@@ -6,6 +6,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include "gui/controlwindow.h"
 #include "gui/strobwnd.h"
+#include "gui/detector_wnd.h"
 #include "com/framerec.h"
 #include "boxes/frame.h"
 #include "detector/detector.h"
@@ -34,18 +35,19 @@ int main(int argc, char *argv[])
     ArtifactBox    rawCatStars;
     ArtifactBox    equatedPicStars;
     ArtifactBox    equatedCatStars;
-    ArtifactBox    target;
+    ArtifactBox    targets;
 
     //singletons
     StrobWrapper  strobWrapper(&settings,
-                               &strobLog);
+                               &strobLog,
+                               &targets);
     FrameReceiver frameReceiver(&settings,
                                 &frame0,
                                 &frame1);
     Detector      detector(&settings,
                            &frame2,
                            &rawPicStars,
-                           &target);
+                           &targets);
     StarcatScreen starcatScreen(&settings,
                                 &targetLog,
                                 &rawCatStars);
@@ -53,12 +55,12 @@ int main(int argc, char *argv[])
                            &starsLog,
                            &equatedPicStars,
                            &equatedCatStars,
-                           &target);
+                           &targets);
 
     //gui
     ControlWindow  controlWnd;
     StrobWindow    strobWnd;
-    ImageWindow    detectorWnd;
+    DetectorWindow detectorWnd;
     //gui init
     controlWnd.initFace(strobWrapper.strob().geometry().innerSide(),
                         (int)(strobWrapper.strob().threshold()),
@@ -78,11 +80,14 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frame1Ready(FrameBox*)),
                      &detector, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
-    QObject::connect(&strobWrapper, SIGNAL(targetPos(int,int)),
-                     &detector, SLOT(inputStrobPos(int,int)),
+    QObject::connect(&strobWrapper, SIGNAL(freshTargets(ArtifactBox*)),
+                     &angmeter, SLOT(inputTargets(ArtifactBox*)),
                      Qt::QueuedConnection);
-    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*,ArtifactBox*)),
-                     &angmeter, SLOT(inputScreenStars(ArtifactBox*,ArtifactBox*)),
+    QObject::connect(&detector, SIGNAL(targetsReady(ArtifactBox*)),
+                     &strobWrapper, SLOT(targetsDetected()),
+                     Qt::QueuedConnection);
+    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),
+                     &angmeter, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
                      &angmeter, SLOT(inputCatStars(ArtifactBox*)),
@@ -92,7 +97,7 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
                      &angmeter, SLOT(setScreenSize(int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&angmeter, SIGNAL(sendTarget(ArtifactBox*)),
+    QObject::connect(&angmeter, SIGNAL(sendTargets(ArtifactBox*)),
                      &starcatScreen, SLOT(inputTarget(ArtifactBox*)),
                      Qt::QueuedConnection);
 
@@ -100,7 +105,7 @@ int main(int argc, char *argv[])
     QObject::connect(&strobWrapper, SIGNAL(frameReady(FrameBox*)),
                      &strobWnd, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
-    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*,ArtifactBox*)),
+    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),
                      &strobWnd, SLOT(inputScreenStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
@@ -111,6 +116,9 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     QObject::connect(&detector, SIGNAL(sendFrame(FrameBox*)),
                      &detectorWnd, SLOT(inputFrame(FrameBox*)),
+                     Qt::QueuedConnection);
+    QObject::connect(&detector, SIGNAL(targetsReady(ArtifactBox*)),
+                     &detectorWnd, SLOT(inputTargets(ArtifactBox*)),
                      Qt::QueuedConnection);
 
     QObject::connect(&strobWnd, SIGNAL(mousePressEvent(QMouseEvent *)),

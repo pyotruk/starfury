@@ -51,6 +51,8 @@ bool isEqual(const Artifact &a1,           //проверка артефактов на равенство (с
 bool isContain(const ArtifactVector &v,
                const Artifact &a,
                const double eps);
+void deleteTargets(ArtifactVector &stars,
+                   const ArtifactVector &targets);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -30,9 +30,9 @@ class Angmeter : public QThread
 public:
     explicit Angmeter(QSettings*,
                       LogFile*,
-                      ArtifactBox *equatedPicStars,
-                      ArtifactBox *equatedCatStars,
-                      ArtifactBox *target);
+                      ArtifactBox *picStars,
+                      ArtifactBox *catStars,
+                      ArtifactBox *targets);
     ~Angmeter();
     astrometry::METHOD method() const {return _method;}
 public slots:
@@ -61,13 +61,13 @@ private:
     astrometry::METHOD _method;
     QSettings         *_settings;
     LogFile           *_log;
-    ArtifactBox       *_equatedPicStars;
-    ArtifactBox       *_equatedCatStars;
-    ArtifactBox       *_target;
+    ArtifactBox       *_picStars;
+    ArtifactBox       *_catStars;
+    ArtifactBox       *_targets;
     QSize              _screen;
     ArtifactBox        _cache_PicStars;
     ArtifactBox        _cache_CatStars;
-    ArtifactBox        _cache_Target;
+    ArtifactBox        _cache_Targets;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc();
@@ -80,13 +80,13 @@ private:
                        Artifact&);
     void cookTarget(const LinCor&);
 private slots:
-    void inputScreenStars(ArtifactBox *stars,
-                          ArtifactBox *target);
+    void inputTargets(ArtifactBox*);
+    void inputScreenStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
 signals:
     void sendEquatedStars(ArtifactBox *pic,
                           ArtifactBox *cat);
-    void sendTarget(ArtifactBox*);
+    void sendTargets(ArtifactBox*);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

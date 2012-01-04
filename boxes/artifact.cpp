@@ -90,6 +90,29 @@ bool art::isContain(const ArtifactVector &v,
     return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void art::deleteTargets(ArtifactVector &stars,
+                        const ArtifactVector &targets)
+{
+    if(stars.empty())    return;
+    if(targets.empty())   return;
+    const double eps = 2;
+    double dist;
+    double minDist = 1000000;
+    int targetIndex;
+    QPointF targetCenter = targets.front().center();
+    ArtifactVector::iterator it = stars.begin();
+    for(int i=0; it < stars.end(); ++it, ++i)
+    {
+        dist = ac::calcDistance(targetCenter, it->center());
+        if(dist < minDist)
+        {
+            minDist = dist;
+            targetIndex = i;
+            if(minDist < eps)   break;
+        }
+    }
+    stars.remove(targetIndex);
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -49,21 +49,15 @@ private:
     MODE            _mode;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void cookArtifacts();
     void preproc();
     void detectStars();
     void detectTargets();
 private slots:
     void inputFrame(FrameBox*);
-    void inputStrobPos(const int xTarget,
-                       const int yTarget);
 signals:
     void sendFrame(FrameBox*);
-    void artifactsReady(ArtifactBox *stars,
-                        ArtifactBox *targets);
-    void targetsDetected(ArtifactBox*); //for gui
-    void setStrobPos(const int x,
-                     const int y);
+    void starsReady(ArtifactBox*);
+    void targetsReady(ArtifactBox*);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

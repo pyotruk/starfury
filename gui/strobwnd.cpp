@@ -6,6 +6,8 @@ void StrobWindow::drawAll()
     draw::starMarks(_img, _starBox.data());
     draw::starConfig(_img, _eqPicStars, 2, Qt::yellow);
     draw::starConfig(_img, _eqCatStars, 1, Qt::cyan);
+    _eqPicStars.clear();
+    _eqCatStars.clear();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWindow::inputScreenStars(ArtifactBox *a)

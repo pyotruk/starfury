@@ -58,30 +58,6 @@ void detection::findArtifacts(Frame &f,
     qSort(a.begin(), a.end(), qGreater<Artifact>());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void detection::deleteTarget(ArtifactVector &stars,
-                             const ArtifactVector &target)
-{
-    if(stars.empty())    return;
-    if(target.empty())   return;
-    const double eps = 2;
-    double dist;
-    double minDist = 1000000;
-    int targetIndex;
-    QPointF targetCenter = target.front().center();
-    ArtifactVector::iterator it = stars.begin();
-    for(int i=0; it < stars.end(); ++it, ++i)
-    {
-        dist = ac::calcDistance(targetCenter, it->center());
-        if(dist < minDist)
-        {
-            minDist = dist;
-            targetIndex = i;
-            if(minDist < eps)   break;
-        }
-    }
-    stars.remove(targetIndex);
-}
-/////////////////////////////////////////////////////////////////////////////////////
 bool detection::isDoubleStar(const cv::Rect &rect)
 {
     const int maxHeightWidthDiff = 1;
