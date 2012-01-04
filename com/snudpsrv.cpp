@@ -4,7 +4,6 @@ SnUdpSrv::SnUdpSrv(QSettings *s) :
     _settings(s)
 {
     loadSettings(_settings);
-    qDebug() << "QUdpSocket thread: " << _socket.thread();
     connect(&_socket, SIGNAL(readyRead()),
             this, SLOT(read()),
             Qt::AutoConnection);

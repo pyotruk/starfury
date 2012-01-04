@@ -2,10 +2,8 @@
 #define STROB_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <numeric>
-#include <QThread>
 #include <QPoint>
 #include <math.h>
-#include <QMouseEvent>
 #include <QSize>
 #include <QSettings>
 #include <QString>
@@ -18,26 +16,21 @@
 //setting keys
 static const QString __skeyStrobStddevThreshold("/Strob/StdDevThreshold");
 /////////////////////////////////////////////////////////////////////////////////////
-class Strob : public QThread
+class Strob
 {
-    Q_OBJECT
 public:
-    explicit Strob(QSettings*,
-                   LogFile*);
+    explicit Strob(QSettings*);
     ~Strob();
     double threshold()        const {return _threshold;}
     int    pixThreshold()     const {return _pixThreshold;}
     StrobGeometry &geometry() const {return *_geometry;}
-    void makeTracking(Frame*);
-public slots:
-    void clickTarget(QMouseEvent *mousePressEvent);
-    void setThreshold(const int pos);
+    void makeTracking(Frame&);
+    void setThreshold(const double t) {_threshold = t;}
 private:
     Strob(const Strob&) {}
     Strob& operator =(const Strob&) {return *this;}
     static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
-    LogFile       *_log;
     StrobGeometry *_geometry;
     double        _threshold; //порог обнаружения в единицах СКО
     int           _pixThreshold; //порог по яркости пиксела (используется для бинаризации cv::threshold)

@@ -1,7 +1,6 @@
 #ifndef STROBGEOMETRY_H
 #define STROBGEOMETRY_H
 /////////////////////////////////////////////////////////////////////////////////////
-#include <QObject>
 #include <QPoint>
 #include <QRect>
 #include <QSize>
@@ -14,9 +13,8 @@ static const QString __skeyStrobSide("/Strob/Geometry/Side");
 static const QString __skeyStrobRefPointX("/Strob/Geometry/RefPointX");
 static const QString __skeyStrobRefPointY("/Strob/Geometry/RefPointY");
 /////////////////////////////////////////////////////////////////////////////////////
-class StrobGeometry : public QObject
+class StrobGeometry
 {
-    Q_OBJECT
 public:
     explicit StrobGeometry(QSettings*);
     ~StrobGeometry();
@@ -28,8 +26,8 @@ public:
     const QRect &innerRect() const {return _innerRect;}
     const QRect &outerRect() const {return _outerRect;}
     void checkRange(const QSize &imgSize);
-    void getError(int &dx, int &dy) const;
-public slots:
+    int dx() const {return _refPoint.x() - _center.x();}
+    int dy() const {return _refPoint.y() - _center.y();}
     void setSide(const int innerSide);
     void setCenter(const QPoint &center);
     void setRefPoint(const QPoint &refPoint);

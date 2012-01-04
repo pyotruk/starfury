@@ -12,7 +12,6 @@ Angmeter::Angmeter(QSettings *s,
     _target(target)
 {
     this->moveToThread(this);
-    qDebug() << "equator thread: " << this->thread();
     this->loadSettings(_settings);
     this->start(QThread::NormalPriority);
 }

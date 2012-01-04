@@ -1,11 +1,9 @@
 #include "framerec.h"
 /////////////////////////////////////////////////////////////////////////////////////
 FrameReceiver::FrameReceiver(QSettings *s,
-                             Strob *strob,
                              FrameBox *f0,
                              FrameBox *f1) :
     _settings(s),
-    _strob(strob),
     _frame0(f0),
     _frame1(f1),
     _sharedMem(new SharedMem(s)),
@@ -33,25 +31,17 @@ void FrameReceiver::run()
                 _sharedMem->readFrame(_frame0);
                 this->checkFrameSize(_frame0->data().header().width(),
                                      _frame0->data().header().height());
-                this->fastProc(_frame0->data());
                 _frame0->lock().unlock();
-                emit frame0Ready(_frame0); //to Gui
+                emit frame0Ready(_frame0);
             }
             if(_frame1->lock().tryLockForWrite(_timeout))
             {
                 _sharedMem->readFrame(_frame1);
                 _frame1->lock().unlock();
-                emit frame1Ready(_frame1,   //to StarDetector
-                                 _strob->geometry().center().x(),
-                                 _strob->geometry().center().y());
+                emit frame1Ready(_frame1);
             }
         }
     }
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void FrameReceiver::fastProc(Frame &f)
-{
-    _strob->makeTracking(&f);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void FrameReceiver::checkFrameSize(const int width,

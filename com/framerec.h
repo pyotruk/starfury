@@ -7,7 +7,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include "com/sharedmem.h"
 #include "boxes/frame.h"
-#include "strob/strob.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class FrameReceiver : public QThread
@@ -15,12 +14,10 @@ class FrameReceiver : public QThread
     Q_OBJECT
 public:
     explicit FrameReceiver(QSettings*,
-                           Strob*,
                            FrameBox *f0,
                            FrameBox *f1);
     ~FrameReceiver();
     void stop() {_stopped = true;}
-    Strob& strob() const {return *_strob;}
 protected:
     void run();
 private:
@@ -29,7 +26,6 @@ private:
     static const int _timeout = 20;
     static const unsigned long _termTimeout = 500;
     QSettings      *_settings;
-    Strob          *_strob;
     FrameBox       *_frame0;
     FrameBox       *_frame1;
     SharedMem      *_sharedMem;
@@ -39,10 +35,8 @@ private:
                         const int height);
     void fastProc(Frame&);
 signals:
-    void frame0Ready(FrameBox*); //to Gui
-    void frame1Ready(FrameBox*,  //to StarDetector
-                     int xTarget,
-                     int yTarget);
+    void frame0Ready(FrameBox*);
+    void frame1Ready(FrameBox*);
     void frameSizeChanged(int width, int height);
 };
 /////////////////////////////////////////////////////////////////////////////////////

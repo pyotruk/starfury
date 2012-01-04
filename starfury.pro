@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     gui/strobwnd.cpp \
     detector/detector.cpp \
     detector/detection.cpp \
-    detector/accumulator.cpp
+    detector/accumulator.cpp \
+    strob/strob_wrapper.cpp
 
 HEADERS  += \
     strob/strob.h \
@@ -75,7 +76,8 @@ HEADERS  += \
     gui/strobwnd.h \
     detector/detector.h \
     detector/detection.h \
-    detector/accumulator.h
+    detector/accumulator.h \
+    strob/strob_wrapper.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -90,6 +92,8 @@ LIBS += -L"C:/opencv231/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
 
 
 

@@ -44,14 +44,8 @@ void Detector::cookArtifacts()
     _cache_Stars.setTimeMarker(_cache_Frame.timeMarker());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Detector::inputFrame(FrameBox *f,
-                          int xTarget,
-                          int yTarget)
+void Detector::inputFrame(FrameBox *f)
 {
-    _cache_Target.data().clear();
-    _cache_Target.data().push_back(Artifact(xTarget, yTarget));
-    _cache_Target.refreshTime();
-
     f->lock().lockForRead();
     _cache_Frame = *f;
     f->lock().unlock();
@@ -70,6 +64,13 @@ void Detector::inputFrame(FrameBox *f,
     *_frame = _cache_Frame;
     _frame->lock().unlock();
     emit sendFrame(_frame);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Detector::inputTarget(int xTarget, int yTarget)
+{
+    _cache_Target.data().clear();
+    _cache_Target.data().push_back(Artifact(xTarget, yTarget));
+    _cache_Target.refreshTime();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectStars()

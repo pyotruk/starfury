@@ -13,8 +13,8 @@ StarcatScreen::StarcatScreen(QSettings *s,
     _snServer(new SnUdpSrv(_settings))
 {
     this->moveToThread(this);
-    qDebug() << "starcatScreen::_starcatReader thread: " << _starcatReader->thread();
-    qDebug() << "starcatScreen::_snServer thread: " << _snServer->thread();
+    qDebug() << "starcatScreen._starcatReader " << _starcatReader->thread();
+    qDebug() << "starcatScreen._snServer " << _snServer->thread();
     this->loadSettings(_settings);
     QObject::connect(_snServer, SIGNAL(telescopeStatusReady(TelescopeBox*)),
                      this, SLOT(inputTelescopeStatus(TelescopeBox*)),

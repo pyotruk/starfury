@@ -1,0 +1,48 @@
+#include "strob_wrapper.h"
+/////////////////////////////////////////////////////////////////////////////////////
+StrobWrapper::StrobWrapper(QSettings *s,
+                           LogFile *log) :
+    _log(log),
+    _strob(new Strob(s))
+{
+    this->moveToThread(this);
+    this->start(QThread::NormalPriority);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+StrobWrapper::~StrobWrapper()
+{
+    this->quit();
+    this->wait();
+    delete _strob;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StrobWrapper::inputFrame(FrameBox *f)
+{
+    f->lock().lockForWrite();
+    _strob->makeTracking(f->data());
+    f->lock().unlock();
+
+    emit frameReady(f);
+    emit targetPos(_strob->geometry().center().x(),
+                   _strob->geometry().center().y());
+
+    _log->write(QString::number(_strob->geometry().dx()) + " " +
+                QString::number(_strob->geometry().dy()));
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StrobWrapper::mouseClick(QMouseEvent *e)
+{
+    _strob->geometry().setCenter(e->pos());
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StrobWrapper::setSide(const int s)
+{
+    _strob->geometry().setSide(s);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StrobWrapper::setThreshold(const int t)
+{
+    _strob->setThreshold((double)t);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////

@@ -54,9 +54,9 @@ private:
     void detectStars();
     void detectTarget();
 private slots:
-    void inputFrame(FrameBox*,
-                    int xTarget,
-                    int yTarget);
+    void inputFrame(FrameBox*);
+    void inputTarget(int xTarget,
+                     int yTarget);
 signals:
     void sendFrame(FrameBox*);
     void screenStarsReady(ArtifactBox *stars,
