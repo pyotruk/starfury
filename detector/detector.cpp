@@ -60,12 +60,12 @@ void Detector::detectStars()
 {
     detection::smooth(_cache_Frame.data(), 7);
     _cache_Frame = _accum.add(_cache_Frame);
+    if(_accum.isFull())    _accum.clear();
 
     if(_binEnabled)    detection::threshold(_cache_Frame.data());
 
-    detection::findArtifacts(_cache_Frame.data(),
-                             _cache_Stars.data(),
-                             _magnThresh);
+    detection::findTargets(_cache_Frame.data(),
+                           _cache_Stars.data());
     _cache_Stars.setTimeMarker(_cache_Frame.timeMarker());
 
     _stars->lock().lockForWrite();
@@ -76,17 +76,27 @@ void Detector::detectStars()
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectTargets()
 {
-    //work
-    bool success = true;
-    if(success)
+    detection::smooth(_cache_Frame.data(), 7);
+    _cache_Frame = _accum.add(_cache_Frame);
+    if(_binEnabled)    detection::threshold(_cache_Frame.data());
+    if(_accum.isFull())
     {
-        _mode = STAR_DETECTION; //mode switch
+        _accum.clear();
+        detection::smooth(_cache_Frame.data(), 7);
+        detection::threshold(_cache_Frame.data());
+        detection::findTargets(_cache_Frame.data(),
+                               _cache_Targets.data());
+        if(_cache_Targets.data().empty())
+        {
+            return;
+        }
+        _cache_Targets.setTimeMarker(_cache_Frame.timeMarker());
+        //_mode = STAR_DETECTION; //mode switch
+        _targets->lock().lockForWrite();
+        *_targets = _cache_Targets;
+        _targets->lock().unlock();
+        emit targetsReady(_targets);
     }
-
-    _targets->lock().lockForWrite();
-    *_targets = _cache_Targets;
-    _targets->lock().unlock();
-    emit targetsReady(_targets);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -18,6 +18,7 @@ bool isBelongToCvRect(const int x,
 
 void calcRectCenter(const cv::Rect &rect,
                     QPoint &center);
+int square(const cv::Rect&);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // CVHELPFUN_H

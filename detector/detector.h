@@ -36,7 +36,6 @@ private:
     Detector(const Detector&) {}
     Detector& operator =(const Detector&) {return *this;}
     static const int _timeout = 40;
-    static const int _magnThresh = 2;
     QSettings      *_settings;
     FrameBox       *_frame;
     ArtifactBox    *_stars;

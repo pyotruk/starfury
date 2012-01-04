@@ -3,7 +3,7 @@
 const FrameBox& Accumulator::add(FrameBox &f)
 {
     this->checkSize(f.data().header());
-    this->checkNum();
+    this->checkFull();
     double mean = cv::mean(f.data().asCvMat())[0];
     cv::addWeighted(f.data().asCvMat(),
                     _alpha,
@@ -24,16 +24,21 @@ void Accumulator::checkSize(const Frame::Header &newHeader)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Accumulator::checkNum()
+void Accumulator::checkFull()
 {
     ++_num;
     if(_num > _capacity)
     {
-        _num = 0;
-        _frame.data().fillZeros();
+        _full = true;
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Accumulator::clear()
+{
+    _full = false;
+    _num = 0;
+    _frame.data().fillZeros();
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,10 @@ void threshold(Frame&);
 void findArtifacts(Frame&,
                    ArtifactVector&,
                    const double magnThresh);
-bool isDoubleStar(const cv::Rect&);  //прямоугольник из cv::floodFill
+bool isOblong(const cv::Rect &rect,  //прямоугольник из cv::floodFill
+              const int maxHeightWidthDiff);
+void findTargets(Frame&,
+                 ArtifactVector&);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
