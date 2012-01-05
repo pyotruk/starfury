@@ -59,13 +59,14 @@ int main(int argc, char *argv[])
 
     //gui
     ControlWindow  controlWnd;
-    StrobWindow    strobWnd;
-    DetectorWindow detectorWnd;
+    StrobWindow    strobWnd("tracking", QPoint(100, 100));
+    DetectorWindow detectorWnd("detection", QPoint(200, 200));
     //gui init
     controlWnd.initFace(strobWrapper.strob().geometry().innerSide(),
                         (int)(strobWrapper.strob().threshold()),
                         angmeter.method(),
-                        detector.accum().capacity());
+                        detector.accum().capacity(),
+                        detector.mode());
 
     qDebug() << "QApplication " << a.thread();
     qDebug() << frameReceiver.thread();
@@ -140,6 +141,10 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     QObject::connect(&controlWnd, SIGNAL(setFreevecMethod()),
                      &angmeter, SLOT(setFreevecMethod()),
+                     Qt::QueuedConnection);
+
+    QObject::connect(&controlWnd, SIGNAL(setDetectorMode(int)),
+                     &detector, SLOT(setMode(int)),
                      Qt::QueuedConnection);
 
     QObject::connect(&controlWnd, SIGNAL(setAccumCapacity(int)),

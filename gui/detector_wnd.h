@@ -10,7 +10,10 @@ class DetectorWindow : public ImageWindow
 {
     Q_OBJECT
 public:
-    explicit DetectorWindow(QWidget *parent = 0) : ImageWindow(parent) {}
+    explicit DetectorWindow(const QString &title,
+                            const QPoint  &pos,
+                            QWidget *parent = 0)
+        : ImageWindow(title, pos, parent) {}
     ~DetectorWindow() {}
 private:
     ArtifactVector  _targets;

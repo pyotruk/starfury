@@ -5,6 +5,7 @@
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "astrometry/astrometry.h"
+#include "detector/detector.h"
 /////////////////////////////////////////////////////////////////////////////////////
 namespace Ui {
     class ControlWindow;
@@ -19,7 +20,8 @@ public:
     void initFace(const int strobSize,
                   const int trackTresh,
                   const astrometry::METHOD,
-                  const int accumCapacity);
+                  const int accumCapacity,
+                  const Detector::MODE);
 private:
     static const double __deg2rad = 0.017453292519943295769236907684886;
     static const double __rad2deg = 57.295779513082320876798154814105;
@@ -27,8 +29,10 @@ private:
 private slots:
     void inputMeasureError(double errAlpha,  //rad
                            double errDelta); //rad
-    void updateFace();
+    void updateSliderLabels();
     void convertCheckBoxSignal(int);
+    void setStarDetectionMode() {emit setDetectorMode((int)Detector::STAR_DETECTION);}
+    void setTargetDetectionMode() {emit setDetectorMode((int)Detector::TARGET_DETECTION);}
 signals:
     void changeStrobSize(const int);
     void changeTrackingThreshold(const int);
@@ -36,6 +40,7 @@ signals:
     void setFreevecMethod();
     void setAccumCapacity(const int);
     void setBinEnabled(bool);
+    void setDetectorMode(int);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // CONTROLWINDOW_H

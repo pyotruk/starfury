@@ -22,12 +22,17 @@ ControlWindow::ControlWindow(QWidget *parent) :
     connect(ui->checkBoxBin, SIGNAL(stateChanged(int)),
             this, SLOT(convertCheckBoxSignal(int)));
 
+    connect(ui->radioBtnStars, SIGNAL(clicked()),
+            this, SLOT(setStarDetectionMode()));
+    connect(ui->radioBtnTargets, SIGNAL(clicked()),
+            this, SLOT(setTargetDetectionMode()));
+
     connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
-            this, SLOT(updateFace()));
+            this, SLOT(updateSliderLabels()));
     connect(ui->sliderThreshold, SIGNAL(sliderMoved(int)),
-            this, SLOT(updateFace()));
+            this, SLOT(updateSliderLabels()));
     connect(ui->sliderAccum, SIGNAL(sliderMoved(int)),
-            this, SLOT(updateFace()));
+            this, SLOT(updateSliderLabels()));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 ControlWindow::~ControlWindow()
@@ -38,12 +43,13 @@ ControlWindow::~ControlWindow()
 void ControlWindow::initFace(const int strobSize,
                              const int trackTresh,
                              const astrometry::METHOD method,
-                             const int accumCapacity)
+                             const int accumCapacity,
+                             const Detector::MODE mode)
 {
     ui->sliderStrobSize->setValue(strobSize);
     ui->sliderThreshold->setValue(trackTresh);
     ui->sliderAccum->setValue(accumCapacity);
-    updateFace();
+    this->updateSliderLabels();
 
     switch(method)
     {
@@ -54,9 +60,19 @@ void ControlWindow::initFace(const int strobSize,
         ui->radioBtnFreevec->setChecked(true);
         break;
     }
+
+    switch(mode)
+    {
+    case Detector::STAR_DETECTION:
+        ui->radioBtnStars->setChecked(true);
+        break;
+    case Detector::TARGET_DETECTION:
+        ui->radioBtnTargets->setChecked(true);
+        break;
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void ControlWindow::updateFace()
+void ControlWindow::updateSliderLabels()
 {
     QVariant content;
     content = ui->sliderStrobSize->value();

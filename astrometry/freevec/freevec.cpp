@@ -15,11 +15,11 @@ ArtifactPair::ArtifactPair(const Artifact *refStar,
 /////////////////////////////////////////////////////////////////////////////////////
 bool distEqualTest(const ArtifactPair &p1,
                    const ArtifactPair &p2,
-                   const double distRatioEps)
+                   const double distDiffEps)
 {
-    if(distRatioEps <= 0)    return false;
-    double ratioDiff = qAbs(1 - (p1.dist() / p2.dist()));
-    if(ratioDiff < distRatioEps)
+    if(distDiffEps <= 0)    return false;
+    double diff = qAbs(p1.dist() - p2.dist());
+    if(diff < distDiffEps)
     {
         return true;
         qDebug() << "!!! equal distances:" << "\n"
@@ -34,7 +34,7 @@ bool distEqualTest(const ArtifactPair &p1,
 /////////////////////////////////////////////////////////////////////////////////////
 void cookPairVector(const ArtifactVector &av,
                     const Artifact &refStar,
-                    const double distRatioEps,
+                    const double distDiffEps,
                     ArtifactPairVector &pv)
 {
     pv.clear();
@@ -46,7 +46,7 @@ void cookPairVector(const ArtifactVector &av,
         {
             if(!pv.empty()) //удаление звёзд, имеющих одинаковое расстояние до опорной звезды
             {
-                if(distEqualTest(pair, pv.back(), distRatioEps))
+                if(distEqualTest(pair, pv.back(), distDiffEps))
                 {
                     pv.pop_back();
                     continue;
@@ -194,8 +194,8 @@ int freevec::equate(ArtifactVector &picStars,
                 catRefStar1);
 
     ArtifactPairVector picPairs, catPairs;
-    cookPairVector(picStars, picRefStar0, similarEps, picPairs);
-    cookPairVector(catStars, catRefStar0, similarEps, catPairs);
+    cookPairVector(picStars, picRefStar0, _distDiffEps, picPairs);
+    cookPairVector(catStars, catRefStar0, _distDiffEps, catPairs);
 
     findSimilarStars(picPairs,
                      catPairs,

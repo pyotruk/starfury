@@ -10,7 +10,10 @@ class StrobWindow : public ImageWindow
 {
     Q_OBJECT
 public:
-    explicit StrobWindow(QWidget *parent = 0) : ImageWindow(parent) {}
+    explicit StrobWindow(const QString &title,
+                         const QPoint  &pos,
+                         QWidget *parent = 0)
+        : ImageWindow(title, pos, parent) {}
     ~StrobWindow() {}
 private:
     ArtifactBox     _artifactBox;

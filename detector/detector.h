@@ -15,6 +15,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyAccumCapacity("/Detector/AccumCapacity");
+static const QString __skeyDetectorMode("/Detector/Mode");
 /////////////////////////////////////////////////////////////////////////////////////
 class Detector : public QThread
 {
@@ -28,14 +29,17 @@ public:
                       ArtifactBox *targets);
     ~Detector();
     const Accumulator& accum() const {return _accum;}
-    void setMode(MODE m) {_mode = m;}
+    MODE mode() const {return _mode;}
 public slots:
     void setAccumCapacity(int cap) {_accum.setCapacity(cap);}
     void setBinEnabled(bool b)     {_binEnabled = b;}
+    void setMode(Detector::MODE m) {_mode = m;}
+    void setMode(int m) {_mode = (MODE)m;}
 private:
     Detector(const Detector&) {}
     Detector& operator =(const Detector&) {return *this;}
     static const int _timeout = 40;
+    static const MODE _defaultMode = STAR_DETECTION;
     QSettings      *_settings;
     FrameBox       *_frame;
     ArtifactBox    *_stars;
@@ -48,7 +52,7 @@ private:
     MODE            _mode;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void preproc();
+    void accumulation();
     void detectStars();
     void detectTargets();
 private slots:

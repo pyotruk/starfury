@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>585</width>
-    <height>246</height>
+    <width>411</width>
+    <height>269</height>
    </rect>
   </property>
   <property name="font">
@@ -22,399 +22,438 @@
    <string>starfury</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="horizontalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>581</width>
-      <height>191</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="100,50">
-     <property name="margin">
-      <number>10</number>
-     </property>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="spacing">
-        <number>6</number>
-       </property>
-       <property name="bottomMargin">
-        <number>2</number>
-       </property>
-       <item>
-        <widget class="QGroupBox" name="groupBoxStrobSize">
-         <property name="title">
-          <string>strob size</string>
-         </property>
-         <widget class="QWidget" name="layoutWidget1">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>341</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <property name="spacing">
-            <number>20</number>
-           </property>
-           <property name="leftMargin">
-            <number>10</number>
-           </property>
-           <property name="rightMargin">
-            <number>20</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="QSlider" name="sliderStrobSize">
-             <property name="minimum">
-              <number>10</number>
-             </property>
-             <property name="maximum">
-              <number>140</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelStrobSize">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-               <kerning>true</kerning>
-              </font>
-             </property>
-             <property name="text">
-              <string>strob size</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>2</number>
+        </property>
+        <widget class="QWidget" name="tab1">
+         <attribute name="title">
+          <string>tracking</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_10">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <property name="spacing">
+             <number>4</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="groupBoxStrobSize">
+              <property name="title">
+               <string>strob size</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_8">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <property name="spacing">
+                  <number>20</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>10</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>20</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QSlider" name="sliderStrobSize">
+                   <property name="minimum">
+                    <number>10</number>
+                   </property>
+                   <property name="maximum">
+                    <number>140</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labelStrobSize">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>000</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBoxThreshold">
+              <property name="title">
+               <string>threshold</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_9">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <property name="spacing">
+                  <number>20</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>10</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>20</number>
+                 </property>
+                 <item>
+                  <widget class="QSlider" name="sliderThreshold">
+                   <property name="maximum">
+                    <number>200</number>
+                   </property>
+                   <property name="singleStep">
+                    <number>1</number>
+                   </property>
+                   <property name="pageStep">
+                    <number>10</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                   <property name="sliderPosition">
+                    <number>0</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labelThreshold">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>000</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBoxThreshold">
-         <property name="title">
-          <string>threshold</string>
-         </property>
-         <widget class="QWidget" name="layoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>341</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <property name="spacing">
-            <number>20</number>
-           </property>
-           <property name="leftMargin">
-            <number>10</number>
-           </property>
-           <property name="rightMargin">
-            <number>20</number>
-           </property>
-           <item>
-            <widget class="QSlider" name="sliderThreshold">
-             <property name="maximum">
-              <number>200</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-             <property name="pageStep">
-              <number>10</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-             <property name="sliderPosition">
-              <number>0</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelThreshold">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-               <kerning>true</kerning>
-              </font>
-             </property>
-             <property name="text">
-              <string>threshold</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+        <widget class="QWidget" name="tab2">
+         <attribute name="title">
+          <string>astrometry</string>
+         </attribute>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,100">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="groupBoxAstroMethod">
+              <property name="title">
+               <string>method</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <property name="spacing">
+                  <number>4</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>10</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>10</number>
+                 </property>
+                 <item>
+                  <widget class="QRadioButton" name="radioBtnSimtri">
+                   <property name="text">
+                    <string>&amp;similar triangles</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="radioBtnFreevec">
+                   <property name="text">
+                    <string>&amp;free vectors</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBoxErrMeas">
+              <property name="title">
+               <string>error (ang sec)</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_8">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout">
+                 <property name="spacing">
+                  <number>6</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>20</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="labelAlpha">
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>214</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>214</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>118</red>
+                         <green>116</green>
+                         <blue>108</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>err alpha</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labelDelta">
+                   <property name="palette">
+                    <palette>
+                     <active>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>214</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </active>
+                     <inactive>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>214</red>
+                         <green>0</green>
+                         <blue>0</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </inactive>
+                     <disabled>
+                      <colorrole role="WindowText">
+                       <brush brushstyle="SolidPattern">
+                        <color alpha="255">
+                         <red>118</red>
+                         <green>116</green>
+                         <blue>108</blue>
+                        </color>
+                       </brush>
+                      </colorrole>
+                     </disabled>
+                    </palette>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>err delta</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBoxAccum">
-         <property name="title">
-          <string>accum</string>
-         </property>
-         <widget class="QWidget" name="layoutWidget_2">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>341</width>
-            <height>23</height>
-           </rect>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <property name="spacing">
-            <number>20</number>
-           </property>
-           <property name="leftMargin">
-            <number>10</number>
-           </property>
-           <property name="rightMargin">
-            <number>20</number>
-           </property>
-           <item>
-            <widget class="QSlider" name="sliderAccum">
-             <property name="maximum">
-              <number>400</number>
-             </property>
-             <property name="singleStep">
-              <number>1</number>
-             </property>
-             <property name="pageStep">
-              <number>10</number>
-             </property>
-             <property name="value">
-              <number>0</number>
-             </property>
-             <property name="sliderPosition">
-              <number>0</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelAccum">
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-               <weight>50</weight>
-               <bold>false</bold>
-               <kerning>true</kerning>
-              </font>
-             </property>
-             <property name="text">
-              <string>capacity</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="checkBoxBin">
-             <property name="text">
-              <string>bin</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
+        <widget class="QWidget" name="tab3">
+         <attribute name="title">
+          <string>detection</string>
+         </attribute>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,0">
+            <property name="spacing">
+             <number>4</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="groupBoxAccum">
+              <property name="title">
+               <string>frame accumulation</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_4">
+                 <property name="spacing">
+                  <number>20</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>10</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>20</number>
+                 </property>
+                 <item>
+                  <widget class="QSlider" name="sliderAccum">
+                   <property name="maximum">
+                    <number>400</number>
+                   </property>
+                   <property name="singleStep">
+                    <number>1</number>
+                   </property>
+                   <property name="pageStep">
+                    <number>10</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                   <property name="sliderPosition">
+                    <number>0</number>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="labelAccum">
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                     <weight>50</weight>
+                     <bold>false</bold>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>000</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <property name="rightMargin">
+               <number>20</number>
+              </property>
+              <item>
+               <widget class="QGroupBox" name="groupBoxMode">
+                <property name="title">
+                 <string>mode</string>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_10">
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_2">
+                   <item>
+                    <widget class="QRadioButton" name="radioBtnStars">
+                     <property name="text">
+                      <string>stars</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QRadioButton" name="radioBtnTargets">
+                     <property name="text">
+                      <string>targets</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxBin">
+                <property name="text">
+                 <string>thresholding</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QGroupBox" name="groupBoxErrMeas">
-         <property name="title">
-          <string>error (ang sec)</string>
-         </property>
-         <widget class="QWidget" name="verticalLayoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>161</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout">
-           <property name="spacing">
-            <number>6</number>
-           </property>
-           <property name="leftMargin">
-            <number>20</number>
-           </property>
-           <item>
-            <widget class="QLabel" name="labelAlpha">
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>214</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>214</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>118</red>
-                   <green>116</green>
-                   <blue>108</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>err alpha</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="labelDelta">
-             <property name="palette">
-              <palette>
-               <active>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>214</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </active>
-               <inactive>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>214</red>
-                   <green>0</green>
-                   <blue>0</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </inactive>
-               <disabled>
-                <colorrole role="WindowText">
-                 <brush brushstyle="SolidPattern">
-                  <color alpha="255">
-                   <red>118</red>
-                   <green>116</green>
-                   <blue>108</blue>
-                  </color>
-                 </brush>
-                </colorrole>
-               </disabled>
-              </palette>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>err delta</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBoxAstroMethod">
-         <property name="title">
-          <string>method</string>
-         </property>
-         <widget class="QWidget" name="verticalLayoutWidget_4">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>20</y>
-            <width>85</width>
-            <height>51</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <property name="spacing">
-            <number>4</number>
-           </property>
-           <property name="leftMargin">
-            <number>10</number>
-           </property>
-           <property name="rightMargin">
-            <number>10</number>
-           </property>
-           <item>
-            <widget class="QRadioButton" name="radioBtnSimtri">
-             <property name="text">
-              <string>&amp;simtri</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QRadioButton" name="radioBtnFreevec">
-             <property name="text">
-              <string>&amp;freevec</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
-   </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="enabled">
@@ -424,7 +463,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>585</width>
+     <width>411</width>
      <height>20</height>
     </rect>
    </property>

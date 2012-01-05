@@ -14,7 +14,9 @@ class ImageWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit ImageWindow(QWidget *parent = 0) : QMainWindow(parent) {}
+    explicit ImageWindow(const QString &title,
+                         const QPoint  &pos,
+                         QWidget *parent = 0);
     ~ImageWindow() {}
 public slots:
     void inputFrame(FrameBox*);
@@ -24,9 +26,8 @@ protected:
 private:
     ImageWindow(const ImageWindow&) {}
     ImageWindow& operator =(const ImageWindow&) {return *this;}
-    static const int _xPos = 200;
-    static const int _yPos = 200;
     QSize  _imgSize;
+    QPoint _pos;
     void checkImgSize();
 private slots:
     void paintEvent(QPaintEvent *);

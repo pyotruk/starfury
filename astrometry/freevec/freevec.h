@@ -33,6 +33,8 @@ typedef QVector<ArtifactPair> ArtifactPairVector;
 /////////////////////////////////////////////////////////////////////////////////////
 namespace freevec
 {
+static const double _distDiffEps = 1.0; /* расстояния считаются одинаковыми
+                                           при разнице < _distDiffEps */
 int equate(ArtifactVector &picStars,
            ArtifactVector &catStars,
            const QSize    &screen,
