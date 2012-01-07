@@ -25,6 +25,10 @@ void StrobWrapper::inputFrame(FrameBox *f)
     f->lock().unlock();
     emit frameReady(f);
 
+    emit sendPhotometry(timeutils::msecFromDayBegin() / 1000,
+                        _strob->signalMean(),
+                        _strob->foneMean());
+
     if(_targets->lock().tryLockForWrite(_timeout))
     {
         _targets->data().clear();

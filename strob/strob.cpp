@@ -34,7 +34,6 @@ void Strob::makeTracking(Frame &f)
     cvhelp::qtRect2cvRect(_geometry->outerRect(), outerRect);
     cv::Mat signalRoi(f.asCvMat(), innerRect);
     cv::Mat foneRoi(f.asCvMat(), outerRect);
-
     cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтраци€
 
     double sumThreshold; /*порог по суммарным значени€м €ркости
@@ -43,7 +42,9 @@ void Strob::makeTracking(Frame &f)
                    foneRoi,
                    _threshold, //порог в единицах — ќ
                    sumThreshold,
-                   _pixThreshold);
+                   _pixThreshold,
+                   _signalMean,
+                   _foneMean);
 
     if(sumThreshold > 0)    //проверка услови€ слежени€
     {
@@ -66,18 +67,21 @@ void Strob::calcThresholds(const cv::Mat &signalRoi,
                            const cv::Mat &foneRoi,
                            const double stdDevThreshold,
                            double &sumThreshold,
-                           int    &pixThreshold)
+                           int    &pixThreshold,
+                           double &signalMean,
+                           double &foneMean)
 {
     double sumSignal = cv::sum(signalRoi)[0]; //сумма €ркости пикселей по сигнальному стробу
+    signalMean = sumSignal / signalRoi.total();
     double sumFone = cv::sum(foneRoi)[0]; //по фоновому стробу
     sumFone -= sumSignal; //на рамке
     double sumStdDev = sqrt(sumFone); //CKO
     sumThreshold = sumSignal - sumFone; /*порог по суммарным значени€м €ркости
                                           в сигнальном и фоновом стробах*/
     int borderPixNum = (foneRoi.total() - signalRoi.total()); //кол-во пикселей на рамке
-    double fonePerPix = sumFone / borderPixNum;
+    foneMean = sumFone / borderPixNum;
     double stdDevPerPix = sumStdDev / borderPixNum;
-    pixThreshold = (int)floor(0.5 + fonePerPix + stdDevThreshold * stdDevPerPix); //порог, приведЄнный к одному пикселу
+    pixThreshold = (int)floor(0.5 + foneMean + stdDevThreshold * stdDevPerPix); //порог, приведЄнный к одному пикселу
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

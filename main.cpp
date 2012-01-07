@@ -7,6 +7,7 @@
 #include "gui/controlwindow.h"
 #include "gui/strobwnd.h"
 #include "gui/detector_wnd.h"
+#include "gui/photometry_wnd.h"
 #include "com/framerec.h"
 #include "boxes/frame.h"
 #include "detector/detector.h"
@@ -58,9 +59,10 @@ int main(int argc, char *argv[])
                            &targets);
 
     //gui
-    ControlWindow  controlWnd;
-    StrobWindow    strobWnd("tracking", QPoint(100, 100));
-    DetectorWindow detectorWnd("detection", QPoint(200, 200));
+    ControlWindow    controlWnd;
+    StrobWindow      strobWnd("tracking", QPoint(100, 100));
+    DetectorWindow   detectorWnd("detection", QPoint(200, 200));
+    PhotometryWindow photometryWnd(&settings);
     //gui init
     controlWnd.initFace(strobWrapper.strob().geometry().innerSide(),
                         (int)(strobWrapper.strob().threshold()),
@@ -126,6 +128,10 @@ int main(int argc, char *argv[])
                      &strobWrapper, SLOT(setPos(QMouseEvent*)),
                      Qt::QueuedConnection);
 
+    QObject::connect(&strobWrapper, SIGNAL(sendPhotometry(double,double,double)),
+                     &photometryWnd, SLOT(addPoint(double,double,double)),
+                     Qt::QueuedConnection);
+
     QObject::connect(&starcatScreen, SIGNAL(sendMeasureError(double,double)),
                      &controlWnd, SLOT(inputMeasureError(double,double)),
                      Qt::QueuedConnection);
@@ -157,6 +163,7 @@ int main(int argc, char *argv[])
     controlWnd.show();
     strobWnd.show();
     detectorWnd.show();
+    photometryWnd.show();
 
     return a.exec();
 }

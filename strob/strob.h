@@ -26,19 +26,25 @@ public:
     StrobGeometry &geometry() const {return *_geometry;}
     void makeTracking(Frame&);
     void setThreshold(const double t) {_threshold = t;}
+    double foneMean()   const {return _foneMean;}
+    double signalMean() const {return _signalMean;}
 private:
     Strob(const Strob&) {}
     Strob& operator =(const Strob&) {return *this;}
     static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
     StrobGeometry *_geometry;
-    double        _threshold; //порог обнаружени€ в единицах — ќ
-    int           _pixThreshold; //порог по €ркости пиксела (используетс€ дл€ бинаризации cv::threshold)
+    double        _threshold;       //регулируемый (руками) порог обнаружени€ в единицах — ќ
+    int           _pixThreshold;    //порог по €ркости пиксела (используетс€ дл€ бинаризации cv::threshold)
+    double        _foneMean;        //€ркость в фоновом стробе на пиксель
+    double        _signalMean;      //€ркость в сигнальном стробе на пиксель
     void calcThresholds(const cv::Mat &signalRoi,
                         const cv::Mat &foneRoi,
                         const double stdDevThreshold,
                         double &sumThreshold,
-                        int    &pixThreshold);
+                        int    &pixThreshold,
+                        double &signalMean,
+                        double &foneMean);
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
 };

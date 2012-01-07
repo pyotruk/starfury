@@ -37,6 +37,9 @@ private slots:
 signals:
     void frameReady(FrameBox*);
     void freshTargets(ArtifactBox*);
+    void sendPhotometry(double timeMarker, //sec.000
+                        double signal,
+                        double fone);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

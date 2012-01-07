@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     detector/detection.cpp \
     detector/accumulator.cpp \
     strob/strob_wrapper.cpp \
-    gui/detector_wnd.cpp
+    gui/detector_wnd.cpp \
+    gui/photometry_wnd.cpp
 
 HEADERS  += \
     strob/strob.h \
@@ -79,11 +80,11 @@ HEADERS  += \
     detector/detection.h \
     detector/accumulator.h \
     strob/strob_wrapper.h \
-    gui/detector_wnd.h
+    gui/detector_wnd.h \
+    gui/photometry_wnd.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
-
 
 LIBS += -L"C:/opencv231/lib" \
 -l"opencv_calib3d231" \
@@ -92,10 +93,17 @@ LIBS += -L"C:/opencv231/lib" \
 -l"opencv_ml231" -l"opencv_objdetect231" -l"opencv_ts231" -l"opencv_video231"
 
 
+INCLUDEPATH += "C:/Qwt-6.0.1/include"
+
+LIBS += -L"C:/Qwt-6.0.1/lib" \
+        "libqwt" \
+        "libqwtd" \
+        "libqwtmathml" \
+        "libqwtmathmld"
+
+
 FORMS += \
     gui/controlwindow.ui
-
-
 
 
 
