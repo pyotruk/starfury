@@ -37,12 +37,10 @@ PhotometryWindow::PhotometryWindow(QSettings *s,
     //curves
     _curves[0].setPen(QColor(__curveColor0));
     _curves[0].setStyle(QwtPlotCurve::Steps);
-    _curves[0].setCurveAttribute(QwtPlotCurve::Fitted);
     _curves[0].attach(_plot);
 
     _curves[1].setPen(QColor(__curbeColor1));
     _curves[1].setStyle(QwtPlotCurve::Steps);
-    _curves[1].setCurveAttribute(QwtPlotCurve::Fitted);
     _curves[1].attach(_plot);
 }
 /////////////////////////////////////////////////////////////////////////////////////

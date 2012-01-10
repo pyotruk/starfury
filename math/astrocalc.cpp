@@ -80,10 +80,10 @@ void spherical2cartesian(const double azimuth,
     z = qSin( elevation );
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ac::rad2degminsec(const double rad,
-                   int &deg,
-                   int &min,
-                   int &sec)
+void ac::rad2dms(const double rad,
+                 int &deg,
+                 int &min,
+                 int &sec)
 {
     double degAng = rad * __rad2deg;
     deg = qFloor(degAng);
@@ -92,10 +92,10 @@ void ac::rad2degminsec(const double rad,
     sec = qFloor(frac(foo) * 60);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ac::rad2hourminsec(const double rad,
-                    int &hour,
-                    int &min,
-                    int &sec)
+void ac::rad2hms(const double rad,
+                 int &hour,
+                 int &min,
+                 int &sec)
 {
     double hourAng = rad * __rad2hour;
     hour = qFloor(hourAng);
@@ -104,26 +104,26 @@ void ac::rad2hourminsec(const double rad,
     sec = qFloor(frac(foo) * 60);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ac::hourminsec2degminsec(const int hour,
-                          const int hourMin,
-                          const int hourSec,
-                          int &deg,
-                          int &degMin,
-                          int &degSec)
+void ac::hms2dms(const int hour,
+                 const int hourMin,
+                 const int hourSec,
+                 int &deg,
+                 int &degMin,
+                 int &degSec)
 {
     double rad = (hour + hourMin / 60 + hourSec / 3600) * __hour2rad;
-    rad2degminsec(rad, deg, degMin, degSec);
+    rad2dms(rad, deg, degMin, degSec);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ac::degminsec2hourminsec(const int deg,
-                          const int degMin,
-                          const int degSec,
-                          int &hour,
-                          int &hourMin,
-                          int &hourSec)
+void ac::dms2hms(const int deg,
+                 const int degMin,
+                 const int degSec,
+                 int &hour,
+                 int &hourMin,
+                 int &hourSec)
 {
     double rad = (deg + degMin / 60 + degSec / 3600) * __deg2rad;
-    rad2hourminsec( rad, hour, hourMin, hourSec );
+    rad2hms( rad, hour, hourMin, hourSec );
 }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -201,37 +201,85 @@ void ac::iieqt2horiz(const double alpha,
     horizAzimuth = math2astro(horizAzimuth);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ac::screen2horiz(const double centerAzimuth,
-                  const double centerElevation,
-                  const double screenX,
-                  const double screenY,
-                  double &horizAzimuth,
-                  double &horizElevation)
+void ac::screenAngles2horiz(const double screenCenterHorizAzimuth,
+                            const double screenCenterHorizElevation,
+                            const double screenAngleX,
+                            const double screenAngleY,
+                            double &horizAzimuth,
+                            double &horizElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(centerAzimuth) * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - centerElevation) * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(screenCenterHorizAzimuth) * __rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - screenCenterHorizElevation) * __rad2deg);
     QQuaternion q  = qz * qy;
     double x, y, z;
-    spherical2cartesian(screenX , screenY , x, y, z);
+    spherical2cartesian(screenAngleX , screenAngleY, x, y, z);
     QVector3D rh = q.rotatedVector(QVector3D(x, y, z));
     cartesian2spherical(rh.x(), rh.y(), rh.z(), horizAzimuth, horizElevation);
     horizAzimuth = math2astro(horizAzimuth);
 }
 ////////////////////////////////////////////////////////////////////////////////
-void ac::horiz2screen(const double centerAzimuth,
-                      const double centerElevation,
-                      const double horizAzimuth,
-                      const double horizElevation,
-                      double &screenX,
-                      double &screenY)
+void ac::horiz2screenAngles(const double screenCenterHorizAzimuth,
+                            const double screenCenterHorizElevation,
+                            const double horizAzimuth,
+                            const double horizElevation,
+                            double &screenAngleX,
+                            double &screenAngleY)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(centerAzimuth)) * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, centerElevation * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(screenCenterHorizAzimuth)) * __rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, screenCenterHorizElevation * __rad2deg);
     QQuaternion q = qy * qz;
     double x, y, z;
     spherical2cartesian(astro2math(horizAzimuth), horizElevation, x, y, z);
     QVector3D rs = q.rotatedVector(QVector3D(x, y, z));
-    cartesian2spherical(rs.x(), rs.y(), rs.z(), screenX, screenY);
+    cartesian2spherical(rs.x(), rs.y(), rs.z(), screenAngleX, screenAngleY);
+}
+////////////////////////////////////////////////////////////////////////////////
+void ac::screenAngles2iieqt(const double screenAngleX,
+                            const double screenAngleY,
+                            const double screenCenterHorizAzimuth,
+                            const double screenCenterHorizElevation,
+                            const double localSiderealTime,
+                            const double latitude,
+                            double &alpha,
+                            double &delta)
+{
+    double horizAz, horizEl;
+    screenAngles2horiz(screenCenterHorizAzimuth,
+                       screenCenterHorizElevation,
+                       screenAngleX,
+                       screenAngleY,
+                       horizAz,
+                       horizEl);
+    horiz2iieqt(horizAz,
+                horizEl,
+                localSiderealTime,
+                latitude,
+                alpha,
+                delta);
+}
+////////////////////////////////////////////////////////////////////////////////
+void ac::iieqt2screenAngles(const double alpha,
+                            const double delta,
+                            const double localSiderealTime,
+                            const double latitude,
+                            const double screenCenterHorizAzimuth,
+                            const double screenCenterHorizElevation,
+                            double &screenAngleX,
+                            double &screenAngleY)
+{
+    double horizAz, horizEl;
+    iieqt2horiz(alpha,
+                delta,
+                localSiderealTime,
+                latitude,
+                horizAz,
+                horizEl);
+    horiz2screenAngles(screenCenterHorizAzimuth,
+                       screenCenterHorizElevation,
+                       horizAz,
+                       horizEl,
+                       screenAngleX,
+                       screenAngleY);
 }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -242,18 +290,17 @@ void ac::horiz2screen(const double centerAzimuth,
     //SCREEN
 ////////////////////////////////////////////////////////////////////////////////
 //no field rotation !
-void ac::screenAngles2screenPoint(const double angleX,
-                                  const double angleY,
+void ac::screenAngles2screenPoint(const double screenAngleX,
+                                  const double screenAngleY,
                                   const double starDelta,
                                   const QSizeF &field,
-                                  const QSize  &screen,
-                                  double &x,
-                                  double &y)
+                                  const QSize &screen,
+                                  double &x, double &y)
 {
     QPointF rad2pix(screen.width() / field.width(),
                     screen.height() / field.height());
-    double x0 = angleX * rad2pix.x() / qAbs(qCos(starDelta));
-    double y0 = angleY * rad2pix.y();
+    double x0 = screenAngleX * rad2pix.x() / qAbs(qCos(starDelta));
+    double y0 = screenAngleY * rad2pix.y();
     x = -x0 + (screen.width() / 2);
     y = -y0 + (screen.height() / 2);
 }
@@ -264,15 +311,15 @@ void ac::screenPoint2screenAngles(const double x,
                                   const double starDelta,
                                   const QSizeF &field,
                                   const QSize &screen,
-                                  double &angleX,
-                                  double &angleY)
+                                  double &screenAngleX,
+                                  double &screenAngleY)
 {
     double x0 = -x + (screen.width() / 2);
     double y0 = -y + (screen.height() / 2);
     QPointF pix2rad(field.width() / screen.width(),
                     field.height() / screen.height());
-    angleX = x0 * pix2rad.x() * qAbs(qCos(starDelta));
-    angleY = y0 * pix2rad.y();
+    screenAngleX = x0 * pix2rad.x() * qAbs(qCos(starDelta));
+    screenAngleY = y0 * pix2rad.y();
 }
 ////////////////////////////////////////////////////////////////////////////////
 double ac::calcStarRadius(const double magnitude)

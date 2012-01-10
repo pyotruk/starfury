@@ -43,7 +43,8 @@ SOURCES += main.cpp\
     detector/accumulator.cpp \
     strob/strob_wrapper.cpp \
     gui/detector_wnd.cpp \
-    gui/photometry_wnd.cpp
+    gui/photometry_wnd.cpp \
+    sky/velocimeter.cpp
 
 HEADERS  += \
     strob/strob.h \
@@ -81,7 +82,8 @@ HEADERS  += \
     detector/accumulator.h \
     strob/strob_wrapper.h \
     gui/detector_wnd.h \
-    gui/photometry_wnd.h
+    gui/photometry_wnd.h \
+    sky/velocimeter.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -104,6 +106,8 @@ LIBS += -L"C:/Qwt-6.0.1/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
 
 
 

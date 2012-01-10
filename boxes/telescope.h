@@ -25,8 +25,6 @@ struct TelescopeStatus
     double delta;
     double LST;
     double latitude;
-    double fieldWidth;
-    double fieldHeight;
 };
 /////////////////////////////////////////////////////////////////////////////////////
 typedef DataBox<TelescopeStatus> TelescopeBox;

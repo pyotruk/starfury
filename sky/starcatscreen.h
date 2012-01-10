@@ -18,6 +18,7 @@
 #include "utils/timeutils.h"
 #include "boxes/telescope.h"
 #include "common/logfile.h"
+#include "sky/velocimeter.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 class StarcatScreen : public QThread
@@ -48,12 +49,13 @@ private:
     SnUdpSrv         *_snServer;
     QSize             _screen;
     TelescopeVector   _telescopeVec;
+    Velocimeter       _velocimeter;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void proc(const TelescopeStatus&,
-              const StarVector&,
-              ArtifactVector&,
-              SkySegment&);
+    void cookStars(const TelescopeStatus&,
+                   const StarVector&,
+                   ArtifactVector&,
+                   SkySegment&);
     void catStar2screenStar(const TelescopeStatus&,
                             const Star&,
                             Artifact&);
@@ -67,6 +69,7 @@ signals:
     void catStarsReady(ArtifactBox*);
     void sendMeasureError(double errAlpha,  //rad
                           double errDelta); //rad
+    void sendScreenVelocity(double vx, double vy);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

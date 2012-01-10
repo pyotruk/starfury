@@ -54,20 +54,28 @@ void StarcatScreen::inputTelescopeStatus(TelescopeBox *t)
     t->lock().lockForRead();
     _telescopeVec.push_back(t->data());
     TelescopeStatus tscope = t->data();
+    _velocimeter.addPoint(QPointF(_screen.width() / 2,
+                                  _screen.height() / 2),
+                          *t,
+                          _starcatReader->segment().field(),
+                          _screen);
     t->lock().unlock();
 
+    qDebug() << "screen velocity: " << _velocimeter.vel().x()
+             << "  " << _velocimeter.vel().y();
+    emit sendScreenVelocity(_velocimeter.vel().x(),
+                            _velocimeter.vel().y());
+
     _starcatReader->refresh(tscope.alpha,
-                            tscope.delta/*,
-                            tscope.fieldWidth,
-                            tscope.fieldHeight*/);
+                            tscope.delta);
 
     _starBox->lock().lockForWrite();
 
     _starcatReader->mutex()->lock();
-    this->proc(tscope,
-               *(_starcatReader->stars()),
-               _starBox->data(),
-               *_segment);
+    this->cookStars(tscope,
+                    *(_starcatReader->stars()),
+                    _starBox->data(),
+                    *_segment);
     _starcatReader->mutex()->unlock();
 
     QDateTime tMark = _starBox->timeMarker();
@@ -117,18 +125,16 @@ void StarcatScreen::inputTarget(ArtifactBox *target)
              << "    errDelta = " << errDeltaMin;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::proc(const TelescopeStatus &t,
-                         const StarVector &s,
-                         ArtifactVector &a,
-                         SkySegment &seg)
+void StarcatScreen::cookStars(const TelescopeStatus &t,
+                              const StarVector &s,
+                              ArtifactVector &a,
+                              SkySegment &seg)
 {
     if(s.empty())  return;
     seg.generateNew(t.alpha,
                     t.delta,
                     _starcatReader->segment().field().width(),
-                    _starcatReader->segment().field().height()
-                    /*t.fieldWidth,
-                    t.fieldHeight*/);
+                    _starcatReader->segment().field().height());
     a.clear();
     Artifact star;
     for(StarVector::const_iterator
@@ -152,9 +158,9 @@ void StarcatScreen::catStar2screenStar(const TelescopeStatus &t,
     ac::iieqt2horiz(s.alpha(), s.delta(),
                     t.LST, t.latitude,
                     starAzimuth, starElevation);
-    ac::horiz2screen(t.azHoriz, t.elHoriz,
-                     starAzimuth, starElevation,
-                     starAngleX, starAngleY);
+    ac::horiz2screenAngles(t.azHoriz, t.elHoriz,
+                           starAzimuth, starElevation,
+                           starAngleX, starAngleY);
     double x, y;
     ac::screenAngles2screenPoint(starAngleX,
                                  starAngleY,
@@ -181,12 +187,12 @@ void StarcatScreen::screenStar2catStar(const TelescopeStatus &t,
                                  _screen,
                                  xAng,
                                  yAng);
-    ac::screen2horiz(t.azHoriz,
-                     t.elHoriz,
-                     xAng,
-                     yAng,
-                     azHoriz,
-                     elHoriz);
+    ac::screenAngles2horiz(t.azHoriz,
+                           t.elHoriz,
+                           xAng,
+                           yAng,
+                           azHoriz,
+                           elHoriz);
     ac::horiz2iieqt(azHoriz,
                     elHoriz,
                     t.LST,

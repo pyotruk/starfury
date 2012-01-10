@@ -33,26 +33,26 @@ bool isEqual(const QPointF &p1,
              const QPointF &p2,
              const double eps);
 ////////////////////////////////////////////////////////////////////////////////
-void rad2degminsec(const double rad,
-                   int &deg,
-                   int &min,
-                   int &sec);
-void rad2hourminsec(const double rad,
-                    int &hour,
-                    int &min,
-                    int &sec);
-void hourminsec2degminsec(const int hour,
-                          const int hourMin,
-                          const int hourSec,
-                          int &deg,
-                          int &degMin,
-                          int &degSec);
-void degminsec2hourminsec(const int deg,
-                          const int degMin,
-                          const int degSec,
-                          int &hour,
-                          int &hourMin,
-                          int &hourSec);
+void rad2dms(const double rad,
+             int &deg,
+             int &min,
+             int &sec);
+void rad2hms(const double rad,
+             int &hour,
+             int &min,
+             int &sec);
+void hms2dms(const int hour,
+             const int hourMin,
+             const int hourSec,
+             int &deg,
+             int &degMin,
+             int &degSec);
+void dms2hms(const int deg,
+             const int degMin,
+             const int degSec,
+             int &hour,
+             int &hourMin,
+             int &hourSec);
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,18 +85,35 @@ void iieqt2horiz(const double alpha,
                  double &horizAzimuth,
                  double &horizElevation);
 ////////////////////////////////////////////////////////////////////////////////
-void screen2horiz(const double centerAzimuth,
-                  const double centerElevation,
-                  const double screenX,
-                  const double screenY,
-                  double &horizAzimuth,
-                  double &horizElevation);
-void horiz2screen(const double centerAzimuth,
-                  const double centerElevation,
-                  const double horizAzimuth,
-                  const double horizElevation,
-                  double &screenX,
-                  double &screenY);
+void screenAngles2horiz(const double screenCenterHorizAzimuth,
+                        const double screenCenterHorizElevation,
+                        const double screenAngleX,
+                        const double screenAngleY,
+                        double &horizAzimuth,
+                        double &horizElevation);
+void horiz2screenAngles(const double screenCenterHorizAzimuth,
+                        const double screenCenterHorizElevation,
+                        const double horizAzimuth,
+                        const double horizElevation,
+                        double &screenAngleX,
+                        double &screenAngleY);
+////////////////////////////////////////////////////////////////////////////////
+void screenAngles2iieqt(const double screenAngleX,
+                        const double screenAngleY,
+                        const double screenCenterHorizAzimuth,
+                        const double screenCenterHorizElevation,
+                        const double localSiderealTime,
+                        const double latitude,
+                        double &alpha,
+                        double &delta);
+void iieqt2screenAngles(const double alpha,
+                        const double delta,
+                        const double localSiderealTime,
+                        const double latitude,
+                        const double screenCenterHorizAzimuth,
+                        const double screenCenterHorizElevation,
+                        double &screenAngleX,
+                        double &screenAngleY);
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,8 +121,8 @@ void horiz2screen(const double centerAzimuth,
     //SCREEN
 ////////////////////////////////////////////////////////////////////////////////
  //no field rotation !
-void screenAngles2screenPoint(const double angleX,
-                              const double angleY,
+void screenAngles2screenPoint(const double screenAngleX,
+                              const double screenAngleY,
                               const double starDelta,
                               const QSizeF &field,
                               const QSize  &screen,
@@ -118,8 +135,8 @@ void screenPoint2screenAngles(const double x,
                               const double starDelta,
                               const QSizeF &field,
                               const QSize  &screen,
-                              double &angleX,
-                              double &angleY);
+                              double &screenAngleX,
+                              double &screenAngleY);
 ////////////////////////////////////////////////////////////////////////////////
 double calcStarRadius(const double magnitude);
 ////////////////////////////////////////////////////////////////////////////////
