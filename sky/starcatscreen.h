@@ -63,13 +63,14 @@ private:
                             const Artifact&,
                             Star&);
 private slots:
-    void inputTelescopeStatus(TelescopeBox*);
+    void inputTelescopePos(TelescopeBox*);
     void inputTarget(ArtifactBox*); //в экранной СК в плоскости каталога
 signals:
     void catStarsReady(ArtifactBox*);
     void sendMeasureError(double errAlpha,  //rad
                           double errDelta); //rad
-    void sendScreenVelocity(double vx, double vy);
+    void sendScreenVelocity(const double vx,
+                            const double vy);
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

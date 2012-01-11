@@ -13,12 +13,17 @@ StarcatScreen::StarcatScreen(QSettings *s,
     _snServer(new SnUdpSrv(_settings))
 {
     this->moveToThread(this);
+    _velocimeter.moveToThread(this);
     qDebug() << "starcatScreen._starcatReader " << _starcatReader->thread();
     qDebug() << "starcatScreen._snServer " << _snServer->thread();
     this->loadSettings(_settings);
+
     QObject::connect(_snServer, SIGNAL(telescopeStatusReady(TelescopeBox*)),
-                     this, SLOT(inputTelescopeStatus(TelescopeBox*)),
+                     this, SLOT(inputTelescopePos(TelescopeBox*)),
                      Qt::QueuedConnection);
+    QObject::connect(&_velocimeter, SIGNAL(velocityReady(double,double)),
+                     this, SIGNAL(sendScreenVelocity(double,double)),
+                     Qt::DirectConnection);
 
     this->start(QThread::NormalPriority);
 }
@@ -46,42 +51,32 @@ void StarcatScreen::saveSettings(QSettings *s)
     s->setValue(__skeyScreenHeight, _screen.height());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTelescopeStatus(TelescopeBox *t)
+void StarcatScreen::inputTelescopePos(TelescopeBox *t)
 {
     if(_telescopeVec.size() > _maxTelescopeVectorSize)
         _telescopeVec.clear();
 
     t->lock().lockForRead();
     _telescopeVec.push_back(t->data());
-    TelescopeStatus tscope = t->data();
-    _velocimeter.addPoint(QPointF(_screen.width() / 2,
-                                  _screen.height() / 2),
-                          *t,
-                          _starcatReader->segment().field(),
-                          _screen);
+    TelescopeBox telescopePos(*t);
     t->lock().unlock();
 
-    qDebug() << "screen velocity: " << _velocimeter.vel().x()
-             << "  " << _velocimeter.vel().y();
-    emit sendScreenVelocity(_velocimeter.vel().x(),
-                            _velocimeter.vel().y());
-
-    _starcatReader->refresh(tscope.alpha,
-                            tscope.delta);
+    _velocimeter.addPoint(QPointF(_screen.width() / 2,
+                                  _screen.height() / 2),
+                          telescopePos,
+                          _starcatReader->segment().field(),
+                          _screen);
+    _starcatReader->refresh(telescopePos.data().alpha,
+                            telescopePos.data().delta);
 
     _starBox->lock().lockForWrite();
-
     _starcatReader->mutex()->lock();
-    this->cookStars(tscope,
+    this->cookStars(telescopePos.data(),
                     *(_starcatReader->stars()),
                     _starBox->data(),
                     *_segment);
     _starcatReader->mutex()->unlock();
-
-    QDateTime tMark = _starBox->timeMarker();
-    timeutils::winfiletime2qdatetime(tscope.timeUTC, tMark);
-    _starBox->setTimeMarker(tMark);
-
+    _starBox->setTimeMarker(telescopePos.timeMarker());
     _starBox->lock().unlock();
 
     emit catStarsReady(_starBox);

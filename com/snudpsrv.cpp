@@ -34,6 +34,9 @@ void SnUdpSrv::read()
         {
             _socket.readDatagram((char*)(&(_telescope.data())),
                                   sizeof(TelescopeStatus));
+            QDateTime t;
+            timeutils::winfiletime2qdatetime(_telescope.data().timeUTC, t);
+            _telescope.setTimeMarker(t);
             _telescope.lock().unlock();
             emit telescopeStatusReady(&_telescope);
         }

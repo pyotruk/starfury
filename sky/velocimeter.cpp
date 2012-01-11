@@ -5,16 +5,28 @@ void Velocimeter::addPoint(const QPointF      &screenCenter,
                            const QSizeF       &field,
                            const QSize        &screen)
 {
+    ++_samples;
+    if(_samples > _sampleStep)
+    {
+        _samples = 0;
+        _open2 = true;
+    }
+
     if(_open2)
     {
+        _open2 = false;
+        _open1 = true;
         this->addSecondPoint(telescopePos,
                              field,
                              screen);
         this->calcVelocity();
+        qDebug() << "screen velocity: " << _vel.x() << "  " << _vel.y();
+        emit velocityReady(_vel.x(), _vel.y());
     }
 
     if(_open1)
     {
+        _open1 = false;
         this->addFirstPoint(screenCenter,
                             telescopePos,
                             field,
@@ -75,7 +87,6 @@ void Velocimeter::addSecondPoint(const TelescopeBox &telescopePos,
 void Velocimeter::calcVelocity()
 {
     int dt = _t1.time().msecsTo(_t2.time());
-    qDebug() << "dt = " << dt;
     _vel.setX((_c2.x() - _c1.x()) / (dt / 1000.0));
     _vel.setY((_c2.y() - _c1.y()) / (dt / 1000.0));
 }
