@@ -20,7 +20,6 @@ void Velocimeter::addPoint(const QPointF      &screenCenter,
                              field,
                              screen);
         this->calcVelocity();
-        qDebug() << "screen velocity: " << _vel.x() << "  " << _vel.y();
         emit velocityReady(_vel.x(), _vel.y());
     }
 
@@ -87,8 +86,10 @@ void Velocimeter::addSecondPoint(const TelescopeBox &telescopePos,
 void Velocimeter::calcVelocity()
 {
     int dt = _t1.time().msecsTo(_t2.time());
-    _vel.setX((_c2.x() - _c1.x()) / (dt / 1000.0));
-    _vel.setY((_c2.y() - _c1.y()) / (dt / 1000.0));
+    double vx = (_c2.x() - _c1.x()) / (dt / 1000.0);
+    double vy = (_c2.y() - _c1.y()) / (dt / 1000.0);
+    _vel.setX(0 - vx); //т.к. нужна скорость объекта относительно звёзд
+    _vel.setY(0 - vy);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

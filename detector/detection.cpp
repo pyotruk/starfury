@@ -1,14 +1,14 @@
 #include "detection.h"
 /////////////////////////////////////////////////////////////////////////////////////
 void detection::smooth(Frame &f,
-                       const int windowSize)
+                       const int kernelSize)
 {
 //    cv::blur(f.asCvMat(),
 //             f.asCvMat(),
 //             cv::Size(windowSize, windowSize));
     cv::medianBlur(f.asCvMat(),
                    f.asCvMat(),
-                   windowSize);
+                   kernelSize);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void detection::threshold(Frame &f)

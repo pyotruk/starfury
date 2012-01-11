@@ -9,7 +9,6 @@
    _3_ vx = dx / dt,  vy = dy / dt
 */
 /////////////////////////////////////////////////////////////////////////////////////
-#include <QDebug>
 #include <QPointF>
 #include <QSizeF>
 #include <QDateTime>

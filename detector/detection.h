@@ -11,7 +11,7 @@
 namespace detection
 {
 void smooth(Frame&,
-            const int windowSize);
+            const int kernelSize);
 void threshold(Frame&);
 void findArtifacts(Frame&,
                    ArtifactVector&,

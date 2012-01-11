@@ -31,7 +31,7 @@ public:
             {this->setHeader(h.width(), h.height(), h.depth());}
         quint64 dataSize() const {return _width * _height * _depth;}
     private:
-        static const int __maxDepth = 2;
+        static const int __maxDepth = 1;
         int _width;
         int _height;
         int _depth;    //bytes per pixel

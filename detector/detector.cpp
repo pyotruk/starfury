@@ -8,10 +8,17 @@ Detector::Detector(QSettings *s,
     _frame(f),
     _stars(stars),
     _targets(targets),
-    _binEnabled(true)
+    _binEnabled(true),
+    _velocity(0, 0)
 {
     this->moveToThread(this);
+    _accum.moveToThread(this);
     this->loadSettings(_settings);
+
+    connect(&_accum, SIGNAL(full()),
+            this, SLOT(accumIsFull()),
+            Qt::DirectConnection);
+
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -41,17 +48,7 @@ void Detector::inputFrame(FrameBox *f)
     _cache_Frame = *f;
     f->lock().unlock();
 
-    switch(_mode)
-    {
-    case TARGET_DETECTION:
-        this->accumulation();
-        this->detectTargets();
-        break;
-    case STAR_DETECTION:
-        this->accumulation();
-        this->detectStars();
-        break;
-    }
+    this->accumulate(_mode);
 
     _frame->lock().lockForWrite();
     *_frame = _cache_Frame;
@@ -59,55 +56,78 @@ void Detector::inputFrame(FrameBox *f)
     emit sendFrame(_frame);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Detector::accumulation()
+void Detector::accumulate(const MODE mode)
 {
-    detection::smooth(_cache_Frame.data(), 7);
-    _cache_Frame = _accum.add(_cache_Frame);
+    detection::smooth(_cache_Frame.data(), _smoothingKernelSize);
+
+    switch(mode)
+    {
+    case TARGET_DETECTION:
+        _cache_Frame = _accum.add(_cache_Frame);
+        break;
+    case STAR_DETECTION:
+        _cache_Frame = _accum.shiftAndAdd(_cache_Frame, _velocity);
+        break;
+    }
+
     if(_binEnabled)    detection::threshold(_cache_Frame.data());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectStars()
 {
-    if(_accum.isFull())
+    detection::threshold(_cache_Frame.data());
+    detection::findTargets(_cache_Frame.data(),
+                           _cache_Stars.data());
+    if(_cache_Stars.data().empty())
     {
-        _accum.clear();
-        detection::threshold(_cache_Frame.data());
-        detection::findTargets(_cache_Frame.data(),
-                               _cache_Stars.data());
-        if(_cache_Stars.data().empty())
-        {
-            return;
-        }
-        _cache_Stars.setTimeMarker(_cache_Frame.timeMarker());
-        _stars->lock().lockForWrite();
-        *_stars = _cache_Stars;
-        _stars->lock().unlock();
-        emit starsReady(_stars);
+        return;
     }
+    _cache_Stars.setTimeMarker(_cache_Frame.timeMarker());
+    _stars->lock().lockForWrite();
+    *_stars = _cache_Stars;
+    _stars->lock().unlock();
+    emit starsReady(_stars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectTargets()
 {
-    if(_accum.isFull())
+    detection::smooth(_cache_Frame.data(), _smoothingKernelSize);
+    detection::threshold(_cache_Frame.data());
+    detection::findTargets(_cache_Frame.data(),
+                           _cache_Targets.data());
+    if(_cache_Targets.data().empty())
     {
-        _accum.clear();
-        detection::smooth(_cache_Frame.data(), 7);
-        detection::threshold(_cache_Frame.data());
-        detection::findTargets(_cache_Frame.data(),
-                               _cache_Targets.data());
-        if(_cache_Targets.data().empty())
-        {
-            return;
-        }
-        _cache_Targets.setTimeMarker(_cache_Frame.timeMarker());
-        _targets->lock().lockForWrite();
-        *_targets = _cache_Targets;
-        _targets->lock().unlock();
-        emit targetsReady(_targets);
+        return;
     }
+    _cache_Targets.setTimeMarker(_cache_Frame.timeMarker());
+    _targets->lock().lockForWrite();
+    *_targets = _cache_Targets;
+    _targets->lock().unlock();
+    emit targetsReady(_targets);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Detector::inputScreenVelocity(const double vx,
+                                   const double vy)
+{
+    _velocity = QPointF(vx, vy);
+    qDebug() << "screen velocity: " << vx << "  " << vy;
+}
 /////////////////////////////////////////////////////////////////////////////////////
+void Detector::accumIsFull()
+{
+    _cache_Frame = _accum.frame();
+    _accum.clear();
+
+    switch(_mode)
+    {
+    case TARGET_DETECTION:
+        this->detectTargets();
+        break;
+    case STAR_DETECTION:
+        this->detectStars();
+        break;
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

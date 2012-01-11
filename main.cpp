@@ -103,6 +103,9 @@ int main(int argc, char *argv[])
     QObject::connect(&angmeter, SIGNAL(sendTargets(ArtifactBox*)),
                      &starcatScreen, SLOT(inputTarget(ArtifactBox*)),
                      Qt::QueuedConnection);
+    QObject::connect(&starcatScreen, SIGNAL(sendScreenVelocity(double,double)),
+                     &detector, SLOT(inputScreenVelocity(double,double)),
+                     Qt::QueuedConnection);
 
     //gui <--> object connections
     QObject::connect(&strobWrapper, SIGNAL(frameReady(FrameBox*)),

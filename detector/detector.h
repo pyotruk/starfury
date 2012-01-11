@@ -1,11 +1,11 @@
 #ifndef DETECTOR_H
 #define DETECTOR_H
 /////////////////////////////////////////////////////////////////////////////////////
+#include <QDebug>
 #include <QThread>
 #include <QSettings>
 #include <QtAlgorithms>
-#include <QDebug>
-#include <QPoint>
+#include <QPointF>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/frame.h"
 #include "boxes/artifact.h"
@@ -33,13 +33,14 @@ public:
 public slots:
     void setAccumCapacity(int cap) {_accum.setCapacity(cap);}
     void setBinEnabled(bool b)     {_binEnabled = b;}
-    void setMode(Detector::MODE m) {_mode = m;}
-    void setMode(int m) {_mode = (MODE)m;}
+    void setMode(Detector::MODE m) {_mode = m;  _accum.clear();}
+    void setMode(int m) {this->setMode((MODE)m);}
 private:
     Detector(const Detector&) {}
     Detector& operator =(const Detector&) {return *this;}
     static const int _timeout = 40;
     static const MODE _defaultMode = STAR_DETECTION;
+    static const int _smoothingKernelSize = 7;
     QSettings      *_settings;
     FrameBox       *_frame;
     ArtifactBox    *_stars;
@@ -50,13 +51,17 @@ private:
     Accumulator     _accum;
     bool            _binEnabled;
     MODE            _mode;
+    QPointF         _velocity;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
-    void accumulation();
+    void accumulate(const MODE);
     void detectStars();
     void detectTargets();
 private slots:
     void inputFrame(FrameBox*);
+    void inputScreenVelocity(const double vx,
+                             const double vy);
+    void accumIsFull();
 signals:
     void sendFrame(FrameBox*);
     void starsReady(ArtifactBox*);
