@@ -25,13 +25,12 @@ const FrameBox& Accumulator::shiftAndAdd(FrameBox &f,
     }
     this->checkSize(f.data().header());
     double mean = cv::mean(f.data().asCvMat())[0];
+    f.data().asCvMat() -= mean;
 
-    QPoint shift;
-    shifting::calcShift(_firstFrameTime,
-                        f.timeMarker(),
-                        velocity,
-                        shift);
-    shifting::cookShiftedFrame(shift, mean, f.data());
+    shifting::cookShiftedFrame(_firstFrameTime,
+                               f.timeMarker(),
+                               velocity,
+                               f.data());
     cv::addWeighted(f.data().asCvMat(),
                     _alpha,
                     _frame.data().asCvMat(),
@@ -76,34 +75,45 @@ void Accumulator::clear()
 
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-void shifting::calcShift(const QDateTime &t1,
-                         const QDateTime &t2,
-                         const QPointF &velocity,
-                         QPoint &shift)
-{
-    int dt = t1.time().msecsTo(t2.time());
-    shift.setX((int)(velocity.x() * dt / 1000.0));
-    shift.setY((int)(velocity.y() * dt / 1000.0));
-}
 /////////////////////////////////////////////////////////////////////////////////////
-void shifting::cookShiftedFrame(const QPoint shift,
-                                const double mean,
+void shifting::cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накоплени€
+                                const QDateTime &t2, //сдвинутый кадр
+                                const QPointF &velocity,
                                 Frame &f)
 {
-    QRect qtRect(shift,
-                 QPoint(f.header().width() - 1,
-                        f.header().height() - 1));
-    if(!qtRect.isValid())    return;
-    cv::Rect cvRect;
-    cvhelp::qtRect2cvRect(qtRect, cvRect);
-    cv::Mat crossReg(f.asCvMat(), cvRect);
-    crossReg -= mean;
-    cv::Mat crossReg_buf = crossReg;
-//    crossReg_buf -= mean;
-//    f.fillZeros();
-    qDebug() << "before clone: " << crossReg.data;
-    crossReg = crossReg_buf.clone();
-    qDebug() << "after clone: " << crossReg.data;
+    //вычисление сдвига
+    int dt = t1.time().msecsTo(t2.time());
+    QPoint shift((int)(velocity.x() * dt / 1000.0),
+                 (int)(velocity.y() * dt / 1000.0));
+
+    /*вычисление пр€моугольника, образованного пересечением
+      первого кадра (в серии накоплени€) и сдвинутого кадра*/
+    QRect rect0(QPoint(0, 0),
+                QPoint(f.header().width() - 1,
+                       f.header().height() - 1));
+    QRect rect1(rect0);
+    rect1.moveCenter(QPoint(rect0.center().x() + shift.x(),
+                            rect0.center().y() + shift.y()));
+    QRect initialRegion = rect0.intersected(rect1); //в —  первого кадра
+    QRect rect2(rect0);
+    rect2.moveCenter(QPoint(rect0.center().x() - shift.x(),
+                            rect0.center().y() - shift.y()));
+    QRect shiftedRegion = rect0.intersected(rect2); //в —  сдвинутого кадра
+
+    Frame intersectedFrame;
+    if(!f.copyRegionTo(shiftedRegion, intersectedFrame))
+    {
+        qDebug() << "Frame::copyRegionTo FAILED" << "\n"
+                 << "   " << shiftedRegion;
+        return;
+    }
+    f.fillZeros();
+    if(!f.copyRegionFrom(intersectedFrame, initialRegion.topLeft()))
+    {
+        qDebug() << "Frame::copyRegionFrom FAILED" << "\n"
+                 << "   " << initialRegion;
+        return;
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

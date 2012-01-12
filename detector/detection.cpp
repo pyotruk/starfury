@@ -33,14 +33,12 @@ void detection::findArtifacts(Frame &f,
     Artifact art;
     int width  = f.header().width();
     int height = f.header().height();
-    int depth  = f.header().depth();
-    uchar *p0 = f.data();
-    uchar *pix;
+    const uchar *pix;
     for(int y=0; y < height; ++y)
     {
         for(int x=0; x < width; ++x)
         {
-            pix = p0 + depth * (width * y + x);
+            pix = f.constPnt(x, y);
             if(*pix > floodColor)
             {
                 cv::floodFill(cvmat, cv::Point(x, y), floodColor, &rect);
@@ -84,14 +82,12 @@ void detection::findTargets(Frame &f,
     Artifact art;
     int width  = f.header().width();
     int height = f.header().height();
-    int depth  = f.header().depth();
-    uchar *p0 = f.data();
-    uchar *pix;
+    const uchar *pix;
     for(int y=0; y < height; ++y)
     {
         for(int x=0; x < width; ++x)
         {
-            pix = p0 + depth * (width * y + x);
+            pix = f.constPnt(x, y);
             if(*pix > floodColor)
             {
                 cv::floodFill(cvmat, cv::Point(x, y), floodColor, &rect);

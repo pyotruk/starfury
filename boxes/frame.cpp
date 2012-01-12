@@ -1,29 +1,34 @@
 #include "frame.h"
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::Header::setHeader(const int width,
-                              const int height,
-                              const int depth)
+                              const int height)
 {
     _width  = width;
     _height = height;
-    if(depth > __maxDepth)    _depth = __maxDepth;
-    else                      _depth = depth;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Frame::Header& Frame::Header::operator=(const Header &h)
 {
     if(this != &h)
     {
-        this->setHeader(h.width(), h.height(), h.depth());
+        this->setHeader(h.width(), h.height());
     }
     return *this;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+Frame::Frame()
+    : _data(new uchar[0])
+{}
 /////////////////////////////////////////////////////////////////////////////////////
-Frame::Frame(const Frame &f) :
-    _data(new uchar[0])
+Frame::~Frame()
+{
+    delete []_data;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+Frame::Frame(const Frame &f)
+    : _data(new uchar[0])
 {
     _header.setHeader(f.header());
     this->realloc(_header);
@@ -32,11 +37,10 @@ Frame::Frame(const Frame &f) :
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Frame::Frame(const int width,
-             const int height,
-             const int depth) :
-    _data(new uchar[0])
+             const int height)
+    : _data(new uchar[0])
 {
-    _header.setHeader(width, height, depth);
+    _header.setHeader(width, height);
     this->realloc(_header);
     this->fillZeros();
     this->cookCvMat();
@@ -61,10 +65,9 @@ void Frame::realloc(const Header &h)
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::setHeaderAndRealloc(const int width,
-                                const int height,
-                                const int depth)
+                                const int height)
 {
-    _header.setHeader(width, height, depth);
+    _header.setHeader(width, height);
     this->realloc(_header);
     this->cookCvMat();
 }
@@ -78,10 +81,9 @@ void Frame::setHeaderAndRealloc(const Header &h)
 /////////////////////////////////////////////////////////////////////////////////////
 void Frame::copyFromRawData(const void *data,
                             const int width,
-                            const int height,
-                            const int depth)
+                            const int height)
 {
-    _header.setHeader(width, height, depth);
+    _header.setHeader(width, height);
     this->realloc(_header);
     const void *src = data;
     void *dst = _data;
@@ -108,6 +110,24 @@ void Frame::copyToQImage(QImage &img)
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Frame::cookCvMat()
+{
+    _cvmat = cv::Mat(_header.height(),
+                     _header.width(),
+                     CV_8UC1,
+                     _data);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+uchar* Frame::pnt(int i, int j)
+{
+    return (this->_data + j * this->header().width() + i);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+const uchar* Frame::constPnt(int i, int j) const
+{
+    return (this->_data + j * this->header().width() + i);
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void Frame::fillZeros()
 {
     uchar *it = _data;
@@ -118,30 +138,84 @@ void Frame::fillZeros()
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Frame::cookCvMat()
+bool Frame::rectIsBelongTo(const QRect &r)
 {
-    _cvmat = cv::Mat(_header.height(),
-                     _header.width(),
-                     CV_8UC1,
-                     _data);
+    if((r.left() >= 0) && (r.top() >= 0))
+    {
+        if((r.right() < this->header().width()) && (r.bottom() < this->header().height()))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+bool Frame::pointIsBelongTo(const QPoint &p)
+{
+    if((p.x() >= 0) && (p.y() >= 0))
+    {
+        if((p.x() < this->header().width()) && (p.y() < this->header().height()))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+bool Frame::copyRegionTo(const QRect &region,
+                         Frame &dst)
+{
+    if(!region.isValid())    return false;
+    if(!this->rectIsBelongTo(region))    return false;
+    dst.setHeaderAndRealloc(region.width(),
+                            region.height());
+    for(int j = 0; j < dst.header().height(); ++j)
+    {
+        for(int i = 0; i < dst.header().width(); ++i)
+        {
+            uchar* pDst = dst.pnt(i, j);
+            const uchar* pSrc = this->constPnt(i + region.left(), j + region.top());
+            *pDst = *pSrc;
+        }
+    }
+    return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+bool Frame::copyRegionFrom(const Frame &src,
+                           const QPoint &topLeft)
+{
+    QRect region(topLeft, QSize(src.header().width(),
+                                src.header().height()));
+    if(!region.isValid())    return false;
+    if(!this->rectIsBelongTo(region))    return false;
+    for(int j = 0; j < src.header().height(); ++j)
+    {
+        for(int i = 0; i < src.header().width(); ++i)
+        {
+            uchar *pDst= this->pnt(i + region.left(), j + region.top());
+            const uchar *pSrc = src.constPnt(i, j);
+            *pDst = *pSrc;
+        }
+    }
+    return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 bool operator ==(const Frame::Header &h1,
                  const Frame::Header &h2)
 {
-    return ((h1.width()  == h2.width())  &&
-            (h1.height() == h2.height()) &&
-            (h1.depth()  == h2.depth()));
+    return ((h1.width()  == h2.width()) && (h1.height() == h2.height()));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 bool operator !=(const Frame::Header &h1,
                  const Frame::Header &h2)
 {
-    return ((h1.width()  != h2.width())  ||
-            (h1.height() != h2.height()) ||
-            (h1.depth()  != h2.depth()));
+    return ((h1.width()  != h2.width()) || (h1.height() != h2.height()));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -149,8 +223,7 @@ bool operator !=(const Frame::Header &h1,
 QDebug operator<<(QDebug d, const Frame::Header &h)
 {
     d << "     width  = " << h.width() << "\n"
-      << "     height = " << h.height() << "\n"
-      << "     depth  = " << h.depth();
+      << "     height = " << h.height();
     return d;
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -74,8 +74,7 @@ void SharedMem::readFrame(FrameBox *frame)
     void *data = (void*)buf;
     frame->data().copyFromRawData(data,
                                   header.width,
-                                  header.height,
-                                  header.depth);
+                                  header.height);
     QDateTime t;
     timeutils::winfiletime2qdatetime(header.timeID, t);
     frame->setTimeMarker(t);

@@ -4,6 +4,9 @@
 #include <QDebug>
 #include <QtGlobal>
 #include <QImage>
+#include <QRect>
+#include <QPoint>
+#include <QSize>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "opencv.hpp"
 #include "boxes/databox.h"
@@ -15,49 +18,49 @@ public:
     {
     public:
         explicit Header(const int width = 0,
-                        const int height = 0,
-                        const int depth = 1)
-            {this->setHeader(width, height, depth);}
+                        const int height = 0)
+            {this->setHeader(width, height);}
         explicit Header(const Header &h)
-            {this->setHeader(h.width(), h.height(), h.depth());}
+            {this->setHeader(h.width(), h.height());}
         Header& operator=(const Header &h);
-        int width()  const {return _width;}
-        int height() const {return _height;}
-        int depth()  const {return _depth;}
+        inline int width()  const {return _width;}
+        inline int height() const {return _height;}
         void setHeader(const int width,
-                       const int height,
-                       const int depth = 1);
+                       const int height);
         void setHeader(const Header &h)
-            {this->setHeader(h.width(), h.height(), h.depth());}
-        quint64 dataSize() const {return _width * _height * _depth;}
+            {this->setHeader(h.width(), h.height());}
+        inline quint64 dataSize() const {return _width * _height;}
     private:
-        static const int __maxDepth = 1;
         int _width;
         int _height;
-        int _depth;    //bytes per pixel
     };
 
-    explicit Frame() : _data(new uchar[0]) {}
+    explicit Frame();
     explicit Frame(const Frame&);
     explicit Frame(const int width,
-                   const int height,
-                   const int depth = 1); //bytes per pixel
-    ~Frame() {delete []_data;}
-    Frame& operator =(const Frame&);
-    uchar* data()          const {return _data;}
-    const Header& header() const {return _header;}
-    cv::Mat& asCvMat()             {return _cvmat;}
-    const cv::Mat& asCvMat() const {return _cvmat;}
+                   const int height);
+    ~Frame();
+    Frame& operator=(const Frame&);
+    inline const Header& header() const {return _header;}
+    inline const uchar* data() const {return _data;}
+    inline cv::Mat& asCvMat()        {return _cvmat;}
+    inline const cv::Mat& asCvMat() const {return _cvmat;}
     void setHeaderAndRealloc(const int width,      //data size changes too
-                             const int height,
-                             const int depth = 1); //bytes per pixel
+                             const int height);
     void setHeaderAndRealloc(const Header&);
     void copyFromRawData(const void *data,
                          const int width,
-                         const int height,
-                         const int depth = 1); //bytes per pixel
+                         const int height);
     void copyToQImage(QImage&);
+    uchar* pnt(int i, int j);
+    const uchar* constPnt(int i, int j) const;
     void fillZeros();
+    bool rectIsBelongTo(const QRect&);
+    bool pointIsBelongTo(const QPoint&);
+    bool copyRegionTo(const QRect& region, //returns true if success
+                      Frame& dst);
+    bool copyRegionFrom(const Frame &src,  //returns true if success
+                        const QPoint &topLeft);
 private:
     uchar         *_data;
     Header         _header;

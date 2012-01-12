@@ -45,13 +45,10 @@ signals:
 /////////////////////////////////////////////////////////////////////////////////////
 namespace shifting
 {
-void calcShift(const QDateTime &t1,
-               const QDateTime &t2,
-               const QPointF   &velocity,
-               QPoint &shift);
-void cookShiftedFrame(const QPoint shift,
-                      const double mean,
-                      Frame&);
+void cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накопления
+                      const QDateTime &t2, //сдвинутый кадр
+                      const QPointF &velocity,
+                      Frame &f);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
