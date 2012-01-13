@@ -8,6 +8,7 @@
 #include <QSize>
 #include <QPointF>
 #include <QString>
+#include <QQueue>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "common/globalskeys.h"
 #include "math/astrocalc.h"
@@ -51,23 +52,24 @@ private:
     static const double _defaultEqualEps     = 2.0;
     static const double _defaultSimilarEps   = 0.01;
     static const double _defaultNearStarDist = 20.0;
-    static const int _maxDelay = 10; //msec
+    static const int _maxDelay = 20; //msec
     static const astrometry::METHOD _defaultMethod = astrometry::SIMTRI;
-    int                _maxStarQuantity;
-    int                _minEquatedStarQuantity;
-    double             _equalEps;
-    double             _similarEps;
-    double             _nearStarDist;
-    astrometry::METHOD _method;
-    QSettings         *_settings;
-    LogFile           *_log;
-    ArtifactBox       *_picStars;
-    ArtifactBox       *_catStars;
-    ArtifactBox       *_targets;
-    QSize              _screen;
-    ArtifactBox        _cache_PicStars;
-    ArtifactBox        _cache_CatStars;
-    ArtifactBox        _cache_Targets;
+    int                 _maxStarQuantity;
+    int                 _minEquatedStarQuantity;
+    double              _equalEps;
+    double              _similarEps;
+    double              _nearStarDist;
+    astrometry::METHOD  _method;
+    QSettings          *_settings;
+    LogFile            *_log;
+    ArtifactBox        *_picStars;
+    ArtifactBox        *_catStars;
+    ArtifactBox        *_targets;
+    QSize               _screen;
+    ArtifactBox         _cache_PicStars;
+    ArtifactBox         _cache_CatStars;
+    ArtifactBox         _cache_Targets;
+    QQueue<ArtifactBox> _queue_CatStars;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc();

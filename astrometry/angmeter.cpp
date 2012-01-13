@@ -68,7 +68,8 @@ void Angmeter::inputScreenStars(ArtifactBox *stars)
     _cache_PicStars = *stars;
     stars->lock().unlock();
 
-
+    _cache_CatStars = _queue_CatStars.head();
+    _queue_CatStars.clear();
     if(_cache_Targets.data().empty())    return;
 
     QTime t;
@@ -82,7 +83,8 @@ void Angmeter::inputScreenStars(ArtifactBox *stars)
 void Angmeter::inputCatStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
-    _cache_CatStars = *a;
+    _queue_CatStars.enqueue(*a);
+    //_cache_CatStars = *a;
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
