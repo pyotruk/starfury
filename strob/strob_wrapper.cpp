@@ -8,6 +8,7 @@ StrobWrapper::StrobWrapper(QSettings *s,
     _strob(new Strob(s))
 {
     this->moveToThread(this);
+    _strob->moveToThread(this);
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 #include <QSize>
 #include <QSettings>
 #include <QString>
+#include <QObject>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "strob/strobgeometry.h"
 #include "utils/cvhelpfun.h"
@@ -16,7 +17,7 @@
 //setting keys
 static const QString __skeyStrobStddevThreshold("/Strob/StdDevThreshold");
 /////////////////////////////////////////////////////////////////////////////////////
-class Strob
+class Strob : public QObject
 {
 public:
     explicit Strob(QSettings*);
@@ -28,9 +29,12 @@ public:
     void setThreshold(const double t) {_threshold = t;}
     double foneMean()   const {return _foneMean;}
     double signalMean() const {return _signalMean;}
+protected:
+    void timerEvent(QTimerEvent *);
 private:
     Strob(const Strob&) {}
     Strob& operator =(const Strob&) {return *this;}
+    static const double _sqrt2 = 1.4142135623730950488016887242097;
     static const double _defaultThreshold = 1.0;
     QSettings     *_settings;
     StrobGeometry *_geometry;
@@ -38,6 +42,8 @@ private:
     int           _pixThreshold;    //порог по яркости пиксела (используется для бинаризации cv::threshold)
     double        _foneMean;        //яркость в фоновом стробе на пиксель
     double        _signalMean;      //яркость в сигнальном стробе на пиксель
+    bool          _locked;
+    int           _timerId;
     void calcThresholds(const cv::Mat &signalRoi,
                         const cv::Mat &foneRoi,
                         const double stdDevThreshold,
@@ -45,6 +51,7 @@ private:
                         int    &pixThreshold,
                         double &signalMean,
                         double &foneMean);
+    int lockTime() const;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
 };

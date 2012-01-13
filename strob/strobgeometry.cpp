@@ -1,7 +1,8 @@
 #include "strobgeometry.h"
 /////////////////////////////////////////////////////////////////////////////////////
 StrobGeometry::StrobGeometry(QSettings *s) :
-    _settings(s)
+    _settings(s),
+    _velocity(0, 0)
 {
     this->loadSettings(_settings);
     this->setCenter(_refPoint);
@@ -77,15 +78,16 @@ bool StrobGeometry::checkRange(const QSize &frameSize)
 void StrobGeometry::setVelocity(const QPointF &v)
 {
     _velocity = QVector2D(v);
-    _velocity.normalize();
     this->refreshFoneRect();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::refreshFoneRect()
 {
     int r = _signal.width();
-    _fone.moveCenter(QPoint((int)(_signal.center().x() + r * _velocity.x()),
-                            (int)(_signal.center().y() + r * _velocity.y())));
+    QVector2D v = _velocity;
+    v.normalize();
+    _fone.moveCenter(QPoint((int)(_signal.center().x() + r * v.x()),
+                            (int)(_signal.center().y() + r * v.y())));
     _fone.setSize(_signal.size());
 }
 /////////////////////////////////////////////////////////////////////////////////////

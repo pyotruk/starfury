@@ -2,13 +2,15 @@
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::Strob(QSettings *s) :
     _settings(s),
-    _geometry(new StrobGeometry(_settings))
+    _geometry(new StrobGeometry(_settings)),
+    _locked(false)
 {
     loadSettings(_settings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::~Strob()
 {
+    this->killTimer(_timerId);
     saveSettings(_settings);
     delete _geometry;
 }
@@ -25,13 +27,19 @@ void Strob::saveSettings(QSettings *s)
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::makeTracking(Frame &f)
 {
-    //создание, инициализация сигнального и фонового стробов
+    if(_locked)
+    {
+        qDebug() << "Strob says: i`m LOCKED !";
+        return;
+    }
     if(!_geometry->checkRange(QSize(f.header().width(),
                                     f.header().height())))
     {
         qDebug() << "Strob says: geometry->checkRange() FAILED";
         return;
     }
+
+    //создание, инициализация сигнального и фонового стробов
     cv::Rect signalRect;
     cv::Rect foneRect;
     cvhelp::qtRect2cvRect(_geometry->signalRect(), signalRect);
@@ -66,6 +74,13 @@ void Strob::makeTracking(Frame &f)
         cvhelp::cvRect2qtRect(signalRect, newSignalRect);
         _geometry->setRect(newSignalRect);
     }
+    else
+    {
+        _locked = true;
+        int dt = this->lockTime();
+        qDebug() << "Strob says: lock time = " << dt;
+        _timerId = this->startTimer(dt);
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::calcThresholds(const cv::Mat &signalRoi,
@@ -87,7 +102,18 @@ void Strob::calcThresholds(const cv::Mat &signalRoi,
     pixThreshold = (int)qFloor(0.5 + foneMean + stdDevThreshold * stdDevPerPix); //порог, приведённый к одному пикселу
 }
 /////////////////////////////////////////////////////////////////////////////////////
+int Strob::lockTime() const
+{
+    if(_geometry->velocity().isNull())    return 0;
+    double r = _geometry->side() * _sqrt2 * 2;
+    double dt = r / _geometry->velocity().length() * 1000;
+    return (int)dt;
+}
 /////////////////////////////////////////////////////////////////////////////////////
+void Strob::timerEvent(QTimerEvent *)
+{
+    _locked = false;
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

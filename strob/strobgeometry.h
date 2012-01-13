@@ -28,6 +28,7 @@ public:
     inline const QRect &foneRect()   const {return _fone;}
     inline int dx() const {return (_refPoint.x() - _signal.center().x());}
     inline int dy() const {return (_refPoint.y() - _signal.center().y());}
+    inline const QVector2D &velocity() const {return _velocity;}
     void setSide(const int);
     void setCenter(const QPoint&);
     void setCenter(const int x,
