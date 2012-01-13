@@ -12,13 +12,7 @@ Detector::Detector(QSettings *s,
     _velocity(0, 0)
 {
     this->moveToThread(this);
-    _accum.moveToThread(this);
     this->loadSettings(_settings);
-
-    connect(&_accum, SIGNAL(full()),
-            this, SLOT(accumIsFull()),
-            Qt::DirectConnection);
-
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +43,7 @@ void Detector::inputFrame(FrameBox *f)
     f->lock().unlock();
 
     this->accumulate(_mode);
+    if(_accum.isFull())    this->accumIsFull();
 
     _frame->lock().lockForWrite();
     *_frame = _cache_Frame;

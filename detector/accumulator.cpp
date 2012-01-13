@@ -3,6 +3,7 @@
 const FrameBox& Accumulator::add(FrameBox &f,
                                  const QPointF &velocity)
 {
+    if(this->isFull())    return _frame;
     if(_num == 0)
     {
         _frame.setTimeMarker(f.timeMarker());
@@ -16,7 +17,7 @@ const FrameBox& Accumulator::add(FrameBox &f,
                                    mean,
                                    f.data()))
     {
-        this->setFull();
+        _full = true;
         return _frame;
     }
     cv::addWeighted(f.data().asCvMat(),
@@ -43,14 +44,8 @@ void Accumulator::checkFull()
     ++_num;
     if(_num > _capacity)
     {
-        this->setFull();
+        _full = true;
     }
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void Accumulator::setFull()
-{
-    _full = true;
-    emit full();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Accumulator::clear()

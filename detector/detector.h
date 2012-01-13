@@ -57,11 +57,11 @@ private:
     void accumulate(const MODE);
     void detectStars();
     void detectTargets();
+    void accumIsFull();
 private slots:
     void inputFrame(FrameBox*);
     void inputScreenVelocity(const double vx,
                              const double vy);
-    void accumIsFull();
 signals:
     void sendFrame(FrameBox*);
     void starsReady(ArtifactBox*);

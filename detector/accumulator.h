@@ -6,16 +6,14 @@
 #include <QPointF>
 #include <QRect>
 #include <QSize>
-#include <QObject>
 #include <qmath.h>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "opencv.hpp"
 #include "boxes/frame.h"
 #include "utils/cvhelpfun.h"
 /////////////////////////////////////////////////////////////////////////////////////
-class Accumulator : public QObject
+class Accumulator
 {
-    Q_OBJECT
 public:
     static const int _defaultCapacity = 20;
     explicit Accumulator(const int capacity = _defaultCapacity) :
@@ -38,9 +36,6 @@ private:
     bool      _full;
     void checkSize(const Frame::Header&);
     void checkFull();
-    void setFull();
-signals:
-    void full();
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
