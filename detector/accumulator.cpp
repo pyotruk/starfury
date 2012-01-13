@@ -1,43 +1,30 @@
 #include "accumulator.h"
 /////////////////////////////////////////////////////////////////////////////////////
-const FrameBox& Accumulator::add(FrameBox &f)
+const FrameBox& Accumulator::add(FrameBox &f,
+                                 const QPointF &velocity)
 {
+    if(_num == 0)
+    {
+        _frame.setTimeMarker(f.timeMarker());
+        qDebug() << "first frame time: " << _frame.timeMarker();
+    }
     this->checkSize(f.data().header());
     double mean = cv::mean(f.data().asCvMat())[0];
+    if(!shifting::cookShiftedFrame(_frame.timeMarker(),
+                                   f.timeMarker(),
+                                   velocity,
+                                   mean,
+                                   f.data()))
+    {
+        this->setFull();
+        return _frame;
+    }
     cv::addWeighted(f.data().asCvMat(),
                     _alpha,
                     _frame.data().asCvMat(),
                     _beta,
                     0 - mean,
                     _frame.data().asCvMat());
-    _frame.setTimeMarker(f.timeMarker());
-    this->checkFull();
-    return _frame;
-}
-/////////////////////////////////////////////////////////////////////////////////////
-const FrameBox& Accumulator::shiftAndAdd(FrameBox &f,
-                                         const QPointF &velocity)
-{
-    if(_num == 0)
-    {
-        _firstFrameTime = f.timeMarker();
-        qDebug() << "first frame time: " << _firstFrameTime;
-    }
-    this->checkSize(f.data().header());
-    double mean = cv::mean(f.data().asCvMat())[0];
-    f.data().asCvMat() -= mean;
-
-    shifting::cookShiftedFrame(_firstFrameTime,
-                               f.timeMarker(),
-                               velocity,
-                               f.data());
-    cv::addWeighted(f.data().asCvMat(),
-                    _alpha,
-                    _frame.data().asCvMat(),
-                    _beta,
-                    0,
-                    _frame.data().asCvMat());
-    _frame.setTimeMarker(f.timeMarker());
     this->checkFull();
     return _frame;
 }
@@ -56,9 +43,14 @@ void Accumulator::checkFull()
     ++_num;
     if(_num > _capacity)
     {
-        _full = true;
-        emit full();
+        this->setFull();
     }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Accumulator::setFull()
+{
+    _full = true;
+    emit full();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Accumulator::clear()
@@ -76,9 +68,10 @@ void Accumulator::clear()
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-void shifting::cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накопления
+bool shifting::cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накопления
                                 const QDateTime &t2, //сдвинутый кадр
                                 const QPointF &velocity,
+                                const double mean,
                                 Frame &f)
 {
     //вычисление сдвига
@@ -105,15 +98,16 @@ void shifting::cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накоп
     {
         qDebug() << "Frame::copyRegionTo FAILED" << "\n"
                  << "   " << shiftedRegion;
-        return;
+        return false;
     }
-    f.fillZeros();
+    f.fill(qCeil(mean));
     if(!f.copyRegionFrom(intersectedFrame, initialRegion.topLeft()))
     {
         qDebug() << "Frame::copyRegionFrom FAILED" << "\n"
                  << "   " << initialRegion;
-        return;
+        return false;
     }
+    return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

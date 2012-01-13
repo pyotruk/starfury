@@ -5,7 +5,9 @@
 #include <QDateTime>
 #include <QPointF>
 #include <QRect>
+#include <QSize>
 #include <QObject>
+#include <qmath.h>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "opencv.hpp"
 #include "boxes/frame.h"
@@ -20,9 +22,8 @@ public:
         _capacity(capacity), _num(0), _full(false) {}
     ~Accumulator() {}
     const FrameBox& frame() const {return _frame;}
-    const FrameBox& add(FrameBox&);
-    const FrameBox& shiftAndAdd(FrameBox&,
-                                const QPointF& velocity);
+    const FrameBox& add(FrameBox&,
+                        const QPointF& velocity = QPointF(0, 0));
     void setCapacity(const int capacity) {_capacity = capacity;}
     int capacity() const {return _capacity;}
     int num()      const {return _num;}
@@ -35,9 +36,9 @@ private:
     int       _capacity; //ёмкость (кол-во накапливаемых кадров)
     int       _num;      //текущее кол-во накопленных кадров
     bool      _full;
-    QDateTime _firstFrameTime;
     void checkSize(const Frame::Header&);
     void checkFull();
+    void setFull();
 signals:
     void full();
 };
@@ -45,9 +46,11 @@ signals:
 /////////////////////////////////////////////////////////////////////////////////////
 namespace shifting
 {
-void cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накопления
+/* returns true if success */
+bool cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накопления
                       const QDateTime &t2, //сдвинутый кадр
                       const QPointF &velocity,
+                      const double mean,
                       Frame &f);
 }
 /////////////////////////////////////////////////////////////////////////////////////

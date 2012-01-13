@@ -66,7 +66,7 @@ void Detector::accumulate(const MODE mode)
         _cache_Frame = _accum.add(_cache_Frame);
         break;
     case STAR_DETECTION:
-        _cache_Frame = _accum.shiftAndAdd(_cache_Frame, _velocity);
+        _cache_Frame = _accum.add(_cache_Frame, _velocity);
         break;
     }
 

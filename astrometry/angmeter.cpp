@@ -141,8 +141,8 @@ void Angmeter::proc()
                                   _cache_CatStars.timeMarker(),
                                   _maxDelay))
     {
-        return;
         qDebug() << "Angmeter says: too big time delay between pic&cat stars";
+        return;
     }
 
     art::deleteTargets(_cache_PicStars.data(), _cache_Targets.data());

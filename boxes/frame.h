@@ -55,6 +55,7 @@ public:
     uchar* pnt(int i, int j);
     const uchar* constPnt(int i, int j) const;
     void fillZeros();
+    void fill(const uchar);
     bool rectIsBelongTo(const QRect&);
     bool pointIsBelongTo(const QPoint&);
     bool copyRegionTo(const QRect& region, //returns true if success
