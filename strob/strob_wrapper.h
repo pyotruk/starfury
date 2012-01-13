@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QSettings>
 #include <QMouseEvent>
+#include <QPointF>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "strob/strob.h"
 #include "boxes/frame.h"
@@ -34,6 +35,8 @@ private slots:
                 const int y);
     void setSide(const int);
     void setThreshold(const int);
+    void setVelocity(const double vx,
+                     const double vy);
 signals:
     void frameReady(FrameBox*);
     void freshTargets(ArtifactBox*);

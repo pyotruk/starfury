@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     DetectorWindow   detectorWnd("detection", QPoint(200, 200));
     PhotometryWindow photometryWnd(&settings);
     //gui init
-    controlWnd.initFace(strobWrapper.strob().geometry().innerSide(),
+    controlWnd.initFace(strobWrapper.strob().geometry().side(),
                         (int)(strobWrapper.strob().threshold()),
                         angmeter.method(),
                         detector.accum().capacity(),
@@ -105,6 +105,9 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(sendScreenVelocity(double,double)),
                      &detector, SLOT(inputScreenVelocity(double,double)),
+                     Qt::QueuedConnection);
+    QObject::connect(&starcatScreen, SIGNAL(sendScreenVelocity(double,double)),
+                     &strobWrapper, SLOT(setVelocity(double,double)),
                      Qt::QueuedConnection);
 
     //gui <--> object connections

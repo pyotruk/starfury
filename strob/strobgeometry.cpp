@@ -3,41 +3,45 @@
 StrobGeometry::StrobGeometry(QSettings *s) :
     _settings(s)
 {
-    loadSettings(_settings);
-    setCenter(_refPoint);
+    this->loadSettings(_settings);
+    this->setCenter(_refPoint);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 StrobGeometry::~StrobGeometry()
 {
-    saveSettings(_settings);
+    this->saveSettings(_settings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::loadSettings(QSettings *s)
 {
-    setSide(s->value(__skeyStrobSide, _defaultInnerSide).toInt());
-    setRefPoint(QPoint(s->value(__skeyStrobRefPointX, _defaultRefPointX).toInt(),
-                       s->value(__skeyStrobRefPointY, _defaultRefPointY).toInt()));
+    this->setSide(s->value(__skeyStrobSide, _defaultInnerSide).toInt());
+    this->setRefPoint(QPoint(s->value(__skeyStrobRefPointX, _defaultRefPointX).toInt(),
+                             s->value(__skeyStrobRefPointY, _defaultRefPointY).toInt()));
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::saveSettings(QSettings *s)
 {
-    s->setValue(__skeyStrobSide, _innerRect.width());
+    s->setValue(__skeyStrobSide, _signal.width());
     s->setValue(__skeyStrobRefPointX, _refPoint.x());
     s->setValue(__skeyStrobRefPointY, _refPoint.y());
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void StrobGeometry::setSide(const int innerSide)
+const QPoint& StrobGeometry::center()
 {
-    int outerSide = (int)(floor(__sqrt2 * innerSide + 0.5));
-    _innerRect.setSize(QSize(innerSide, innerSide));
-    _outerRect.setSize(QSize(outerSide, outerSide));
+    _cache_Center = _signal.center();
+    return _cache_Center;
+}
+///////////////////////////////////////////////////////////////////////////////////////
+void StrobGeometry::setSide(const int side)
+{
+    _signal.setSize(QSize(side, side));
+    this->refreshFoneRect();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::setCenter(const QPoint &center)
 {
-    _center = center;
-    _innerRect.moveCenter(_center);
-    _outerRect.moveCenter(_center);
+    _signal.moveCenter(center);
+    this->refreshFoneRect();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobGeometry::setCenter(const int x,
@@ -51,29 +55,39 @@ void StrobGeometry::setRefPoint(const QPoint &refPoint)
     _refPoint = refPoint;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StrobGeometry::setRect(const QRect &innerRect)
+void StrobGeometry::setRect(const QRect &r)
 {
-    QPoint cen(innerRect.x() + innerRect.width() / 2,
-               innerRect.y() + innerRect.height() / 2);
-    setCenter(cen);
+    _signal = r;
+    this->refreshFoneRect();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StrobGeometry::checkRange(const QSize &imgSize)
+bool StrobGeometry::checkRange(const QSize &frameSize)
 {
-    QPoint cen = _center;
-    int side2 = ceil(_outerRect.width() / 2 + 1);
-    int xMin = 0 + side2;
-    int xMax = imgSize.width() - side2;
-    int yMin = 0 + side2;
-    int yMax = imgSize.height() - side2;
-    if(cen.x() < xMin)  cen.setX(xMin);
-    if(cen.x() > xMax)  cen.setX(xMax);
-    if(cen.y() < yMin)  cen.setY(yMin);
-    if(cen.y() > yMax)  cen.setY(yMax);
-    setCenter(cen);
+    QRect frameRect(QPoint(0, 0), frameSize);
+    if(frameRect.contains(_signal, true))
+    {
+        if(frameRect.contains(_fone, true))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void StrobGeometry::setVelocity(const QPointF &v)
+{
+    _velocity = QVector2D(v);
+    _velocity.normalize();
+    this->refreshFoneRect();
+}
 /////////////////////////////////////////////////////////////////////////////////////
+void StrobGeometry::refreshFoneRect()
+{
+    int r = _signal.width();
+    _fone.moveCenter(QPoint((int)(_signal.center().x() + r * _velocity.x()),
+                            (int)(_signal.center().y() + r * _velocity.y())));
+    _fone.setSize(_signal.size());
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

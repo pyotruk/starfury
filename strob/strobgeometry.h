@@ -2,11 +2,13 @@
 #define STROBGEOMETRY_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QPoint>
+#include <QPointF>
 #include <QRect>
 #include <QSize>
 #include <QSettings>
 #include <math.h>
 #include <QString>
+#include <QVector2D>
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyStrobSide("/Strob/Geometry/Side");
@@ -18,33 +20,34 @@ class StrobGeometry
 public:
     explicit StrobGeometry(QSettings*);
     ~StrobGeometry();
-    void setRect(const QRect &innerRect);
-    int  innerSide() const {return _innerRect.width();}
-    int  outerSide() const {return _outerRect.width();}
-    const QPoint &center()   const {return _center;}
-    const QPoint &refPoint() const {return _refPoint;}
-    const QRect &innerRect() const {return _innerRect;}
-    const QRect &outerRect() const {return _outerRect;}
-    void checkRange(const QSize &imgSize);
-    int dx() const {return _refPoint.x() - _center.x();}
-    int dy() const {return _refPoint.y() - _center.y();}
-    void setSide(const int innerSide);
-    void setCenter(const QPoint &center);
+    void setRect(const QRect&);
+    inline int side() const {return _signal.width();}
+    const QPoint &center();
+    inline const QPoint &refPoint() const {return _refPoint;}
+    inline const QRect &signalRect() const {return _signal;}
+    inline const QRect &foneRect()   const {return _fone;}
+    inline int dx() const {return (_refPoint.x() - _signal.center().x());}
+    inline int dy() const {return (_refPoint.y() - _signal.center().y());}
+    void setSide(const int);
+    void setCenter(const QPoint&);
     void setCenter(const int x,
                    const int y);
-    void setRefPoint(const QPoint &refPoint);
+    void setRefPoint(const QPoint&);
+    void setVelocity(const QPointF&);
+    bool checkRange(const QSize &frameSize);
 private:
-    static const double __sqrt2 = 1.4142135623730950488016887242097;
     static const int _defaultInnerSide = 40;
     static const int _defaultRefPointX = 0;
     static const int _defaultRefPointY = 0;
     QSettings *_settings;
-    QRect     _innerRect;
-    QRect     _outerRect;
-    QPoint    _center;
+    QRect     _signal;
+    QRect     _fone;
+    QPoint    _cache_Center;
     QPoint    _refPoint;
+    QVector2D _velocity;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
+    void refreshFoneRect();
 };
 /////////////////////////////////////////////////////////////////////////////////////
 #endif // STROBGEOMETRY_H

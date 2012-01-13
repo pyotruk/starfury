@@ -26,15 +26,20 @@ void Strob::saveSettings(QSettings *s)
 void Strob::makeTracking(Frame &f)
 {
     //создание, инициализаци€ сигнального и фонового стробов
-    _geometry->checkRange(QSize(f.header().width(),
-                                f.header().height()));
-    cv::Rect innerRect;
-    cv::Rect outerRect;
-    cvhelp::qtRect2cvRect(_geometry->innerRect(), innerRect);
-    cvhelp::qtRect2cvRect(_geometry->outerRect(), outerRect);
-    cv::Mat signalRoi(f.asCvMat(), innerRect);
-    cv::Mat foneRoi(f.asCvMat(), outerRect);
+    if(!_geometry->checkRange(QSize(f.header().width(),
+                                    f.header().height())))
+    {
+        qDebug() << "Strob says: geometry->checkRange() FAILED";
+        return;
+    }
+    cv::Rect signalRect;
+    cv::Rect foneRect;
+    cvhelp::qtRect2cvRect(_geometry->signalRect(), signalRect);
+    cvhelp::qtRect2cvRect(_geometry->foneRect(), foneRect);
+    cv::Mat signalRoi(f.asCvMat(), signalRect);
+    cv::Mat foneRoi(f.asCvMat(), foneRect);
     cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтраци€
+    cv::blur(signalRoi, signalRoi, cv::Size(5,5)); //фильтраци€
 
     double sumThreshold; /*порог по суммарным значени€м €ркости
                          в сигнальном и фоновом стробах*/
@@ -56,10 +61,10 @@ void Strob::makeTracking(Frame &f)
 
         //вычисление центра масс по сигнальному стробу
         cv::TermCriteria crit(cv::TermCriteria::COUNT, 1, 0.1);
-        cv::meanShift(f.asCvMat(), innerRect, crit);
-        QRect newInnerRect;
-        cvhelp::cvRect2qtRect(innerRect, newInnerRect);
-        _geometry->setRect(newInnerRect);
+        cv::meanShift(f.asCvMat(), signalRect, crit);
+        QRect newSignalRect;
+        cvhelp::cvRect2qtRect(signalRect, newSignalRect);
+        _geometry->setRect(newSignalRect);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -73,15 +78,13 @@ void Strob::calcThresholds(const cv::Mat &signalRoi,
 {
     double sumSignal = cv::sum(signalRoi)[0]; //сумма €ркости пикселей по сигнальному стробу
     signalMean = sumSignal / signalRoi.total();
-    double sumFone = cv::sum(foneRoi)[0]; //по фоновому стробу
-    sumFone -= sumSignal; //на рамке
-    double sumStdDev = sqrt(sumFone); //CKO
+    double sumFone = cv::sum(foneRoi)[0]; //сумма €ркости пикселей по фоновому стробу
+    foneMean = sumFone / foneRoi.total();
+    double sumStdDev = qSqrt(sumFone); //CKO
+    double stdDevPerPix = sumStdDev / foneRoi.total();
     sumThreshold = sumSignal - sumFone; /*порог по суммарным значени€м €ркости
                                           в сигнальном и фоновом стробах*/
-    int borderPixNum = (foneRoi.total() - signalRoi.total()); //кол-во пикселей на рамке
-    foneMean = sumFone / borderPixNum;
-    double stdDevPerPix = sumStdDev / borderPixNum;
-    pixThreshold = (int)floor(0.5 + foneMean + stdDevThreshold * stdDevPerPix); //порог, приведЄнный к одному пикселу
+    pixThreshold = (int)qFloor(0.5 + foneMean + stdDevThreshold * stdDevPerPix); //порог, приведЄнный к одному пикселу
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

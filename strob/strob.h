@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <numeric>
 #include <QPoint>
-#include <math.h>
+#include <qmath.h>
 #include <QSize>
 #include <QSettings>
 #include <QString>
