@@ -88,6 +88,7 @@ void StarcatScreen::inputTarget(ArtifactBox *target)
     if(target->data().empty())
     {
         target->lock().unlock();
+        qDebug() << "StarcatScreen says: input [target] is empty";
         return;
     }
     Artifact picTarget = target->data().front();

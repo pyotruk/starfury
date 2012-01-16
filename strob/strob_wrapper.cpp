@@ -80,6 +80,7 @@ void StrobWrapper::setThreshold(const int t)
 void StrobWrapper::setVelocity(const double vx,
                                const double vy)
 {
+    qDebug() << "StrobWrapper says: screen velocity = " << vx << "    " << vy;
     _strob->geometry().setVelocity(QPointF(vx, vy));
 }
 /////////////////////////////////////////////////////////////////////////////////////

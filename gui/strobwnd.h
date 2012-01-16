@@ -16,13 +16,13 @@ public:
         : ImageWindow(title, pos, parent) {}
     ~StrobWindow() {}
 private:
-    ArtifactBox     _artifactBox;
-    ArtifactBox     _starBox;
+    ArtifactVector  _picStars;
+    ArtifactVector  _catStars;
     ArtifactVector  _eqPicStars;
     ArtifactVector  _eqCatStars;
     void drawAll();
 private slots:
-    void inputScreenStars(ArtifactBox*);
+    void inputPicStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
     void inputEquatedStars(ArtifactBox *pic,
                            ArtifactBox *cat);

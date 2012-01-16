@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
                      &strobWrapper, SLOT(targetsDetected()),
                      Qt::QueuedConnection);
     QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),
-                     &angmeter, SLOT(inputScreenStars(ArtifactBox*)),
+                     &angmeter, SLOT(inputPicStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
                      &angmeter, SLOT(inputCatStars(ArtifactBox*)),
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
                      &strobWnd, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),
-                     &strobWnd, SLOT(inputScreenStars(ArtifactBox*)),
+                     &strobWnd, SLOT(inputPicStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
                      &strobWnd, SLOT(inputCatStars(ArtifactBox*)),

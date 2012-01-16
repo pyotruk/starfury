@@ -2,28 +2,28 @@
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWindow::drawAll()
 {
-    draw::artifactMarks(_img, _artifactBox.data());
-    draw::starMarks(_img, _starBox.data());
+    draw::artifactMarks(_img, _picStars);
+    draw::starMarks(_img, _catStars);
     draw::starConfig(_img, _eqPicStars, 2, Qt::yellow);
     draw::starConfig(_img, _eqCatStars, 1, Qt::cyan);
     _eqPicStars.clear();
     _eqCatStars.clear();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StrobWindow::inputScreenStars(ArtifactBox *a)
+void StrobWindow::inputPicStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
-    _artifactBox = *a;
+    _picStars = a->data();
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWindow::inputCatStars(ArtifactBox *a)
 {
     a->lock().lockForRead();
-    _starBox = *a;
+    _catStars = a->data();
     a->lock().unlock();
 
-    draw::convertStarMagn(_starBox.data());
+    draw::convertStarMagn(_catStars);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWindow::inputEquatedStars(ArtifactBox *pic,

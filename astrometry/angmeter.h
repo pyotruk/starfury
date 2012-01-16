@@ -83,7 +83,7 @@ private:
     void cookTarget(const LinCor&);
 private slots:
     void inputTargets(ArtifactBox*);
-    void inputScreenStars(ArtifactBox*);
+    void inputPicStars(ArtifactBox*);
     void inputCatStars(ArtifactBox*);
 signals:
     void sendEquatedStars(ArtifactBox *pic,

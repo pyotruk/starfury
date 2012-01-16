@@ -75,6 +75,7 @@ void Detector::detectStars()
                            _cache_Stars.data());
     if(_cache_Stars.data().empty())
     {
+        qDebug() << "Detector says: [_cache_Stars] is empty!";
         return;
     }
     _cache_Stars.setTimeMarker(_cache_Frame.timeMarker());
@@ -92,6 +93,7 @@ void Detector::detectTargets()
                            _cache_Targets.data());
     if(_cache_Targets.data().empty())
     {
+        qDebug() << "Detector says: [_cache_Targets] is empty!";
         return;
     }
     _cache_Targets.setTimeMarker(_cache_Frame.timeMarker());

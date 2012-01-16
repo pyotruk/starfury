@@ -27,11 +27,6 @@ void Strob::saveSettings(QSettings *s)
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::makeTracking(Frame &f)
 {
-    if(_locked)
-    {
-        qDebug() << "Strob says: i`m LOCKED !";
-        return;
-    }
     if(!_geometry->checkRange(QSize(f.header().width(),
                                     f.header().height())))
     {
@@ -59,6 +54,12 @@ void Strob::makeTracking(Frame &f)
                    _signalMean,
                    _foneMean);
 
+    if(_locked)
+    {
+        qDebug() << "Strob says: sorry, i`m LOCKED !";
+        return;
+    }
+
     if(sumThreshold > 0)    //проверка условия слежения
     {
         cv::threshold(signalRoi, //пороговая бинаризация в сигнальном стробе
@@ -78,7 +79,6 @@ void Strob::makeTracking(Frame &f)
     {
         _locked = true;
         int dt = this->lockTime();
-        qDebug() << "Strob says: lock time = " << dt;
         _timerId = this->startTimer(dt);
     }
 }
@@ -104,15 +104,31 @@ void Strob::calcThresholds(const cv::Mat &signalRoi,
 /////////////////////////////////////////////////////////////////////////////////////
 int Strob::lockTime() const
 {
-    if(_geometry->velocity().isNull())    return 0;
-    double r = _geometry->side() * _sqrt2 * 2;
-    double dt = r / _geometry->velocity().length() * 1000;
+    QVector2D v = _geometry->velocity();
+    if(v.isNull())
+    {
+        qDebug() << "Strob says: velosity is NULL";
+        return 0;
+    }
+    int side = _geometry->side();
+    double r = side * _sqrt2 * _lockSizeKoef;
+    double dt = r / v.length() * 1000;
+    qDebug() << "Strob says: _LOCK_" << "\n"
+             << "   v = " << v << "\n"
+             << "   side = " << side << "\n"
+             << "   r = " << r << "\n"
+             << "   dt = " << dt;
     return (int)dt;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::timerEvent(QTimerEvent *)
+void Strob::timerEvent(QTimerEvent *event)
 {
-    _locked = false;
+    if(_timerId == event->timerId())
+    {
+        this->killTimer(_timerId);
+        _locked = false;
+        qDebug() << "Strob says: _UNLOCK_";
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

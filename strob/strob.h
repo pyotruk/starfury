@@ -8,6 +8,7 @@
 #include <QSettings>
 #include <QString>
 #include <QObject>
+#include <QTimerEvent>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "strob/strobgeometry.h"
 #include "utils/cvhelpfun.h"
@@ -36,6 +37,7 @@ private:
     Strob& operator =(const Strob&) {return *this;}
     static const double _sqrt2 = 1.4142135623730950488016887242097;
     static const double _defaultThreshold = 1.0;
+    static const double _lockSizeKoef = 2.0;
     QSettings     *_settings;
     StrobGeometry *_geometry;
     double        _threshold;       //регулируемый (руками) порог обнаружения в единицах СКО
