@@ -25,10 +25,12 @@ void StrobWrapper::inputFrame(FrameBox *f)
     _strob->makeTracking(f->data());
     f->lock().unlock();
     emit frameReady(f);
-
     emit sendPhotometry(timeutils::msecFromDayBegin() / 1000,
                         _strob->signalMean(),
                         _strob->foneMean());
+
+    if(_strob->isLocked())    qDebug() << "StrobWrapper says: _strob is LOCKED";
+    else                      qDebug() << "StrobWrapper says: _strob is _NOT_ LOCKED";
 
     if(_targets->lock().tryLockForWrite(_timeout))
     {
@@ -38,6 +40,9 @@ void StrobWrapper::inputFrame(FrameBox *f)
         _targets->data().push_back(a);
         _targets->lock().unlock();
         emit freshTargets(_targets);
+
+        qDebug() << "StrobWrapper says: emit freshTargets(_targets)" << "\n"
+                 << "   target = " << a;
     }
 
     _log->write(QString::number(_strob->geometry().dx()) + " " +
@@ -58,7 +63,12 @@ void StrobWrapper::targetsDetected()
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWrapper::setPos(QMouseEvent *e)
 {
+    /* fucking BUG here: sometimes e->pos() is not correctly (out of frame borders)
+       BUG need to fix */
+
     _strob->geometry().setCenter(e->pos());
+    qDebug() << "StrobWrapper says: QMouseEvent handler" << "\n"
+             << "   mouse pos = " << e->pos();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWrapper::setPos(const int x,

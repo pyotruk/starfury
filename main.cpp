@@ -166,6 +166,10 @@ int main(int argc, char *argv[])
                      &detector, SLOT(setBinEnabled(bool)),
                      Qt::QueuedConnection);
 
+    //application shutdown
+    QObject::connect(&controlWnd, SIGNAL(closed()),
+                     &a, SLOT(closeAllWindows()));
+
     controlWnd.show();
     strobWnd.show();
     detectorWnd.show();

@@ -68,6 +68,18 @@ void Angmeter::inputPicStars(ArtifactBox *stars)
     _cache_PicStars = *stars;
     stars->lock().unlock();
 
+    if(_cache_Targets.data().empty())
+    {
+        qDebug() << "Angmeter says: [_cache_Targets] is EMPTY !";
+        return;
+    }
+
+    if(_cache_PicStars.data().empty())
+    {
+        qDebug() << "Angmeter says: [_cache_PicStars] is EMPTY !";
+        return;
+    }
+
     if(_queue_CatStars.empty())
     {
         qDebug() << "Angmeter says: [_queue_CatStars] is EMPTY !";
@@ -75,12 +87,6 @@ void Angmeter::inputPicStars(ArtifactBox *stars)
     }
     _cache_CatStars = _queue_CatStars.head();
     _queue_CatStars.clear();
-
-    if(_cache_Targets.data().empty())
-    {
-        qDebug() << "Angmeter says: [_cache_Targets] is EMPTY !";
-        return;
-    }
 
     QTime t;
     t.start();

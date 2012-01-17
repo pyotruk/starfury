@@ -107,7 +107,7 @@ int Strob::lockTime() const
     QVector2D v = _geometry->velocity();
     if(v.isNull())
     {
-        qDebug() << "Strob says: velosity is NULL";
+        qDebug() << "Strob says: velocity is NULL";
         return 0;
     }
     int side = _geometry->side();
@@ -125,12 +125,16 @@ void Strob::timerEvent(QTimerEvent *event)
 {
     if(_timerId == event->timerId())
     {
-        this->killTimer(_timerId);
-        _locked = false;
-        qDebug() << "Strob says: _UNLOCK_";
+        this->unlock();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Strob::unlock()
+{
+    this->killTimer(_timerId);
+    _locked = false;
+    qDebug() << "Strob says: _UNLOCK_";
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -23,13 +23,14 @@ class Strob : public QObject
 public:
     explicit Strob(QSettings*);
     ~Strob();
-    double threshold()        const {return _threshold;}
-    int    pixThreshold()     const {return _pixThreshold;}
-    StrobGeometry &geometry() const {return *_geometry;}
+    inline double threshold()        const {return _threshold;}
+    inline int    pixThreshold()     const {return _pixThreshold;}
+    inline StrobGeometry &geometry() const {return *_geometry;}
+    inline double foneMean()   const {return _foneMean;}
+    inline double signalMean() const {return _signalMean;}
+    inline bool   isLocked()   const {return _locked;}
     void makeTracking(Frame&);
     void setThreshold(const double t) {_threshold = t;}
-    double foneMean()   const {return _foneMean;}
-    double signalMean() const {return _signalMean;}
 protected:
     void timerEvent(QTimerEvent *);
 private:
@@ -54,6 +55,7 @@ private:
                         double &signalMean,
                         double &foneMean);
     int lockTime() const;
+    void unlock();
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
 };

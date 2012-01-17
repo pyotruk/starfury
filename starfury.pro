@@ -66,7 +66,6 @@ HEADERS  += \
     astrometry/angmeter.h \
     boxes/databox.h \
     math/lincor.h \
-    boxes/combo.h \
     common/logfile.h \
     utils/timeutils.h \
     boxes/telescope.h \

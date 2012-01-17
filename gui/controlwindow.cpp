@@ -40,6 +40,12 @@ ControlWindow::~ControlWindow()
     delete ui;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void ControlWindow::closeEvent(QCloseEvent *event)
+{
+    QMainWindow::closeEvent(event);
+    emit closed();
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void ControlWindow::initFace(const int strobSize,
                              const int trackTresh,
                              const astrometry::METHOD method,
