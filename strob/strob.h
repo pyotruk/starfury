@@ -30,7 +30,7 @@ class Strob : public QObject
 public:
     class Geometry
     {
-    public:
+    public:        
         static const int _defaultSide = 20;
         static const int _defaultRefPointX = 320;
         static const int _defaultRefPointY = 240;
@@ -38,9 +38,11 @@ public:
         static const int _defaultFrameHeight = 480;
         static const double _defaultVelocityX = 0.0;
         static const double _defaultVelocityY = 0.0;
+        static const int _minSide = 10;
+
         explicit Geometry();
-        inline int side() const {return _signal.width();}
         const QPoint &center();
+        inline int side() const {return _signal.width();}
         inline const QPoint &refPoint() const {return _refPoint;}
         inline const QRect &signalRect() const {return _signal;}
         inline const QRect &foneRect()   const {return _fone;}
@@ -55,17 +57,28 @@ public:
         void setVelocity(const QPointF&);
         void setFrameSize(const QSize&);
         void moveToRefPoint();
-        bool isValid();
-    private:
+        void moveToFrameCenter();
+        bool isValid() const {return _isValid;}
+
+    private:        
         QSize     _frameSize;
+        QRect     _clone_Signal;
+        QRect     _clone_Fone;
         QRect     _signal;
         QRect     _fone;
+        cv::Rect  _cache_Signal;
+        cv::Rect  _cache_Fone;
         QPoint    _refPoint;
         QVector2D _velocity;
         QPoint    _cache_Center;
-        cv::Rect  _cache_Signal;
-        cv::Rect  _cache_Fone;
+        bool      _rollback_ON;
+        bool      _isValid;
+        bool checkValid();
+        void backup();
+        void rollback();
+        void refresh();
         void refreshFoneRect();
+        inline void refreshValid() {_isValid = this->checkValid();}
     };
 
     enum RETURN_VALUES {OK = 0,
@@ -89,8 +102,10 @@ public:
     void toArtifact(Artifact&);
     void moveToRefPoint();
     RETURN_VALUES proc(Frame&);
+
 protected:
     void timerEvent(QTimerEvent *);
+
 private:
     Strob(const Strob&) {}
     Strob& operator =(const Strob&) {return *this;}

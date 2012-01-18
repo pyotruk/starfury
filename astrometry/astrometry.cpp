@@ -66,13 +66,13 @@ int astrometry::equate(ArtifactVector &picStars,
                        const int minEquatedStarQuantity,
                        METHOD    method)
 {
-    if(picStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
-    if(catStars.size() < __minStarQuantity)     return __TOO_LESS_RAW_STARS;
+    if(picStars.size() < _minStarQuantity)     return TOO_LESS_RAW_STARS;
+    if(catStars.size() < _minStarQuantity)     return TOO_LESS_RAW_STARS;
 
     int starQuantity;
-    if((method == SIMTRI) && (maxStarQuantity > simtri::__maxStarQuantityForSimtriMethod))
+    if((method == SIMTRI) && (maxStarQuantity > simtri::_maxStarQuantityForSimtriMethod))
     {
-        starQuantity = simtri::__maxStarQuantityForSimtriMethod;
+        starQuantity = simtri::_maxStarQuantityForSimtriMethod;
     }
     else
     {
@@ -103,7 +103,7 @@ int astrometry::equate(ArtifactVector &picStars,
         break;
 
     default:
-        return __UNKNOWN_ERROR;
+        return UNKNOWN_ERROR;
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////

@@ -208,8 +208,8 @@ int simtri::equate(ArtifactVector &picStars,
                    const double similarEps,
                    const int minEquatedStarQuantity)
 {
-    if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
-    if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
+    if(picStars.size() < astrometry::_minStarQuantity)     return astrometry::TOO_LESS_RAW_STARS;
+    if(catStars.size() < astrometry::_minStarQuantity)     return astrometry::TOO_LESS_RAW_STARS;
 
     TriangleVector picTriangles;
     TriangleVector catTriangles;
@@ -217,12 +217,12 @@ int simtri::equate(ArtifactVector &picStars,
     cookTriangles(picStars,
                   picTriangles);
     deleteEqual(picTriangles,
-                __equalEps);
+                _equalEps);
 
     cookTriangles(catStars,
                   catTriangles);
     deleteEqual(catTriangles,
-                __equalEps);
+                _equalEps);
 
     qDebug() << "triangles TOTAL:  " << picTriangles.size()
              << " (pic)    " << catTriangles.size() << " (cat)";
@@ -234,14 +234,14 @@ int simtri::equate(ArtifactVector &picStars,
 
     extractArtifacts(picTriangles,
                      catTriangles,
-                     __equalEps,
+                     _equalEps,
                      picStars,
                      catStars);
 
-    if(picStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
-    if(catStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
+    if(picStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;
+    if(catStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;
 
-    return astrometry::__SUCCESS;
+    return astrometry::SUCCESS;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

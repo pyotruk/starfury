@@ -174,8 +174,8 @@ int freevec::equate(ArtifactVector &picStars,
                     const double    similarEps,
                     const int       minEquatedStarQuantity)
 {
-    if(picStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
-    if(catStars.size() < astrometry::__minStarQuantity)     return astrometry::__TOO_LESS_RAW_STARS;
+    if(picStars.size() < astrometry::_minStarQuantity)     return astrometry::TOO_LESS_RAW_STARS;
+    if(catStars.size() < astrometry::_minStarQuantity)     return astrometry::TOO_LESS_RAW_STARS;
 
     QPointF screenCenter(screen.width() / 2, screen.height() / 2);
     Artifact picRefStar0, picRefStar1;
@@ -209,10 +209,10 @@ int freevec::equate(ArtifactVector &picStars,
 
     qDebug() << "TOTAL  _" << picStars.size() << "_ similar stars";
 
-    if(picStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
-    if(catStars.size() < minEquatedStarQuantity)    return astrometry::__TOO_LESS_EQUATED_STARS;
+    if(picStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;
+    if(catStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;
 
-    return astrometry::__SUCCESS;
+    return astrometry::SUCCESS;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

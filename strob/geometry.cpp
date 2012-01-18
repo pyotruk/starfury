@@ -3,10 +3,12 @@
 Strob::Geometry::Geometry() :
     _frameSize(_defaultFrameWidth, _defaultFrameHeight),
     _refPoint(_defaultRefPointX, _defaultRefPointY),
-    _velocity(_defaultVelocityX, _defaultVelocityY)
+    _velocity(_defaultVelocityX, _defaultVelocityY),
+    _rollback_ON(false),
+    _isValid(false)
 {
-    this->moveToRefPoint();
     this->setSide(_defaultSide);
+    _rollback_ON = true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 const QPoint& Strob::Geometry::center()
@@ -17,18 +19,17 @@ const QPoint& Strob::Geometry::center()
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::setSide(const int s)
 {
-    Geometry buf = *this; //backup
-    _signal.setSize(QSize(s, s));
-    this->refreshFoneRect();    
-    if(!this->isValid())    *this = buf; //rollback
+    int side;
+    if(s < _minSide)    side = _minSide;
+    else                side = s;
+    _signal.setSize(QSize(side, side));
+    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::setCenter(const QPoint &p)
 {
-    Geometry buf = *this; //backup
     _signal.moveCenter(p);
-    this->refreshFoneRect();
-    if(!this->isValid())    *this = buf; //rollback
+    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::setRefPoint(const QPoint &p)
@@ -67,6 +68,7 @@ const cv::Rect& Strob::Geometry::foneCvRect()
 void Strob::Geometry::setFrameSize(const QSize &s)
 {
     _frameSize = s;
+    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::moveToRefPoint()
@@ -74,7 +76,13 @@ void Strob::Geometry::moveToRefPoint()
     this->setCenter(_refPoint);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-bool Strob::Geometry::isValid()
+void Strob::Geometry::moveToFrameCenter()
+{
+    this->setCenter(QPoint(_frameSize.width(),
+                           _frameSize.height()));
+}
+/////////////////////////////////////////////////////////////////////////////////////
+bool Strob::Geometry::checkValid()
 {
     QRect frameRect(QPoint(0, 0), _frameSize);
     if(frameRect.contains(_signal, true))
@@ -86,5 +94,47 @@ bool Strob::Geometry::isValid()
     }
     return false;
 }
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::Geometry::backup()
+{
+    _clone_Signal = _signal;
+    _clone_Fone   = _fone;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::Geometry::rollback()
+{
+    if(_rollback_ON)
+    {
+        _signal = _clone_Signal;
+        _fone   = _clone_Fone;
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::Geometry::refresh()
+{
+    this->refreshFoneRect();
+    this->refreshValid();
+
+    /* Achtung! Brainfuck */
+    if(this->isValid()) //если тебе хорошо
+    {
+        this->backup(); //запомни это состояние
+    }
+    else                //если тебе плохо
+    {
+        this->rollback();       //вернись в то состояние, когда было хорошо
+        if(!this->isValid())    //если тебе всё ещё плохо
+        {
+            this->moveToRefPoint();     //вернись в то место, где тебе было хорошо
+            if(!this->isValid())        //не помогает ?
+            {
+                this->moveToFrameCenter();      //встань в центр кадра, детка
+            }
+        }
+    }
+}
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

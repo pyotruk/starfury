@@ -10,14 +10,14 @@
 namespace astrometry
 {
 //return values
-static const int __SUCCESS                = 0;
-static const int __TOO_LESS_RAW_STARS     = -1; //less than __minStarQuantity
-static const int __TOO_LESS_EQUATED_STARS = -2; //less than minEquatedStarQuantity
-static const int __UNKNOWN_ERROR          = -3; //when switch default (it is impossible)
+enum RETURN_VALUES {SUCCESS = 0,
+                    TOO_LESS_RAW_STARS     = -1,  //less than __minStarQuantity
+                    TOO_LESS_EQUATED_STARS = -2,  //less than minEquatedStarQuantity
+                    UNKNOWN_ERROR          = -3}; //when switch default (it is impossible)
 //methods
 enum METHOD {SIMTRI = 0, FREEVEC = 1};
 //
-static const int __minStarQuantity = 3;
+static const int _minStarQuantity = 3;
 //
 int equate(ArtifactVector &picStars,
            ArtifactVector &catStars,

@@ -172,7 +172,7 @@ void Angmeter::proc()
                                  _maxStarQuantity,
                                  _minEquatedStarQuantity,
                                  _method);
-    if(ret != astrometry::__SUCCESS)    return;
+    if(ret != astrometry::SUCCESS)    return;
 
     _log->write(QString::number(_cache_PicStars.data().front().center().x()) + " " + //pic refStar0
                 QString::number(_cache_PicStars.data().front().center().y()) + " " +

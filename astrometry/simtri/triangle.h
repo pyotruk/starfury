@@ -36,8 +36,8 @@ typedef int SimPath[3]; //путь подобия (соответствие сторон треугольников)
 /////////////////////////////////////////////////////////////////////////////////////
 namespace simtri
 {
-static const double __equalEps = 2.0;
-static const int    __maxStarQuantityForSimtriMethod = 8;
+static const double _equalEps = 2.0;
+static const int    _maxStarQuantityForSimtriMethod = 8;
 //
 int equate(ArtifactVector &picStars,
            ArtifactVector &catStars,
