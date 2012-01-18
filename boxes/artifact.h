@@ -17,6 +17,8 @@ public:
     explicit Artifact(const double x,
                       const double y,
                       const double magn = 0);
+    explicit Artifact(const QPointF &center,
+                      const double magn = 0);
     Artifact(const Artifact&);
     Artifact& operator =(const Artifact&);
     bool operator ==(const Artifact &a) const {return this->_magnitude == a._magnitude;}

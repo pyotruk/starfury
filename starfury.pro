@@ -12,7 +12,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     strob/strob.cpp \
-    strob/strobgeometry.cpp \
     utils/cvhelpfun.cpp \
     boxes/frame.cpp \
     com/sharedmem.cpp \
@@ -41,14 +40,15 @@ SOURCES += main.cpp\
     detector/detector.cpp \
     detector/detection.cpp \
     detector/accumulator.cpp \
-    strob/strob_wrapper.cpp \
     gui/detector_wnd.cpp \
     gui/photometry_wnd.cpp \
-    sky/velocimeter.cpp
+    sky/velocimeter.cpp \
+    strob/strob_wrapper.cpp \
+    strob/geometry.cpp \
+    strob/strob_hf.cpp
 
 HEADERS  += \
     strob/strob.h \
-    strob/strobgeometry.h \
     utils/cvhelpfun.h \
     boxes/frame.h \
     com/sharedmem.h \
@@ -79,10 +79,11 @@ HEADERS  += \
     detector/detector.h \
     detector/detection.h \
     detector/accumulator.h \
-    strob/strob_wrapper.h \
     gui/detector_wnd.h \
     gui/photometry_wnd.h \
-    sky/velocimeter.h
+    sky/velocimeter.h \
+    strob/strob_wrapper.h \
+    strob/strob_hf.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -105,6 +106,23 @@ LIBS += -L"C:/Qwt-6.0.1/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

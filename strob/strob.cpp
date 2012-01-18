@@ -2,7 +2,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::Strob(QSettings *s) :
     _settings(s),
-    _geometry(new StrobGeometry(_settings)),
     _locked(false)
 {
     loadSettings(_settings);
@@ -12,53 +11,47 @@ Strob::~Strob()
 {
     this->killTimer(_timerId);
     saveSettings(_settings);
-    delete _geometry;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::loadSettings(QSettings *s)
 {
     _threshold = s->value(__skeyStrobStddevThreshold, _defaultThreshold).toDouble();
+    this->setRefPoint(QPoint(s->value(__skeyStrobRefPointX, Geometry::_defaultRefPointX).toInt(),
+                             s->value(__skeyStrobRefPointY, Geometry::_defaultRefPointY).toInt()));
+    this->setSide(s->value(__skeyStrobSide, Geometry::_defaultSide).toInt());
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::saveSettings(QSettings *s)
 {
     s->setValue(__skeyStrobStddevThreshold, _threshold);
+    s->setValue(__skeyStrobSide, _geometry.signalRect().width());
+    s->setValue(__skeyStrobRefPointX, _geometry.refPoint().x());
+    s->setValue(__skeyStrobRefPointY, _geometry.refPoint().y());
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-void Strob::makeTracking(Frame &f)
+Strob::RETURN_VALUES Strob::proc(Frame &f)
 {
-    if(!_geometry->checkRange(QSize(f.header().width(),
-                                    f.header().height())))
-    {
-        qDebug() << "Strob says: geometry->checkRange() FAILED";
-        return;
-    }
+    _geometry.setFrameSize(QSize(f.header().width(),
+                                 f.header().height()));
+    if(!_geometry.isValid())    return BAD_GEOMETRY;
 
     //создание, инициализаци€ сигнального и фонового стробов
-    cv::Rect signalRect;
-    cv::Rect foneRect;
-    cvhelp::qtRect2cvRect(_geometry->signalRect(), signalRect);
-    cvhelp::qtRect2cvRect(_geometry->foneRect(), foneRect);
-    cv::Mat signalRoi(f.asCvMat(), signalRect);
-    cv::Mat foneRoi(f.asCvMat(), foneRect);
+    cv::Mat signalRoi(f.asCvMat(), _geometry.signalCvRect());
+    cv::Mat foneRoi(f.asCvMat(), _geometry.foneCvRect());
     cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтраци€
     cv::blur(signalRoi, signalRoi, cv::Size(5,5)); //фильтраци€
 
     double sumThreshold; /*порог по суммарным значени€м €ркости
                          в сигнальном и фоновом стробах*/
-    calcThresholds(signalRoi,
-                   foneRoi,
-                   _threshold, //порог в единицах — ќ
-                   sumThreshold,
-                   _pixThreshold,
-                   _signalMean,
-                   _foneMean);
+    strob_hf::calcThresholdsAndRatings(signalRoi,
+                                       foneRoi,
+                                       _threshold, //порог в единицах — ќ
+                                       sumThreshold,
+                                       _pixThreshold,
+                                       _signalMean,
+                                       _foneMean);
 
-    if(_locked)
-    {
-        qDebug() << "Strob says: sorry, i`m LOCKED !";
-        return;
-    }
+    if(_locked)    return LOCKED;
 
     if(sumThreshold > 0)    //проверка услови€ слежени€
     {
@@ -67,58 +60,20 @@ void Strob::makeTracking(Frame &f)
                       _pixThreshold,
                       0xFF,
                       cv::THRESH_TOZERO);
-
-        //вычисление центра масс по сигнальному стробу
-        cv::TermCriteria crit(cv::TermCriteria::COUNT, 1, 0.1);
-        cv::meanShift(f.asCvMat(), signalRect, crit);
-        QRect newSignalRect;
-        cvhelp::cvRect2qtRect(signalRect, newSignalRect);
-        _geometry->setRect(newSignalRect);
+        QPoint newCenter;
+        strob_hf::calcCenterOfMass(f.asCvMat(),
+                                   _geometry.signalRect(),
+                                   newCenter);
+        this->setCenter(newCenter);
     }
     else
     {
         _locked = true;
-        int dt = this->lockTime();
+        int dt = strob_hf::calcLockTime(_geometry.velocity(),
+                                        _geometry.side());
         _timerId = this->startTimer(dt);
     }
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void Strob::calcThresholds(const cv::Mat &signalRoi,
-                           const cv::Mat &foneRoi,
-                           const double stdDevThreshold,
-                           double &sumThreshold,
-                           int    &pixThreshold,
-                           double &signalMean,
-                           double &foneMean)
-{
-    double sumSignal = cv::sum(signalRoi)[0]; //сумма €ркости пикселей по сигнальному стробу
-    signalMean = sumSignal / signalRoi.total();
-    double sumFone = cv::sum(foneRoi)[0]; //сумма €ркости пикселей по фоновому стробу
-    foneMean = sumFone / foneRoi.total();
-    double sumStdDev = qSqrt(sumFone); //CKO
-    double stdDevPerPix = sumStdDev / foneRoi.total();
-    sumThreshold = sumSignal - sumFone; /*порог по суммарным значени€м €ркости
-                                          в сигнальном и фоновом стробах*/
-    pixThreshold = (int)qFloor(0.5 + foneMean + stdDevThreshold * stdDevPerPix); //порог, приведЄнный к одному пикселу
-}
-/////////////////////////////////////////////////////////////////////////////////////
-int Strob::lockTime() const
-{
-    QVector2D v = _geometry->velocity();
-    if(v.isNull())
-    {
-        qDebug() << "Strob says: velocity is NULL";
-        return 0;
-    }
-    int side = _geometry->side();
-    double r = side * _sqrt2 * _lockSizeKoef;
-    double dt = r / v.length() * 1000;
-    qDebug() << "Strob says: _LOCK_" << "\n"
-             << "   v = " << v << "\n"
-             << "   side = " << side << "\n"
-             << "   r = " << r << "\n"
-             << "   dt = " << dt;
-    return (int)dt;
+    return OK;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::timerEvent(QTimerEvent *event)
@@ -133,8 +88,51 @@ void Strob::unlock()
 {
     this->killTimer(_timerId);
     _locked = false;
-    qDebug() << "Strob says: _UNLOCK_";
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::setSide(const int s)
+{
+    _geometry.setSide(s);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::setCenter(const QPoint &p)
+{
+    _geometry.setCenter(p);
+    this->unlock();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::setCenter(const QPointF &p)
+{
+    this->setCenter(QPoint((int)p.x(),
+                           (int)p.y()));
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::setRefPoint(const QPoint &p)
+{
+    _geometry.setRefPoint(p);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::setVelocity(const QPointF &v)
+{
+    _geometry.setVelocity(v);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::toArtifact(Artifact &a)
+{
+    a.setCenter(QPointF((double)_geometry.center().x(),
+                        (double)_geometry.center().y()));
+    a.setMagnitude((double)_geometry.side());
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::moveToRefPoint()
+{
+    this->setCenter(_geometry.refPoint());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+

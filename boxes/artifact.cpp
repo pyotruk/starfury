@@ -18,6 +18,12 @@ Artifact::Artifact(const double x,
     _magnitude(magn)
 {}
 /////////////////////////////////////////////////////////////////////////////////////
+Artifact::Artifact(const QPointF &center,
+                   const double magn) :
+    _center(center),
+    _magnitude(magn)
+{}
+/////////////////////////////////////////////////////////////////////////////////////
 Artifact& Artifact::operator =(const Artifact &a)
 {
     if(this != &a)
@@ -101,21 +107,9 @@ void art::deleteTargets(ArtifactVector &stars,
     int targetIndex;
     QPointF targetCenter = targets.front().center();
     ArtifactVector::iterator it = stars.begin();
-
-    qDebug() << "art::deleteTargets() says: Hi!"
-             << "   stars.begin() = " << it << "\n"
-             << "   targetCenter = " << targetCenter << "\n"
-             << "   targets.size() = " << targets.size();
-
     for(int i=0; it < stars.end(); ++it, ++i)
     {
         dist = ac::calcDistance(targetCenter, it->center());
-
-        qDebug() << "art::deleteTargets() says: i`m inside FOR-loop" << "\n"
-                 << "   it = " << it << "\n"
-                 << "   stars[i] = " << *it << "\n"
-                 << "   dist = " << dist;
-
         if(dist < minDist)
         {
             minDist = dist;
@@ -125,11 +119,8 @@ void art::deleteTargets(ArtifactVector &stars,
     }
     if(targetIndex >= stars.size())
     {
-        qDebug() << "art::deleteTargets() says: targetIndex >= stars.size()" << "\n"
-                 << "   stars.size() = " << stars.size() << "\n"
-                 << "   stars[0] = " << stars.front() << "\n"
-                 << "   targetIndex = " << targetIndex << "\n"
-                 << "   minDist = " << minDist;
+        qDebug() << "art::deleteTargets() says: targetIndex >= stars.size()";
+        return;
     }
     stars.remove(targetIndex);
 }
