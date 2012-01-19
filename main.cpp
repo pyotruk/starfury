@@ -65,7 +65,6 @@ int main(int argc, char *argv[])
     PhotometryWindow photometryWnd(&settings);
     //gui init
     controlWnd.initFace(strobWrapper.strob().geometry().side(),
-                        (int)(strobWrapper.strob().threshold()),
                         angmeter.method(),
                         detector.accum().capacity(),
                         detector.mode());
@@ -142,17 +141,11 @@ int main(int argc, char *argv[])
                      &controlWnd, SLOT(inputMeasureError(double,double)),
                      Qt::QueuedConnection);
 
-    QObject::connect(&controlWnd, SIGNAL(changeStrobSize(int)),
+    QObject::connect(&controlWnd, SIGNAL(setStrobSize(int)),
                      &strobWrapper, SLOT(setSide(int)),
                      Qt::QueuedConnection);
-    QObject::connect(&controlWnd, SIGNAL(changeTrackingThreshold(int)),
-                     &strobWrapper, SLOT(setThreshold(int)),
-                     Qt::QueuedConnection);
-    QObject::connect(&controlWnd, SIGNAL(setSimtriMethod()),
-                     &angmeter, SLOT(setSimtriMethod()),
-                     Qt::QueuedConnection);
-    QObject::connect(&controlWnd, SIGNAL(setFreevecMethod()),
-                     &angmeter, SLOT(setFreevecMethod()),
+    QObject::connect(&controlWnd, SIGNAL(setAstrometryMethod(int)),
+                     &angmeter, SLOT(setMethod(int)),
                      Qt::QueuedConnection);
 
     QObject::connect(&controlWnd, SIGNAL(setDetectorMode(int)),

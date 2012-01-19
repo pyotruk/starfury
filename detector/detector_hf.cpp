@@ -1,28 +1,16 @@
-#include "detection.h"
+#include "detector_hf.h"
 /////////////////////////////////////////////////////////////////////////////////////
-void detection::smooth(Frame &f,
-                       const int kernelSize)
+void detector_hf::smooth(Frame &f,
+                         const int kernelSize)
 {
-//    cv::blur(f.asCvMat(),
-//             f.asCvMat(),
-//             cv::Size(windowSize, windowSize));
     cv::medianBlur(f.asCvMat(),
                    f.asCvMat(),
                    kernelSize);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void detection::threshold(Frame &f)
-{
-    cv::threshold(f.asCvMat(),
-                  f.asCvMat(),
-                  0,
-                  0xFF,
-                  cv::THRESH_OTSU);
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void detection::findArtifacts(Frame &f,
-                              ArtifactVector &a,
-                              const double magnThresh)
+void detector_hf::findArtifacts(Frame &f,
+                                ArtifactVector &a,
+                                const double magnThresh)
 {
     a.clear();
     quint32 floodColor = 0xFF - 1;
@@ -56,8 +44,8 @@ void detection::findArtifacts(Frame &f,
     qSort(a.begin(), a.end(), qGreater<Artifact>());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-bool detection::isOblong(const cv::Rect &rect,
-                         const int maxHeightWidthDiff)
+bool detector_hf::isOblong(const cv::Rect &rect,
+                           const int maxHeightWidthDiff)
 {
     if(qAbs(rect.width - rect.height) > maxHeightWidthDiff)
     {
@@ -69,8 +57,8 @@ bool detection::isOblong(const cv::Rect &rect,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void detection::findTargets(Frame &f,
-                            ArtifactVector &a)
+void detector_hf::findTargets(Frame &f,
+                              ArtifactVector &a)
 {
     const int maxHeightWidthDiff = 2;
     const int minSquare = 9;

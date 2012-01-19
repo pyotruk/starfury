@@ -18,28 +18,28 @@ public:
     explicit ControlWindow(QWidget *parent = 0);
     ~ControlWindow();
     void initFace(const int strobSize,
-                  const int trackTresh,
                   const astrometry::METHOD,
                   const int accumCapacity,
                   const Detector::MODE);
 protected:
     void closeEvent(QCloseEvent *);
 private:
-    static const double __deg2rad = 0.017453292519943295769236907684886;
-    static const double __rad2deg = 57.295779513082320876798154814105;
+    static const double _deg2rad = 0.017453292519943295769236907684886;
+    static const double _rad2deg = 57.295779513082320876798154814105;
+    static const double _sliderThresholdScaling = 0.01;
     Ui::ControlWindow *ui;
 private slots:
     void inputMeasureError(double errAlpha,  //rad
                            double errDelta); //rad
     void updateSliderLabels();
-    void convertCheckBoxSignal(int);
-    void setStarDetectionMode() {emit setDetectorMode((int)Detector::STAR_DETECTION);}
+    void setSimtriAstrometryMethod()  {emit setAstrometryMethod((int)astrometry::SIMTRI);}
+    void setFreevecAstrometryMethod() {emit setAstrometryMethod((int)astrometry::FREEVEC);}
+    void convertCheckBoxDetectionModeSignal(int);
+    void setStarDetectionMode()   {emit setDetectorMode((int)Detector::STAR_DETECTION);}
     void setTargetDetectionMode() {emit setDetectorMode((int)Detector::TARGET_DETECTION);}
 signals:
-    void changeStrobSize(const int);
-    void changeTrackingThreshold(const int);
-    void setSimtriMethod();
-    void setFreevecMethod();
+    void setStrobSize(const int);
+    void setAstrometryMethod(int);
     void setAccumCapacity(const int);
     void setBinEnabled(bool);
     void setDetectorMode(int);

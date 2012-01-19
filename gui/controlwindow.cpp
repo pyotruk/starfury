@@ -10,17 +10,15 @@ ControlWindow::ControlWindow(QWidget *parent) :
 
     //gui <--> gui connections
     connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
-            this, SIGNAL(changeStrobSize(int)));
-    connect(ui->sliderThreshold, SIGNAL(sliderMoved(int)),
-            this, SIGNAL(changeTrackingThreshold(int)));
+            this, SIGNAL(setStrobSize(int)));
     connect(ui->radioBtnSimtri, SIGNAL(clicked()),
-            this, SIGNAL(setSimtriMethod()));
+            this, SLOT(setSimtriAstrometryMethod()));
     connect(ui->radioBtnFreevec, SIGNAL(clicked()),
-            this, SIGNAL(setFreevecMethod()));
+            this, SLOT(setFreevecAstrometryMethod()));
     connect(ui->sliderAccum, SIGNAL(sliderMoved(int)),
             this, SIGNAL(setAccumCapacity(int)));
     connect(ui->checkBoxBin, SIGNAL(stateChanged(int)),
-            this, SLOT(convertCheckBoxSignal(int)));
+            this, SLOT(convertCheckBoxDetectionModeSignal(int)));
 
     connect(ui->radioBtnStars, SIGNAL(clicked()),
             this, SLOT(setStarDetectionMode()));
@@ -28,8 +26,6 @@ ControlWindow::ControlWindow(QWidget *parent) :
             this, SLOT(setTargetDetectionMode()));
 
     connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
-            this, SLOT(updateSliderLabels()));
-    connect(ui->sliderThreshold, SIGNAL(sliderMoved(int)),
             this, SLOT(updateSliderLabels()));
     connect(ui->sliderAccum, SIGNAL(sliderMoved(int)),
             this, SLOT(updateSliderLabels()));
@@ -47,13 +43,11 @@ void ControlWindow::closeEvent(QCloseEvent *event)
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void ControlWindow::initFace(const int strobSize,
-                             const int trackTresh,
                              const astrometry::METHOD method,
                              const int accumCapacity,
                              const Detector::MODE mode)
 {
     ui->sliderStrobSize->setValue(strobSize);
-    ui->sliderThreshold->setValue(trackTresh);
     ui->sliderAccum->setValue(accumCapacity);
     this->updateSliderLabels();
 
@@ -83,8 +77,6 @@ void ControlWindow::updateSliderLabels()
     QVariant content;
     content = ui->sliderStrobSize->value();
     ui->labelStrobSize->setText(content.toString());
-    content = ui->sliderThreshold->value();
-    ui->labelThreshold->setText(content.toString());
     content = ui->sliderAccum->value();
     ui->labelAccum->setText(content.toString());
 }
@@ -98,7 +90,7 @@ void ControlWindow::inputMeasureError(double errAlpha,  //rad
                             QString::number(errDelta * __rad2deg * 3600));
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void ControlWindow::convertCheckBoxSignal(int state)
+void ControlWindow::convertCheckBoxDetectionModeSignal(int state)
 {
     switch(state)
     {

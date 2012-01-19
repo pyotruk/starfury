@@ -23,7 +23,6 @@
 static const QString __skeyStrobSide("/Strob/Geometry/Side");
 static const QString __skeyStrobRefPointX("/Strob/Geometry/RefPointX");
 static const QString __skeyStrobRefPointY("/Strob/Geometry/RefPointY");
-static const QString __skeyStrobStddevThreshold("/Strob/StdDevThreshold");
 /////////////////////////////////////////////////////////////////////////////////////
 class Strob : public QObject
 {
@@ -92,13 +91,10 @@ public:
 
     explicit Strob(QSettings*);
     ~Strob();
-    inline double threshold()        const {return _threshold;}
-    inline int    pixThreshold()     const {return _pixThreshold;}
     inline const Geometry& geometry() const {return _geometry;}
-    inline double foneMean()   const {return _foneMean;}
-    inline double signalMean() const {return _signalMean;}
+    inline double foneRate()   const {return _foneRate;}
+    inline double signalRate() const {return _signalRate;}
     inline bool   isLocked()   const {return _locked;}
-    void setThreshold(const double t) {_threshold = t;}
     void setSide(const int);
     void setCenter(const QPoint&);
     void setCenter(const QPointF&);
@@ -112,15 +108,13 @@ protected:
     void timerEvent(QTimerEvent *);
 
 private:
+    static const int _smoothingKernelSize = 5;
     Strob(const Strob&) {}
     Strob& operator =(const Strob&) {return *this;}
-    static const double _defaultThreshold = 1.0;
     QSettings  *_settings;
     Geometry    _geometry;
-    double      _threshold;       //регулируемый (руками) порог обнаружени€ в единицах — ќ
-    int         _pixThreshold;    //порог по €ркости пиксела (используетс€ дл€ бинаризации cv::threshold)
-    double      _foneMean;        //€ркость в фоновом стробе на пиксель
-    double      _signalMean;      //€ркость в сигнальном стробе на пиксель
+    double      _foneRate;        //€ркость в фоновом стробе на пиксель
+    double      _signalRate;      //€ркость в сигнальном стробе на пиксель
     bool        _locked;
     int         _timerId;
     QVector2D   _velocity;        //скорость в экранной —  [pix/sec]

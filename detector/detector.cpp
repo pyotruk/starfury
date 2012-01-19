@@ -53,7 +53,7 @@ void Detector::inputFrame(FrameBox *f)
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::accumulate(const MODE mode)
 {
-    detection::smooth(_cache_Frame.data(), _smoothingKernelSize);
+    detector_hf::smooth(_cache_Frame.data(), _smoothingKernelSize);
 
     switch(mode)
     {
@@ -66,13 +66,13 @@ void Detector::accumulate(const MODE mode)
         break;
     }
 
-    if(_binEnabled)    detection::threshold(_cache_Frame.data());
+    if(_binEnabled)    cvhelp::otsuThreshold(_cache_Frame.data().asCvMat());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectStars()
 {
-    detection::threshold(_cache_Frame.data());
-    detection::findTargets(_cache_Frame.data(),
+    cvhelp::otsuThreshold(_cache_Frame.data().asCvMat());
+    detector_hf::findTargets(_cache_Frame.data(),
                            _cache_Stars.data());
     if(_cache_Stars.data().empty())
     {
@@ -89,9 +89,9 @@ void Detector::detectStars()
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectTargets()
 {
-    detection::smooth(_cache_Frame.data(), _smoothingKernelSize);
-    detection::threshold(_cache_Frame.data());
-    detection::findTargets(_cache_Frame.data(),
+    detector_hf::smooth(_cache_Frame.data(), _smoothingKernelSize);
+    cvhelp::otsuThreshold(_cache_Frame.data().asCvMat());
+    detector_hf::findTargets(_cache_Frame.data(),
                            _cache_Targets.data());
     if(_cache_Targets.data().empty())
     {

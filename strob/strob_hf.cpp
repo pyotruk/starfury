@@ -2,23 +2,13 @@
 /////////////////////////////////////////////////////////////////////////////////////
 /* help functions */
 /////////////////////////////////////////////////////////////////////////////////////
-void strob_hf::calcThresholdsAndRatings(const cv::Mat &signalRoi,
-                                        const cv::Mat &foneRoi,
-                                        const double stdDevThreshold,
-                                        double &sumThreshold,
-                                        int    &pixThreshold,
-                                        double &signalRate,
-                                        double &foneRate)
+void strob_hf::calcRatings(const cv::Mat &signalRoi,
+                           const cv::Mat &foneRoi,
+                           double &signalRate,
+                           double &foneRate)
 {
-    double sumSignal = cv::sum(signalRoi)[0]; //сумма €ркости пикселей по сигнальному стробу
-    signalRate = sumSignal / signalRoi.total();
-    double sumFone = cv::sum(foneRoi)[0]; //сумма €ркости пикселей по фоновому стробу
-    foneRate = sumFone / foneRoi.total();
-    double sumStdDev = qSqrt(sumFone); //CKO
-    double stdDevPerPix = sumStdDev / foneRoi.total();
-    sumThreshold = sumSignal - sumFone; /*порог по суммарным значени€м €ркости
-                                          в сигнальном и фоновом стробах*/
-    pixThreshold = (int)qFloor(0.5 + foneRate + stdDevThreshold * stdDevPerPix); //порог, приведЄнный к одному пикселу
+    signalRate = cv::mean(signalRoi)[0];
+    foneRate = cv::mean(foneRoi)[0];
 }
 /////////////////////////////////////////////////////////////////////////////////////
 int strob_hf::calcLockTime(const QVector2D velocity,

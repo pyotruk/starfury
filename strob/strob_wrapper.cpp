@@ -26,8 +26,8 @@ void StrobWrapper::inputFrame(FrameBox *f)
     f->lock().unlock();
     emit frameReady(f);
     emit sendPhotometry(timeutils::msecFromDayBegin() / 1000,
-                        _strob->signalMean(),
-                        _strob->foneMean());
+                        _strob->signalRate(),
+                        _strob->foneRate());
 
     switch(ret)
     {
@@ -81,11 +81,6 @@ void StrobWrapper::setPos(QMouseEvent *e)
 void StrobWrapper::setSide(const int s)
 {
     _strob->setSide(s);
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void StrobWrapper::setThreshold(const int t)
-{
-    _strob->setThreshold((double)t);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StrobWrapper::setVelocity(const double vx,

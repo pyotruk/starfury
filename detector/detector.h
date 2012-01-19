@@ -10,7 +10,7 @@
 #include "boxes/frame.h"
 #include "boxes/artifact.h"
 #include "utils/timeutils.h"
-#include "detector/detection.h"
+#include "detector/detector_hf.h"
 #include "detector/accumulator.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys

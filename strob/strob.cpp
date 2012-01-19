@@ -16,7 +16,6 @@ Strob::~Strob()
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::loadSettings(QSettings *s)
 {
-    _threshold = s->value(__skeyStrobStddevThreshold, _defaultThreshold).toDouble();
     this->setRefPoint(QPoint(s->value(__skeyStrobRefPointX, Geometry::_defaultRefPointX).toInt(),
                              s->value(__skeyStrobRefPointY, Geometry::_defaultRefPointY).toInt()));
     this->setSide(s->value(__skeyStrobSide, Geometry::_defaultSide).toInt());
@@ -24,7 +23,6 @@ void Strob::loadSettings(QSettings *s)
 ///////////////////////////////////////////////////////////////////////////////////////
 void Strob::saveSettings(QSettings *s)
 {
-    s->setValue(__skeyStrobStddevThreshold, _threshold);
     s->setValue(__skeyStrobSide, _geometry.signalRect().width());
     s->setValue(__skeyStrobRefPointX, _geometry.refPoint().x());
     s->setValue(__skeyStrobRefPointY, _geometry.refPoint().y());
@@ -39,28 +37,24 @@ Strob::RETURN_VALUES Strob::proc(Frame &f)
     //создание, инициализация сигнального и фонового стробов
     cv::Mat signalRoi(f.asCvMat(), _geometry.signalCvRect());
     cv::Mat foneRoi(f.asCvMat(), _geometry.foneCvRect());
-    cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтрация
-    cv::blur(signalRoi, signalRoi, cv::Size(5,5)); //фильтрация
 
-    double sumThreshold; /* порог по суммарным значениям яркости
-                            в сигнальном и фоновом стробах */
-    strob_hf::calcThresholdsAndRatings(signalRoi,
-                                       foneRoi,
-                                       _threshold, //порог в единицах СКО
-                                       sumThreshold,
-                                       _pixThreshold,
-                                       _signalMean,
-                                       _foneMean);
+    //вычисление оценок сигнала и фона
+    strob_hf::calcRatings(signalRoi,
+                          foneRoi,
+                          _signalRate,
+                          _foneRate);
+
+    //фильтрация
+    cv::blur(foneRoi, foneRoi, cv::Size(_smoothingKernelSize,
+                                        _smoothingKernelSize));
+    cv::blur(signalRoi, signalRoi, cv::Size(_smoothingKernelSize,
+                                            _smoothingKernelSize));
 
     if(_locked)    return LOCKED;
 
-    if(sumThreshold > 0)    //проверка условия слежения
+    if(_signalRate > _foneRate)    //проверка условия слежения
     {
-        cv::threshold(signalRoi, //пороговая бинаризация в сигнальном стробе
-                      signalRoi,
-                      _pixThreshold,
-                      0xFF,
-                      cv::THRESH_TOZERO);
+        cvhelp::otsuThreshold(signalRoi);
         QPoint newCenter;
         strob_hf::calcCenterOfMass(f.asCvMat(),
                                    _geometry.signalRect(),
@@ -75,7 +69,7 @@ Strob::RETURN_VALUES Strob::proc(Frame &f)
         {
             _locked = true;
             _timerId = this->startTimer(lockTime);
-            qDebug() << "Strob says: i`m LOCKED, lock time = " << lockTime;
+            qDebug() << "Strob: i`m LOCKED, lock time = " << lockTime;
         }
     }
     return OK;
@@ -90,7 +84,7 @@ void Strob::unlock()
 {
     this->killTimer(_timerId);
     _locked = false;
-    qDebug() << "Strob says: " << "i`m UNLOCKED !";
+    qDebug() << "Strob: i`m UNLOCKED !";
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::setSide(const int s)

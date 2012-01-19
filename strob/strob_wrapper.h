@@ -27,7 +27,6 @@ private slots:
     void targetsDetected();
     void setPos(QMouseEvent*);
     void setSide(const int);
-    void setThreshold(const int);
     void setVelocity(const double vx,
                      const double vy);
 signals:

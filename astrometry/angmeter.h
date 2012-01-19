@@ -35,12 +35,11 @@ public:
                       ArtifactBox *catStars,
                       ArtifactBox *targets);
     ~Angmeter();
-    astrometry::METHOD method() const {return _method;}
+    inline astrometry::METHOD method() const {return _method;}
 public slots:
     void setScreenSize(const int width,
                        const int height);
-    void setSimtriMethod()  {_method = astrometry::SIMTRI;}
-    void setFreevecMethod() {_method = astrometry::FREEVEC;}
+    void setMethod(int m) {_method = (astrometry::METHOD)m;}
 private:
     Angmeter(const Angmeter&) {}
     Angmeter& operator =(const Angmeter&) {return *this;}

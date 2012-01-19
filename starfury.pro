@@ -38,14 +38,14 @@ SOURCES += main.cpp\
     gui/imagewindow.cpp \
     gui/strobwnd.cpp \
     detector/detector.cpp \
-    detector/detection.cpp \
     detector/accumulator.cpp \
     gui/detector_wnd.cpp \
     gui/photometry_wnd.cpp \
     sky/velocimeter.cpp \
     strob/strob_wrapper.cpp \
     strob/geometry.cpp \
-    strob/strob_hf.cpp
+    strob/strob_hf.cpp \
+    detector/detector_hf.cpp
 
 HEADERS  += \
     strob/strob.h \
@@ -77,13 +77,13 @@ HEADERS  += \
     gui/imagewindow.h \
     gui/strobwnd.h \
     detector/detector.h \
-    detector/detection.h \
     detector/accumulator.h \
     gui/detector_wnd.h \
     gui/photometry_wnd.h \
     sky/velocimeter.h \
     strob/strob_wrapper.h \
-    strob/strob_hf.h
+    strob/strob_hf.h \
+    detector/detector_hf.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -106,6 +106,10 @@ LIBS += -L"C:/Qwt-6.0.1/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
+
+
 
 
 
