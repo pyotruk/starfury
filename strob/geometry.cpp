@@ -1,14 +1,15 @@
 #include "strob.h"
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::Geometry::Geometry() :
-    _frameSize(_defaultFrameWidth, _defaultFrameHeight),
-    _refPoint(_defaultRefPointX, _defaultRefPointY),
-    _velocity(_defaultVelocityX, _defaultVelocityY),
-    _rollback_ON(false),
-    _isValid(false)
+    _isValid(false),
+    _autoRefresh(false)
 {
+    this->setFrameSize(QSize(_defaultFrameWidth, _defaultFrameHeight));
+    this->setVelocity(QPointF(_defaultVelocityX, _defaultVelocityY));
     this->setSide(_defaultSide);
-    _rollback_ON = true;
+    this->setRefPoint(QPoint(_defaultRefPointX, _defaultRefPointY));
+    this->moveToRefPoint();
+    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 const QPoint& Strob::Geometry::center()
@@ -17,19 +18,24 @@ const QPoint& Strob::Geometry::center()
     return _cache_Center;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
+void Strob::Geometry::verifSide(int &s)
+{
+    if(s < _minSide)    s = _minSide;
+    if(s > _maxSide)    s = _maxSide;
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::setSide(const int s)
 {
-    int side;
-    if(s < _minSide)    side = _minSide;
-    else                side = s;
+    int side = s;
+    this->verifSide(side);
     _signal.setSize(QSize(side, side));
-    this->refresh();
+    if(_autoRefresh)    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::setCenter(const QPoint &p)
 {
     _signal.moveCenter(p);
-    this->refresh();
+    if(_autoRefresh)    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::setRefPoint(const QPoint &p)
@@ -40,17 +46,8 @@ void Strob::Geometry::setRefPoint(const QPoint &p)
 void Strob::Geometry::setVelocity(const QPointF &v)
 {
     _velocity = QVector2D(v);
-    this->refreshFoneRect();
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void Strob::Geometry::refreshFoneRect()
-{
-    int r = _signal.width();
-    QVector2D v = _velocity;
-    v.normalize();
-    _fone.moveCenter(QPoint((int)(_signal.center().x() + r * v.x()),
-                            (int)(_signal.center().y() + r * v.y())));
-    _fone.setSize(_signal.size());
+    _velocity.normalize();
+    if(_autoRefresh)    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 const cv::Rect& Strob::Geometry::signalCvRect()
@@ -65,10 +62,18 @@ const cv::Rect& Strob::Geometry::foneCvRect()
     return _cache_Fone;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Strob::Geometry::verifFrameSize(QSize &s)
+{
+    if(s.width()  < _minFrameWidth)     s.setWidth(_minFrameWidth);
+    if(s.height() < _minFrameHeight)    s.setHeight(_minFrameHeight);
+}
+/////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::setFrameSize(const QSize &s)
 {
-    _frameSize = s;
-    this->refresh();
+    QSize size = s;
+    this->verifFrameSize(size);
+    _frameSize = size;
+    if(_autoRefresh)    this->refresh();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::moveToRefPoint()
@@ -78,16 +83,16 @@ void Strob::Geometry::moveToRefPoint()
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::moveToFrameCenter()
 {
-    this->setCenter(QPoint(_frameSize.width(),
-                           _frameSize.height()));
+    this->setCenter(QPoint(_frameSize.width() / 2,
+                           _frameSize.height() / 2));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 bool Strob::Geometry::checkValid()
 {
     QRect frameRect(QPoint(0, 0), _frameSize);
-    if(frameRect.contains(_signal, true))
+    if(frameRect.contains(_fone, true))
     {
-        if(frameRect.contains(_fone, true))
+        if(frameRect.contains(_signal, true))
         {
             return true;
         }
@@ -97,17 +102,15 @@ bool Strob::Geometry::checkValid()
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::backup()
 {
-    _clone_Signal = _signal;
-    _clone_Fone   = _fone;
+    _backup_Signal = _signal;
+    _backup_Fone   = _fone;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::rollback()
 {
-    if(_rollback_ON)
-    {
-        _signal = _clone_Signal;
-        _fone   = _clone_Fone;
-    }
+    _signal = _backup_Signal;
+    _fone   = _backup_Fone;
+    this->refreshValid();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::refresh()
@@ -115,25 +118,38 @@ void Strob::Geometry::refresh()
     this->refreshFoneRect();
     this->refreshValid();
 
-    /* Achtung! Brainfuck */
-    if(this->isValid()) //если тебе хорошо
+    _autoRefresh = false; //чтобы не было рекурсии
+    if(_isValid) //если тебе хорошо
     {
         this->backup(); //запомни это состояние
     }
     else                //если тебе плохо
     {
-        this->rollback();       //вернись в то состояние, когда было хорошо
-        if(!this->isValid())    //если тебе всё ещё плохо
+        this->rollback();   //вернись в то состояние, когда было хорошо
+        if(!_isValid)       //если тебе всё ещё плохо
         {
-            this->moveToRefPoint();     //вернись в то место, где тебе было хорошо
-            if(!this->isValid())        //не помогает ?
+            this->moveToRefPoint(); //вернись в то место, где тебе было хорошо
+            if(!_isValid)           //не помогает ?
             {
                 this->moveToFrameCenter();      //встань в центр кадра, детка
             }
         }
     }
+    _autoRefresh = true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Strob::Geometry::refreshFoneRect()
+{
+    int r = _signal.width();
+    _fone.moveCenter(QPoint((int)(_signal.center().x() + r * _velocity.x()),
+                            (int)(_signal.center().y() + r * _velocity.y())));
+    _fone.setSize(_signal.size());
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Strob::Geometry::refreshValid()
+{
+     _isValid = this->checkValid();
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -61,6 +61,7 @@ void Detector::accumulate(const MODE mode)
         _cache_Frame = _accum.add(_cache_Frame);
         break;
     case STAR_DETECTION:
+        if(_velocity.isNull())    return;
         _cache_Frame = _accum.add(_cache_Frame, _velocity);
         break;
     }
@@ -83,6 +84,7 @@ void Detector::detectStars()
     *_stars = _cache_Stars;
     _stars->lock().unlock();
     emit starsReady(_stars);
+    qDebug() << "Detector says: emit starsReady(), N =" << _cache_Stars.data().size();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectTargets()
@@ -101,13 +103,14 @@ void Detector::detectTargets()
     *_targets = _cache_Targets;
     _targets->lock().unlock();
     emit targetsReady(_targets);
+    qDebug() << "Detector says: emit targetsReady(), N =" << _cache_Targets.data().size();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::inputScreenVelocity(const double vx,
                                    const double vy)
 {
     _velocity = QPointF(vx, vy);
-    qDebug() << "screen velocity: " << vx << "  " << vy;
+    qDebug() << "Detector: velocity = " << _velocity;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::accumIsFull()

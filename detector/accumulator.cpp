@@ -3,11 +3,12 @@
 const FrameBox& Accumulator::add(FrameBox &f,
                                  const QPointF &velocity)
 {
+    //qDebug() << "Accumulator: add(),  num = " << _num << "  velocity = " << velocity;
     if(this->isFull())    return _frame;
     if(_num == 0)
     {
         _frame.setTimeMarker(f.timeMarker());
-        qDebug() << "first frame time: " << _frame.timeMarker();
+        //qDebug() << "Accumulator: first frame time =" << _frame.timeMarker();
     }
     this->checkSize(f.data().header());
     double mean = cv::mean(f.data().asCvMat())[0];
@@ -17,7 +18,7 @@ const FrameBox& Accumulator::add(FrameBox &f,
                                    mean,
                                    f.data()))
     {
-        _full = true;
+        this->setFull();
         return _frame;
     }
     cv::addWeighted(f.data().asCvMat(),
@@ -44,7 +45,7 @@ void Accumulator::checkFull()
     ++_num;
     if(_num > _capacity)
     {
-        _full = true;
+        this->setFull();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -53,8 +54,16 @@ void Accumulator::clear()
     _full = false;
     _num = 0;
     _frame.data().fillZeros();
+    qDebug() << "Accumulator: i`m CLEAR !";
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void Accumulator::setFull()
+{
+    _full = true;
+    qDebug() << "Accumulator: i`m FULL !" << "\n"
+             << "    num = " << _num << "    capacity = " << _capacity;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -91,14 +100,14 @@ bool shifting::cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накоп
     Frame intersectedFrame;
     if(!f.copyRegionTo(shiftedRegion, intersectedFrame))
     {
-        qDebug() << "Frame::copyRegionTo FAILED" << "\n"
+        qDebug() << "cookShiftedFrame(): Frame::copyRegionTo FAILED" << "\n"
                  << "   " << shiftedRegion;
         return false;
     }
     f.fill(qCeil(mean));
     if(!f.copyRegionFrom(intersectedFrame, initialRegion.topLeft()))
     {
-        qDebug() << "Frame::copyRegionFrom FAILED" << "\n"
+        qDebug() << "cookShiftedFrame(): Frame::copyRegionFrom FAILED" << "\n"
                  << "   " << initialRegion;
         return false;
     }

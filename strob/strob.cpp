@@ -5,6 +5,7 @@ Strob::Strob(QSettings *s) :
     _locked(false)
 {
     loadSettings(_settings);
+    _geometry.moveToRefPoint();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 Strob::~Strob()
@@ -41,8 +42,8 @@ Strob::RETURN_VALUES Strob::proc(Frame &f)
     cv::blur(foneRoi, foneRoi, cv::Size(5,5)); //фильтраци€
     cv::blur(signalRoi, signalRoi, cv::Size(5,5)); //фильтраци€
 
-    double sumThreshold; /*порог по суммарным значени€м €ркости
-                         в сигнальном и фоновом стробах*/
+    double sumThreshold; /* порог по суммарным значени€м €ркости
+                            в сигнальном и фоновом стробах */
     strob_hf::calcThresholdsAndRatings(signalRoi,
                                        foneRoi,
                                        _threshold, //порог в единицах — ќ
@@ -64,30 +65,32 @@ Strob::RETURN_VALUES Strob::proc(Frame &f)
         strob_hf::calcCenterOfMass(f.asCvMat(),
                                    _geometry.signalRect(),
                                    newCenter);
-        this->setCenter(newCenter);
+        _geometry.setCenter(newCenter);
     }
     else
     {
-        _locked = true;
-        int dt = strob_hf::calcLockTime(_geometry.velocity(),
-                                        _geometry.side());
-        _timerId = this->startTimer(dt);
+        int lockTime = strob_hf::calcLockTime(_velocity,
+                                              _geometry.side());
+        if(lockTime > 0)
+        {
+            _locked = true;
+            _timerId = this->startTimer(lockTime);
+            qDebug() << "Strob says: i`m LOCKED, lock time = " << lockTime;
+        }
     }
     return OK;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Strob::timerEvent(QTimerEvent *event)
+void Strob::timerEvent(QTimerEvent *)
 {
-    if(_timerId == event->timerId())
-    {
-        this->unlock();
-    }
+    this->unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::unlock()
 {
     this->killTimer(_timerId);
     _locked = false;
+    qDebug() << "Strob says: " << "i`m UNLOCKED !";
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::setSide(const int s)
@@ -98,7 +101,7 @@ void Strob::setSide(const int s)
 void Strob::setCenter(const QPoint &p)
 {
     _geometry.setCenter(p);
-    this->unlock();
+    if(_locked)    this->unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::setCenter(const QPointF &p)
@@ -115,6 +118,7 @@ void Strob::setRefPoint(const QPoint &p)
 void Strob::setVelocity(const QPointF &v)
 {
     _geometry.setVelocity(v);
+    _velocity = QVector2D(v);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::toArtifact(Artifact &a)

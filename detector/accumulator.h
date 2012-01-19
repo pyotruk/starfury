@@ -19,13 +19,13 @@ public:
     explicit Accumulator(const int capacity = _defaultCapacity) :
         _capacity(capacity), _num(0), _full(false) {}
     ~Accumulator() {}
-    const FrameBox& frame() const {return _frame;}
     const FrameBox& add(FrameBox&,
                         const QPointF& velocity = QPointF(0, 0));
     void setCapacity(const int capacity) {_capacity = capacity;}
-    int capacity() const {return _capacity;}
-    int num()      const {return _num;}
-    bool isFull() const {return _full;}
+    inline const FrameBox& frame() const {return _frame;}
+    inline int  capacity() const {return _capacity;}
+    inline int  num()      const {return _num;}
+    inline bool isFull()   const {return _full;}
     void clear();
 private:
     static const double _alpha = 1.0;
@@ -36,6 +36,7 @@ private:
     bool      _full;
     void checkSize(const Frame::Header&);
     void checkFull();
+    void setFull();
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

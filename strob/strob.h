@@ -32,13 +32,16 @@ public:
     {
     public:        
         static const int _defaultSide = 20;
+        static const int _minSide = 10;
+        static const int _maxSide = 100;
         static const int _defaultRefPointX = 320;
         static const int _defaultRefPointY = 240;
         static const int _defaultFrameWidth  = 640;
         static const int _defaultFrameHeight = 480;
+        static const int _minFrameWidth  = 320;
+        static const int _minFrameHeight = 320;
         static const double _defaultVelocityX = 0.0;
         static const double _defaultVelocityY = 0.0;
-        static const int _minSide = 10;
 
         explicit Geometry();
         const QPoint &center();
@@ -50,7 +53,7 @@ public:
         const cv::Rect& foneCvRect();
         inline int dx() const {return (_refPoint.x() - _signal.center().x());}
         inline int dy() const {return (_refPoint.y() - _signal.center().y());}
-        inline const QVector2D &velocity() const {return _velocity;}
+        inline const QSize&     frameSize() const {return _frameSize;}
         void setSide(const int);
         void setCenter(const QPoint&);
         void setRefPoint(const QPoint&);
@@ -62,23 +65,25 @@ public:
 
     private:        
         QSize     _frameSize;
-        QRect     _clone_Signal;
-        QRect     _clone_Fone;
+        QRect     _backup_Signal;
+        QRect     _backup_Fone;
         QRect     _signal;
         QRect     _fone;
         cv::Rect  _cache_Signal;
         cv::Rect  _cache_Fone;
         QPoint    _refPoint;
-        QVector2D _velocity;
+        QVector2D _velocity;        //нормализованная скорость в экранной СК [pix/sec]
         QPoint    _cache_Center;
-        bool      _rollback_ON;
         bool      _isValid;
+        bool      _autoRefresh;
+        void verifSide(int&);
+        void verifFrameSize(QSize&);
         bool checkValid();
         void backup();
         void rollback();
         void refresh();
         void refreshFoneRect();
-        inline void refreshValid() {_isValid = this->checkValid();}
+        void refreshValid();
     };
 
     enum RETURN_VALUES {OK = 0,
@@ -118,6 +123,7 @@ private:
     double      _signalMean;      //яркость в сигнальном стробе на пиксель
     bool        _locked;
     int         _timerId;
+    QVector2D   _velocity;        //скорость в экранной СК [pix/sec]
     void unlock();
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);

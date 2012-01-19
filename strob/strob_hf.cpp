@@ -26,7 +26,7 @@ int strob_hf::calcLockTime(const QVector2D velocity,
 {
     if(velocity.isNull())
     {
-        return 0;
+        return -1;
     }
     const double lockSizeKoef = 2.0;
     double r = strobSide * _sqrt2 * lockSizeKoef;

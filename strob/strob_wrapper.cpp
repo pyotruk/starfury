@@ -32,10 +32,10 @@ void StrobWrapper::inputFrame(FrameBox *f)
     switch(ret)
     {
     case Strob::OK:
-        qDebug() << "StrobWrapper says: OK";
+        //qDebug() << "StrobWrapper says: OK";
         break;
     case Strob::LOCKED:
-        qDebug() << "StrobWrapper says: LOCKED";
+        //qDebug() << "StrobWrapper says: LOCKED";
         break;
     case Strob::BAD_GEOMETRY:
         qDebug() << "StrobWrapper says: BAD_GEOMETRY";
@@ -53,8 +53,7 @@ void StrobWrapper::inputFrame(FrameBox *f)
         _targets->lock().unlock();
         emit freshTargets(_targets);
 
-        qDebug() << "StrobWrapper says: emit freshTargets(_targets)" << "\n"
-                 << "   target = " << a;
+        //qDebug() << "StrobWrapper says: emit freshTargets(), target = " << a;
     }
 
     _log->write(QString::number(_strob->geometry().dx()) + " " +
@@ -92,7 +91,7 @@ void StrobWrapper::setThreshold(const int t)
 void StrobWrapper::setVelocity(const double vx,
                                const double vy)
 {
-    qDebug() << "StrobWrapper says: screen velocity = " << vx << "    " << vy;
+    //qDebug() << "StrobWrapper says: screen velocity = " << vx << "    " << vy;
     _strob->setVelocity(QPointF(vx, vy));
 }
 /////////////////////////////////////////////////////////////////////////////////////
