@@ -3,29 +3,16 @@
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 #include "image_wnd.h"
-#include "boxes/artifact.h"
-#include "drawing.h"
 /////////////////////////////////////////////////////////////////////////////////////
 class StrobWindow : public ImageWindow
 {
     Q_OBJECT
 public:
     explicit StrobWindow(const QString &title,
-                         const QPoint  &pos,
-                         QWidget *parent = 0)
-        : ImageWindow(title, pos, parent) {}
-    ~StrobWindow() {}
+                         QSettings *s)
+        : ImageWindow(title, s) {}
 private:
-    ArtifactVector  _picStars;
-    ArtifactVector  _catStars;
-    ArtifactVector  _eqPicStars;
-    ArtifactVector  _eqCatStars;
-    void drawAll();
-private slots:
-    void inputPicStars(ArtifactBox*);
-    void inputCatStars(ArtifactBox*);
-    void inputEquatedStars(ArtifactBox *pic,
-                           ArtifactBox *cat);
+    void drawAll() {ImageWindow::drawAll();}
 };
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -60,14 +60,15 @@ int main(int argc, char *argv[])
 
     /* gui */
     ControlWindow    controlWnd;
-    StrobWindow      strobWnd("tracking", QPoint(100, 100));
-    DetectorWindow   detectorWnd("detection", QPoint(200, 200));
-    PhotometryWindow photometryWnd(&settings);
+    StrobWindow      strobWnd("tracking", &settings);
+    DetectorWindow   detectorWnd("detection", &settings);
+    PhotometryWindow photometryWnd("photometry", &settings);
     /* gui init */
     controlWnd.initFace(strobWrapper.strob().geometry().side(),
                         angmeter.method(),
                         detector.accum().capacity(),
                         detector.mode());
+    detectorWnd.setMode(detector.mode());
 
     qDebug() << "QApplication :" << a.thread();
     qDebug() << strobWrapper.thread();
@@ -120,13 +121,13 @@ int main(int argc, char *argv[])
                      &strobWnd, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),
-                     &strobWnd, SLOT(inputPicStars(ArtifactBox*)),
+                     &detectorWnd, SLOT(inputPicStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
-                     &strobWnd, SLOT(inputCatStars(ArtifactBox*)),
+                     &detectorWnd, SLOT(inputCatStars(ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&angmeter, SIGNAL(sendEquatedStars(ArtifactBox*,ArtifactBox*)),
-                     &strobWnd, SLOT(inputEquatedStars(ArtifactBox*,ArtifactBox*)),
+                     &detectorWnd, SLOT(inputEquatedStars(ArtifactBox*,ArtifactBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&detector, SIGNAL(sendFrame(FrameBox*)),
                      &detectorWnd, SLOT(inputFrame(FrameBox*)),
@@ -139,9 +140,6 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     QObject::connect(&angmeter, SIGNAL(sendMeasureError(double,double)),
                      &controlWnd, SLOT(inputMeasureError(double,double)),
-                     Qt::QueuedConnection);
-    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),
-                     &detectorWnd, SLOT(inputTargets(ArtifactBox*)),
                      Qt::QueuedConnection);
 
 
@@ -168,7 +166,7 @@ int main(int argc, char *argv[])
 
     /* gui --> gui connections */
     QObject::connect(&controlWnd, SIGNAL(setDetectorMode(int)),
-                     &detectorWnd, SLOT(clearTargets()));
+                     &detectorWnd, SLOT(setMode(int)));
 
     /* application shutdown */
     QObject::connect(&controlWnd, SIGNAL(closed()),

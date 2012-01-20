@@ -31,7 +31,7 @@ public:
                       ArtifactBox *targets);
     ~Detector();
     const Accumulator& accum() const {return _accum;}
-    MODE mode() const {return _mode;}
+    inline MODE mode() const {return _mode;}
 public slots:
     void setAccumCapacity(int cap) {_accum.setCapacity(cap);}
     void setBinEnabled(bool b)     {_binEnabled = b;}

@@ -12,29 +12,36 @@ namespace draw
 void crossbuck(QImage&,
                const QPointF &center,
                const int side,
-               const QColor&);
+               const QColor&,
+               const int pen);
 void cross(QImage&,
            const QPointF &center,
            const int side,
-           const QColor &color);
+           const QColor&,
+           const int pen);
 void triangle(QImage&,
-              const int width,
-              const QColor&,
               const QPointF &p1,
               const QPointF &p2,
-              const QPointF &p3);
+              const QPointF &p3,
+              const QColor&,
+              const int pen);
 /////////////////////////////////////////////////////////////////////////////////////
-void artifactMarks(QImage&,
-                   const ArtifactVector&);
-void starMarks(QImage&,
-               const ArtifactVector&);
+void picStarsMarks(QImage&,
+                   const ArtifactVector&,
+                   const QColor&,
+                   const int pen);
+void catStarsMarks(QImage&,
+                   const ArtifactVector&,
+                   const QColor&,
+                   const int pen);
 void starConfig(QImage&,
                 const ArtifactVector&,
-                const int width,
-                const QColor&);
+                const QColor&,
+                const int pen);
 void targetMarks(QImage&,
                  const ArtifactVector&,
-                 const QColor&);
+                 const QColor&,
+                 const int pen);
 /////////////////////////////////////////////////////////////////////////////////////
 void convertStarMagn(ArtifactVector&); //пересчёт магнитуды звезды из каталога (зв.в.) в картинку
 }

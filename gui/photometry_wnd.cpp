@@ -1,17 +1,15 @@
 #include "photometry_wnd.h"
 /////////////////////////////////////////////////////////////////////////////////////
-PhotometryWindow::PhotometryWindow(QSettings *s,
-                                   QWidget *parent) :
-    QFrame(parent),
-    _settings(s),
-    _t0(timeutils::msecFromDayBegin() / 1000),
-    _plot(new QwtPlot(this)),
-    _layout(new QBoxLayout(QBoxLayout::LeftToRight, this)),
-    _samples(0)
+PhotometryWindow::PhotometryWindow(const QString &title,
+                                   QSettings *s)
+    : RecWindow(title, s),
+      _t0(timeutils::msecFromDayBegin() / 1000),
+      _plot(new QwtPlot(this)),
+      _layout(new QBoxLayout(QBoxLayout::LeftToRight, this)),
+      _samples(0)
 {
-    this->loadSettings(s);
+    this->loadSettings(this->_settings);
 
-    this->setWindowTitle(__title);
     this->setPalette(QPalette(QBrush(__borderColor),
                               QBrush(__backgroundColor),
                               QBrush(__borderColor),
@@ -24,7 +22,6 @@ PhotometryWindow::PhotometryWindow(QSettings *s,
 
     _layout->addWidget(_plot, 0);
     this->setLayout(_layout);
-    this->resize(_width, _height);
 
     //axis
     _plot->setAxisAutoScale(QwtPlot::xBottom, false);
@@ -46,7 +43,7 @@ PhotometryWindow::PhotometryWindow(QSettings *s,
 /////////////////////////////////////////////////////////////////////////////////////
 PhotometryWindow::~PhotometryWindow()
 {
-    this->saveSettings(_settings);
+    this->saveSettings(this->_settings);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void PhotometryWindow::loadSettings(QSettings *s)
@@ -61,12 +58,16 @@ void PhotometryWindow::saveSettings(QSettings *s)
     s->setValue(__skeyMinVal, _minVal);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void PhotometryWindow::paintEvent(QPaintEvent *event)
+void PhotometryWindow::drawAll()
 {
-    QFrame::paintEvent(event);
     _curves[0].setSamples(_signal);
     _curves[1].setSamples(_fone);
     _plot->replot();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void PhotometryWindow::paintEvent(QPaintEvent *event)
+{
+    this->drawAll();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void PhotometryWindow::addPoint(double timeMarker, //sec.000

@@ -43,8 +43,7 @@ SOURCES += main.cpp\
     detector/detector_hf.cpp \
     utils/cvwrap.cpp \
     gui/control_wnd.cpp \
-    gui/image_wnd.cpp \
-    gui/strob_wnd.cpp
+    gui/image_wnd.cpp
 
 HEADERS  += \
     strob/strob.h \
@@ -81,7 +80,8 @@ HEADERS  += \
     utils/cvwrap.h \
     gui/control_wnd.h \
     gui/image_wnd.h \
-    gui/strob_wnd.h
+    gui/strob_wnd.h \
+    gui/rec_wnd.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -104,6 +104,10 @@ LIBS += -L"C:/Qwt-6.0.1/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
+
+
 
 
 

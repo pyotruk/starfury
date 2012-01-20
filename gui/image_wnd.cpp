@@ -1,15 +1,5 @@
 #include "image_wnd.h"
 /////////////////////////////////////////////////////////////////////////////////////
-ImageWindow::ImageWindow(const QString &title,
-                         const QPoint  &pos,
-                         QWidget *parent) :
-    QMainWindow(parent),
-    _pos(pos)
-{
-    this->setWindowTitle(title);
-    this->move(_pos);
-}
-/////////////////////////////////////////////////////////////////////////////////////
 void ImageWindow::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
@@ -23,8 +13,9 @@ void ImageWindow::checkImgSize()
     {
         QRect rect;
         rect.setSize(_img.size());
+        QPoint pos = this->pos();
         this->setGeometry(rect);
-        this->move(_pos);
+        this->move(pos);
         _imgSize = _img.size();
     }
 }

@@ -9,14 +9,12 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QDebug>
 #include <QColor>
-#include <QFrame>
 #include <QVector>
 #include <QPointF>
-#include <QString>
 #include <QLayout>
 #include <QFont>
-#include <QSettings>
 /////////////////////////////////////////////////////////////////////////////////////
+#include "gui/rec_wnd.h"
 #include "utils/timeutils.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
@@ -27,18 +25,17 @@ static const QString __skeyMinVal("/gui/Photometry/MinVal");
 static const QPointF __defaultMaxVal(120, 255);
 static const QPointF __defaultMinVal(0, 0);
 /////////////////////////////////////////////////////////////////////////////////////
-static const QString __title("photometry");
 static const QColor  __backgroundColor(53, 62, 102);
 static const QColor  __borderColor(210, 185, 109);
 static const QColor  __curveColor0(Qt::green);
 static const QColor  __curbeColor1(Qt::white);
 /////////////////////////////////////////////////////////////////////////////////////
-class PhotometryWindow : public QFrame
+class PhotometryWindow : public RecWindow
 {
     Q_OBJECT
 public:
-    explicit PhotometryWindow(QSettings*,
-                              QWidget *parent = 0);
+    explicit PhotometryWindow(const QString &title,
+                              QSettings *s);
     ~PhotometryWindow();
 public slots:
     void addPoint(double timeMarker, //sec.000
@@ -46,12 +43,10 @@ public slots:
                   double fone);
 protected:
     virtual void paintEvent(QPaintEvent *);
+    void drawAll();
 private:
     static const int _curveCount = 2;
-    static const int _width = 1600;
-    static const int _height = 180;
     static const int _repaintSample = 0; //samples
-    QSettings       *_settings;
     double           _t0;
     QVector<QPointF> _signal;
     QVector<QPointF> _fone;
