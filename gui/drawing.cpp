@@ -45,6 +45,7 @@ void draw::triangle(QImage &img,
 void draw::artifactMarks(QImage &img,
                          const ArtifactVector &a)
 {
+    if(a.empty())    return;
     ArtifactVector::const_iterator it = a.constBegin();
     for(; it != a.constEnd(); ++it)
     {
@@ -58,6 +59,7 @@ void draw::artifactMarks(QImage &img,
 void draw::starMarks(QImage &img,
                      const ArtifactVector &s)
 {
+    if(s.empty())    return;
     ArtifactVector::const_iterator it = s.constBegin();
     for(; it < s.constEnd(); ++it)
     {
@@ -73,6 +75,7 @@ void draw::starConfig(QImage &img,
                       const int width,
                       const QColor &color)
 {
+    if(a.empty())    return;
     QPainter p(&img);
     p.setPen(QPen(color, width));
     ArtifactVector::const_iterator it = a.constBegin();
@@ -88,8 +91,9 @@ void draw::targetMarks(QImage &img,
                        const ArtifactVector &a,
                        const QColor &color)
 {
+    if(a.empty())    return;
     QPainter p(&img);
-    const int width = 2;
+    const int width = 1;
     const int size = 10;
     p.setPen(QPen(color, width));
     const int startAngle = 0 * 16;
@@ -112,6 +116,7 @@ void draw::targetMarks(QImage &img,
 //пересчёт магнитуды звезды из каталога (зв.в.) в картинку
 void draw::convertStarMagn(ArtifactVector &a)
 {
+    if(a.empty())    return;
     double m;
     ArtifactVector::iterator it = a.begin();
     for(; it < a.end(); ++it)

@@ -16,6 +16,8 @@
 //setting keys
 static const QString __skeyAccumCapacity("/Detector/AccumCapacity");
 static const QString __skeyDetectorMode("/Detector/Mode");
+static const QString __skeyMinSquare("/Detector/MinSquare");
+static const QString __skeyOblongDiff("/Detector/OblongDiff");
 /////////////////////////////////////////////////////////////////////////////////////
 class Detector : public QThread
 {
@@ -40,7 +42,9 @@ private:
     Detector& operator =(const Detector&) {return *this;}
     static const int _timeout = 40;
     static const MODE _defaultMode = STAR_DETECTION;
-    static const int _smoothingKernelSize = 7;
+    static const int _blurKernelSize = 7;
+    static const int _defaultMinSquare = 9;
+    static const int _defaultOblongDiff = 2;
     QSettings      *_settings;
     FrameBox       *_frame;
     ArtifactBox    *_stars;
@@ -52,6 +56,8 @@ private:
     bool            _binEnabled;
     MODE            _mode;
     QPointF         _velocity;
+    int             _minSquare;
+    int             _oblongDiff;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void accumulate(const MODE);

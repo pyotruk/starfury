@@ -2,24 +2,20 @@
 #define DETECTOR_HF_H
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-#include "opencv.hpp"
-#include "utils/cvhelpfun.h"
+#include "utils/cvwrap.h"
 #include "math/astrocalc.h"
 #include "boxes/frame.h"
 #include "boxes/artifact.h"
 /////////////////////////////////////////////////////////////////////////////////////
 namespace detector_hf
 {
-void smooth(Frame&,
-            const int kernelSize);
-void threshold(Frame&);
-void findArtifacts(Frame&,
-                   ArtifactVector&,
-                   const double magnThresh);
-bool isOblong(const cv::Rect &rect,  //прямоугольник из cv::floodFill
-              const int maxHeightWidthDiff);
-void findTargets(Frame&,
-                 ArtifactVector&);
+void findTargets(Frame &f,                 //input
+                 ArtifactVector &av,       //output
+                 const int minSquare = 9,
+                 const bool MTI = false,   /* Moving-Target Indication (селекция движущихся целей)
+                                              только для накопленного кадра */
+                 const int oblongDiff = 2); /* распознавание вытянутых треков
+                                               от движущихся целей */
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

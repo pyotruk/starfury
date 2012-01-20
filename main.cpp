@@ -4,8 +4,8 @@
 #include <QSettings>
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "gui/controlwindow.h"
-#include "gui/strobwnd.h"
+#include "gui/control_wnd.h"
+#include "gui/strob_wnd.h"
 #include "gui/detector_wnd.h"
 #include "gui/photometry_wnd.h"
 #include "com/framerec.h"
@@ -24,13 +24,13 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    //through obj
+    /* common objects */
     QSettings settings("petr_klukvenny", "starfury");
     LogFile targetLog("starfury-target");
     LogFile starsLog("starfury-stars");
     LogFile strobLog("starfury-strob");
 
-    //per-thread data
+    /* per-thread data */
     FrameBox       frame0, frame1, frame2;
     ArtifactBox    rawPicStars;
     ArtifactBox    rawCatStars;
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     ArtifactBox    equatedCatStars;
     ArtifactBox    targets;
 
-    //singletons
+    /* singletons */
     StrobWrapper  strobWrapper(&settings,
                                &strobLog,
                                &targets);
@@ -58,12 +58,12 @@ int main(int argc, char *argv[])
                            &equatedCatStars,
                            &targets);
 
-    //gui
+    /* gui */
     ControlWindow    controlWnd;
     StrobWindow      strobWnd("tracking", QPoint(100, 100));
     DetectorWindow   detectorWnd("detection", QPoint(200, 200));
     PhotometryWindow photometryWnd(&settings);
-    //gui init
+    /* gui init */
     controlWnd.initFace(strobWrapper.strob().geometry().side(),
                         angmeter.method(),
                         detector.accum().capacity(),
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     qDebug() << starcatScreen.thread();
     qDebug() << angmeter.thread();
 
-    //object <--> object connections
+    /* object --> object connections */
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(FrameBox*)),
                      &strobWrapper, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
@@ -109,7 +109,8 @@ int main(int argc, char *argv[])
                      &strobWrapper, SLOT(setVelocity(double,double)),
                      Qt::QueuedConnection);
 
-    //gui <--> object connections
+
+    /* object --> gui connections */
     QObject::connect(&strobWrapper, SIGNAL(frameReady(FrameBox*)),
                      &strobWnd, SLOT(inputFrame(FrameBox*)),
                      Qt::QueuedConnection);
@@ -118,7 +119,7 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(catStarsReady(ArtifactBox*)),
                      &strobWnd, SLOT(inputCatStars(ArtifactBox*)),
-                     Qt::QueuedConnection);    
+                     Qt::QueuedConnection);
     QObject::connect(&angmeter, SIGNAL(sendEquatedStars(ArtifactBox*,ArtifactBox*)),
                      &strobWnd, SLOT(inputEquatedStars(ArtifactBox*,ArtifactBox*)),
                      Qt::QueuedConnection);
@@ -128,30 +129,30 @@ int main(int argc, char *argv[])
     QObject::connect(&detector, SIGNAL(targetsReady(ArtifactBox*)),
                      &detectorWnd, SLOT(inputTargets(ArtifactBox*)),
                      Qt::QueuedConnection);
-
-    QObject::connect(&strobWnd, SIGNAL(mousePressEvent(QMouseEvent *)),
-                     &strobWrapper, SLOT(setPos(QMouseEvent*)),
-                     Qt::QueuedConnection);
-
     QObject::connect(&strobWrapper, SIGNAL(sendPhotometry(double,double,double)),
                      &photometryWnd, SLOT(addPoint(double,double,double)),
                      Qt::QueuedConnection);
-
     QObject::connect(&starcatScreen, SIGNAL(sendMeasureError(double,double)),
                      &controlWnd, SLOT(inputMeasureError(double,double)),
                      Qt::QueuedConnection);
+    QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),
+                     &detectorWnd, SLOT(inputTargets(ArtifactBox*)),
+                     Qt::QueuedConnection);
 
+
+    /* gui --> object connections */
+    QObject::connect(&strobWnd, SIGNAL(mousePressEvent(QMouseEvent *)),
+                     &strobWrapper, SLOT(setPos(QMouseEvent*)),
+                     Qt::QueuedConnection);
     QObject::connect(&controlWnd, SIGNAL(setStrobSize(int)),
                      &strobWrapper, SLOT(setSide(int)),
                      Qt::QueuedConnection);
     QObject::connect(&controlWnd, SIGNAL(setAstrometryMethod(int)),
                      &angmeter, SLOT(setMethod(int)),
                      Qt::QueuedConnection);
-
     QObject::connect(&controlWnd, SIGNAL(setDetectorMode(int)),
                      &detector, SLOT(setMode(int)),
                      Qt::QueuedConnection);
-
     QObject::connect(&controlWnd, SIGNAL(setAccumCapacity(int)),
                      &detector, SLOT(setAccumCapacity(int)),
                      Qt::QueuedConnection);
@@ -159,7 +160,12 @@ int main(int argc, char *argv[])
                      &detector, SLOT(setBinEnabled(bool)),
                      Qt::QueuedConnection);
 
-    //application shutdown
+
+    /* gui --> gui connections */
+    QObject::connect(&controlWnd, SIGNAL(setDetectorMode(int)),
+                     &detectorWnd, SLOT(clearTargets()));
+
+    /* application shutdown */
     QObject::connect(&controlWnd, SIGNAL(closed()),
                      &a, SLOT(closeAllWindows()));
 

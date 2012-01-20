@@ -29,11 +29,11 @@ void strob_hf::calcCenterOfMass(cv::Mat     &frame,      //input
                                 QPoint &newCenter)  //output
 {
     cv::Rect cvSignalRect;
-    cvhelp::qtRect2cvRect(signalRect, cvSignalRect);
+    cvwrap::qtRect2cvRect(signalRect, cvSignalRect);
     cv::TermCriteria crit(cv::TermCriteria::COUNT, 1, 0.1);
     cv::meanShift(frame, cvSignalRect, crit);
     QRect newSignalRect;
-    cvhelp::cvRect2qtRect(cvSignalRect, newSignalRect);
+    cvwrap::cvRect2qtRect(cvSignalRect, newSignalRect);
     newCenter = newSignalRect.center();
 }
 /////////////////////////////////////////////////////////////////////////////////////

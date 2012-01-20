@@ -1,4 +1,4 @@
-#include "controlwindow.h"
+#include "control_wnd.h"
 #include "ui_controlwindow.h"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -11,14 +11,15 @@ ControlWindow::ControlWindow(QWidget *parent) :
     //gui <--> gui connections
     connect(ui->sliderStrobSize, SIGNAL(sliderMoved(int)),
             this, SIGNAL(setStrobSize(int)));
-    connect(ui->radioBtnSimtri, SIGNAL(clicked()),
-            this, SLOT(setSimtriAstrometryMethod()));
-    connect(ui->radioBtnFreevec, SIGNAL(clicked()),
-            this, SLOT(setFreevecAstrometryMethod()));
     connect(ui->sliderAccum, SIGNAL(sliderMoved(int)),
             this, SIGNAL(setAccumCapacity(int)));
     connect(ui->checkBoxBin, SIGNAL(stateChanged(int)),
             this, SLOT(convertCheckBoxDetectionModeSignal(int)));
+
+    connect(ui->radioBtnSimtri, SIGNAL(clicked()),
+            this, SLOT(setSimtriAstrometryMethod()));
+    connect(ui->radioBtnFreevec, SIGNAL(clicked()),
+            this, SLOT(setFreevecAstrometryMethod()));
 
     connect(ui->radioBtnStars, SIGNAL(clicked()),
             this, SLOT(setStarDetectionMode()));

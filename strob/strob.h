@@ -15,7 +15,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include "boxes/frame.h"
 #include "boxes/artifact.h"
-#include "utils/cvhelpfun.h"
+#include "utils/cvwrap.h"
 #include "common/logfile.h"
 #include "strob/strob_hf.h"
 /////////////////////////////////////////////////////////////////////////////////////
@@ -37,10 +37,11 @@ public:
         static const int _defaultRefPointY = 240;
         static const int _defaultFrameWidth  = 640;
         static const int _defaultFrameHeight = 480;
-        static const int _minFrameWidth  = 320;
-        static const int _minFrameHeight = 320;
+        static const int _minFrameWidth  = 400;
+        static const int _minFrameHeight = 300;
         static const double _defaultVelocityX = 0.0;
         static const double _defaultVelocityY = 0.0;
+        static const double _foneRectSideKoef = 1.5;
 
         explicit Geometry();
         const QPoint &center();
@@ -108,7 +109,7 @@ protected:
     void timerEvent(QTimerEvent *);
 
 private:
-    static const int _smoothingKernelSize = 5;
+    static const int _blurKernelSize = 5;
     Strob(const Strob&) {}
     Strob& operator =(const Strob&) {return *this;}
     QSettings  *_settings;

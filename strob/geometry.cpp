@@ -52,13 +52,13 @@ void Strob::Geometry::setVelocity(const QPointF &v)
 /////////////////////////////////////////////////////////////////////////////////////
 const cv::Rect& Strob::Geometry::signalCvRect()
 {
-    cvhelp::qtRect2cvRect(_signal, _cache_Signal);
+    cvwrap::qtRect2cvRect(_signal, _cache_Signal);
     return _cache_Signal;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 const cv::Rect& Strob::Geometry::foneCvRect()
 {
-    cvhelp::qtRect2cvRect(_fone, _cache_Fone);
+    cvwrap::qtRect2cvRect(_fone, _cache_Fone);
     return _cache_Fone;
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -140,10 +140,10 @@ void Strob::Geometry::refresh()
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::refreshFoneRect()
 {
-    int r = _signal.width();
+    int r = _signal.width() * _foneRectSideKoef;
     _fone.moveCenter(QPoint((int)(_signal.center().x() + r * _velocity.x()),
                             (int)(_signal.center().y() + r * _velocity.y())));
-    _fone.setSize(_signal.size());
+    _fone.setSize(QSize(r, r));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Strob::Geometry::refreshValid()

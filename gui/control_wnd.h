@@ -1,5 +1,5 @@
-#ifndef CONTROLWINDOW_H
-#define CONTROLWINDOW_H
+#ifndef CONTROL_WND_H
+#define CONTROL_WND_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QMainWindow>
 #include <QDebug>
@@ -46,4 +46,4 @@ signals:
     void closed();
 };
 /////////////////////////////////////////////////////////////////////////////////////
-#endif // CONTROLWINDOW_H
+#endif // CONTROL_WND_H

@@ -45,16 +45,14 @@ Strob::RETURN_VALUES Strob::proc(Frame &f)
                           _foneRate);
 
     //фильтрация
-    cv::blur(foneRoi, foneRoi, cv::Size(_smoothingKernelSize,
-                                        _smoothingKernelSize));
-    cv::blur(signalRoi, signalRoi, cv::Size(_smoothingKernelSize,
-                                            _smoothingKernelSize));
+    cvwrap::blur(signalRoi,_blurKernelSize);
+    cvwrap::blur(foneRoi,_blurKernelSize);
 
     if(_locked)    return LOCKED;
 
     if(_signalRate > _foneRate)    //проверка условия слежения
     {
-        cvhelp::otsuThreshold(signalRoi);
+        cvwrap::otsuThreshold(signalRoi);
         QPoint newCenter;
         strob_hf::calcCenterOfMass(f.asCvMat(),
                                    _geometry.signalRect(),

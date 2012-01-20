@@ -1,4 +1,4 @@
-#include "imagewindow.h"
+#include "image_wnd.h"
 /////////////////////////////////////////////////////////////////////////////////////
 ImageWindow::ImageWindow(const QString &title,
                          const QPoint  &pos,

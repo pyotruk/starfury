@@ -1,53 +1,9 @@
 #include "detector_hf.h"
 /////////////////////////////////////////////////////////////////////////////////////
-void detector_hf::smooth(Frame &f,
-                         const int kernelSize)
+bool isOblong(const cv::Rect &rect,
+              const int oblongDiff)
 {
-    cv::medianBlur(f.asCvMat(),
-                   f.asCvMat(),
-                   kernelSize);
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void detector_hf::findArtifacts(Frame &f,
-                                ArtifactVector &a,
-                                const double magnThresh)
-{
-    a.clear();
-    quint32 floodColor = 0xFF - 1;
-    double magn;
-    cv::Rect rect;
-    QPoint center;
-    cv::Mat cvmat = f.asCvMat();
-    Artifact art;
-    int width  = f.header().width();
-    int height = f.header().height();
-    const uchar *pix;
-    for(int y=0; y < height; ++y)
-    {
-        for(int x=0; x < width; ++x)
-        {
-            pix = f.constPnt(x, y);
-            if(*pix > floodColor)
-            {
-                cv::floodFill(cvmat, cv::Point(x, y), floodColor, &rect);
-                magn = (double)rect.width;
-                if(magn > magnThresh)
-                {
-                    cvhelp::calcRectCenter(rect, center);
-                    art.setCenter(center);
-                    art.setMagnitude(magn);
-                    a.push_back(art);
-                }
-            }
-        }
-    }
-    qSort(a.begin(), a.end(), qGreater<Artifact>());
-}
-/////////////////////////////////////////////////////////////////////////////////////
-bool detector_hf::isOblong(const cv::Rect &rect,
-                           const int maxHeightWidthDiff)
-{
-    if(qAbs(rect.width - rect.height) > maxHeightWidthDiff)
+    if(qAbs(rect.width - rect.height) > oblongDiff)
     {
         return true;
     }
@@ -57,39 +13,42 @@ bool detector_hf::isOblong(const cv::Rect &rect,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void detector_hf::findTargets(Frame &f,
-                              ArtifactVector &a)
+void detector_hf::findTargets(Frame &f,                 //input
+                              ArtifactVector &av,       //output
+                              const int minSquare,
+                              const bool MTI,           /* Moving-Target Indication (селекция движущихся целей)
+                                                           только для накопленного кадра */
+                              const int oblongDiff)     /* распознавание вытянутых треков
+                                                           от движущихся целей */
 {
-    const int maxHeightWidthDiff = 2;
-    const int minSquare = 9;
-    a.clear();
-    quint32 floodColor = 0xFF - 1;
+    av.clear();
+    const quint32 floodColor = 0xFF - 1;
     cv::Rect rect;
     QPoint center;
-    cv::Mat cvmat = f.asCvMat();
-    Artifact art;
-    int width  = f.header().width();
-    int height = f.header().height();
     const uchar *pix;
-    for(int y=0; y < height; ++y)
+    for(int y = 0; y < f.header().height(); ++y)
     {
-        for(int x=0; x < width; ++x)
+        for(int x = 0; x < f.header().width(); ++x)
         {
             pix = f.constPnt(x, y);
             if(*pix > floodColor)
             {
-                cv::floodFill(cvmat, cv::Point(x, y), floodColor, &rect);
-                if(cvhelp::square(rect) < minSquare)    continue;
-                if(isOblong(rect, maxHeightWidthDiff))    continue;
-                cvhelp::calcRectCenter(rect, center);
-                art.setCenter(center);
-                art.setMagnitude((double)rect.width);
-                a.push_back(art);
+                cv::floodFill(f.asCvMat(), cv::Point(x, y), floodColor, &rect);
+                int sq = cvwrap::square(rect);
+                if(sq < minSquare)    continue;
+
+                if(MTI)
+                {
+                    if(isOblong(rect, oblongDiff))    continue;
+                }
+
+                cvwrap::calcRectCenter(rect, center);
+                av.push_back(Artifact(center, (double)rect.width));
             }
         }
     }
-    if(a.empty())    return;
-    qSort(a.begin(), a.end(), qGreater<Artifact>());
+    if(av.empty())    return;
+    qSort(av.begin(), av.end(), qGreater<Artifact>());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

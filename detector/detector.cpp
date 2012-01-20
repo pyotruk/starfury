@@ -28,12 +28,16 @@ void Detector::loadSettings(QSettings *s)
     int cap = s->value(__skeyAccumCapacity, Accumulator::_defaultCapacity).toInt();
     _accum.setCapacity(cap);
     _mode = (MODE)s->value(__skeyDetectorMode, _defaultMode).toInt();
+    _minSquare = s->value(__skeyMinSquare, _defaultMinSquare).toInt();
+    _oblongDiff = s->value(__skeyOblongDiff, _defaultOblongDiff).toInt();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::saveSettings(QSettings *s)
 {
     s->setValue(__skeyAccumCapacity, _accum.capacity());
     s->setValue(__skeyDetectorMode, _mode);
+    s->setValue(__skeyMinSquare, _minSquare);
+    s->setValue(__skeyOblongDiff, _oblongDiff);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::inputFrame(FrameBox *f)
@@ -53,7 +57,7 @@ void Detector::inputFrame(FrameBox *f)
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::accumulate(const MODE mode)
 {
-    detector_hf::smooth(_cache_Frame.data(), _smoothingKernelSize);
+    cvwrap::medianBlur(_cache_Frame.data().asCvMat(), _blurKernelSize);
 
     switch(mode)
     {
@@ -66,14 +70,17 @@ void Detector::accumulate(const MODE mode)
         break;
     }
 
-    if(_binEnabled)    cvhelp::otsuThreshold(_cache_Frame.data().asCvMat());
+    if(_binEnabled)    cvwrap::otsuThreshold(_cache_Frame.data().asCvMat());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectStars()
 {
-    cvhelp::otsuThreshold(_cache_Frame.data().asCvMat());
+    cvwrap::otsuThreshold(_cache_Frame.data().asCvMat());
     detector_hf::findTargets(_cache_Frame.data(),
-                           _cache_Stars.data());
+                             _cache_Stars.data(),
+                             _minSquare,
+                             true,
+                             _oblongDiff);
     if(_cache_Stars.data().empty())
     {
         qDebug() << "Detector says: [_cache_Stars] is empty!";
@@ -89,10 +96,13 @@ void Detector::detectStars()
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectTargets()
 {
-    detector_hf::smooth(_cache_Frame.data(), _smoothingKernelSize);
-    cvhelp::otsuThreshold(_cache_Frame.data().asCvMat());
+    cvwrap::medianBlur(_cache_Frame.data().asCvMat(), _blurKernelSize);
+    cvwrap::otsuThreshold(_cache_Frame.data().asCvMat());
     detector_hf::findTargets(_cache_Frame.data(),
-                           _cache_Targets.data());
+                             _cache_Targets.data(),
+                             _minSquare,
+                             true,
+                             _oblongDiff);
     if(_cache_Targets.data().empty())
     {
         qDebug() << "Detector says: [_cache_Targets] is empty!";

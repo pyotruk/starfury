@@ -1,6 +1,6 @@
-#include "cvhelpfun.h"
+#include "cvwrap.h"
 /////////////////////////////////////////////////////////////////////////////////////
-void cvhelp::qtRect2cvRect(const QRect &qtRect,
+void cvwrap::qtRect2cvRect(const QRect &qtRect,
                            cv::Rect &cvRect)
 {
     cvRect = cv::Rect(qtRect.topLeft().x(),
@@ -9,7 +9,7 @@ void cvhelp::qtRect2cvRect(const QRect &qtRect,
                       qtRect.height());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void cvhelp::cvRect2qtRect(const cv::Rect &cvRect,
+void cvwrap::cvRect2qtRect(const cv::Rect &cvRect,
                            QRect &qtRect)
 {
     qtRect = QRect(cvRect.x,
@@ -18,7 +18,7 @@ void cvhelp::cvRect2qtRect(const cv::Rect &cvRect,
                    cvRect.height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-bool cvhelp::isBelongToCvRect(const int x,
+bool cvwrap::isBelongToCvRect(const int x,
                               const int y,
                               const cv::Rect &rect)
 {
@@ -32,23 +32,35 @@ bool cvhelp::isBelongToCvRect(const int x,
     return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void cvhelp::calcRectCenter(const cv::Rect &rect,
+void cvwrap::calcRectCenter(const cv::Rect &rect,
                             QPoint &center)
 {
     center = QPoint(rect.tl().x + rect.width / 2,
                     rect.tl().y + rect.height / 2);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-int cvhelp::square(const cv::Rect &rect)
+int cvwrap::square(const cv::Rect &rect)
 {
    return rect.width * rect.height;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void cvhelp::otsuThreshold(cv::Mat &img)
+void cvwrap::otsuThreshold(cv::Mat &img)
 {
     cv::threshold(img, img, 0, 0xFF, cv::THRESH_OTSU);
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void cvwrap::medianBlur(cv::Mat &f,
+                        const int kernelSize)
+{
+    cv::medianBlur(f, f, kernelSize);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void cvwrap::blur(cv::Mat &f,
+                  const int kernelSize)
+{
+    cv::blur(f, f, cv::Size(kernelSize,
+                            kernelSize));
+}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

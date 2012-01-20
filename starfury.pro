@@ -12,7 +12,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
     strob/strob.cpp \
-    utils/cvhelpfun.cpp \
     boxes/frame.cpp \
     com/sharedmem.cpp \
     com/framerec.cpp \
@@ -34,9 +33,6 @@ SOURCES += main.cpp\
     astrometry/simtri/triangle.cpp \
     astrometry/simtri/combo.cpp \
     astrometry/astrometry.cpp \
-    gui/controlwindow.cpp \
-    gui/imagewindow.cpp \
-    gui/strobwnd.cpp \
     detector/detector.cpp \
     detector/accumulator.cpp \
     gui/detector_wnd.cpp \
@@ -45,11 +41,14 @@ SOURCES += main.cpp\
     strob/strob_wrapper.cpp \
     strob/geometry.cpp \
     strob/strob_hf.cpp \
-    detector/detector_hf.cpp
+    detector/detector_hf.cpp \
+    utils/cvwrap.cpp \
+    gui/control_wnd.cpp \
+    gui/image_wnd.cpp \
+    gui/strob_wnd.cpp
 
 HEADERS  += \
     strob/strob.h \
-    utils/cvhelpfun.h \
     boxes/frame.h \
     com/sharedmem.h \
     com/framerec.h \
@@ -73,9 +72,6 @@ HEADERS  += \
     astrometry/simtri/triangle.h \
     astrometry/simtri/combo.h \
     astrometry/astrometry.h \
-    gui/controlwindow.h \
-    gui/imagewindow.h \
-    gui/strobwnd.h \
     detector/detector.h \
     detector/accumulator.h \
     gui/detector_wnd.h \
@@ -83,7 +79,11 @@ HEADERS  += \
     sky/velocimeter.h \
     strob/strob_wrapper.h \
     strob/strob_hf.h \
-    detector/detector_hf.h
+    detector/detector_hf.h \
+    utils/cvwrap.h \
+    gui/control_wnd.h \
+    gui/image_wnd.h \
+    gui/strob_wnd.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -106,6 +106,22 @@ LIBS += -L"C:/Qwt-6.0.1/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
