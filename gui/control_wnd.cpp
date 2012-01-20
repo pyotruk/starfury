@@ -14,7 +14,7 @@ ControlWindow::ControlWindow(QWidget *parent) :
     connect(ui->sliderAccum, SIGNAL(sliderMoved(int)),
             this, SIGNAL(setAccumCapacity(int)));
     connect(ui->checkBoxBin, SIGNAL(stateChanged(int)),
-            this, SLOT(convertCheckBoxDetectionModeSignal(int)));
+            this, SLOT(convertCheckBoxDetectorBinSignal(int)));
 
     connect(ui->radioBtnSimtri, SIGNAL(clicked()),
             this, SLOT(setSimtriAstrometryMethod()));
@@ -86,12 +86,12 @@ void ControlWindow::inputMeasureError(double errAlpha,  //rad
                                       double errDelta)  //rad
 {
     ui->labelAlpha->setText("alpha  " +
-                              QString::number(errAlpha * __rad2deg * 3600));
+                              QString::number(errAlpha * ac::_rad2deg * 3600));
     ui->labelDelta->setText("delta  " +
-                            QString::number(errDelta * __rad2deg * 3600));
+                            QString::number(errDelta * ac::_rad2deg * 3600));
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void ControlWindow::convertCheckBoxDetectionModeSignal(int state)
+void ControlWindow::convertCheckBoxDetectorBinSignal(int state)
 {
     switch(state)
     {

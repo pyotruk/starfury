@@ -32,8 +32,8 @@ bool ac::isEqual(const QPointF &p1,
 double shiftMinus(const double angle)
 /* 0..360  -->  -180..+180 */
 {
-    if(angle > __pi)
-        return (angle - __2pi);
+    if(angle > ac::_pi)
+        return (angle - ac::_2pi);
     else
         return angle;
 }
@@ -42,7 +42,7 @@ double shiftPlus(const double angle)
 /* -180..+180  -->  0..360 */
 {
     if(angle < 0)
-        return (__2pi + angle);
+        return (ac::_2pi + angle);
     else
         return angle;
 }
@@ -85,7 +85,7 @@ void ac::rad2dms(const double rad,
                  int &min,
                  int &sec)
 {
-    double degAng = rad * __rad2deg;
+    double degAng = rad * _rad2deg;
     deg = qFloor(degAng);
     double foo = frac(degAng) * 60;
     min = qFloor(foo);
@@ -97,7 +97,7 @@ void ac::rad2hms(const double rad,
                  int &min,
                  int &sec)
 {
-    double hourAng = rad * __rad2hour;
+    double hourAng = rad * _rad2hour;
     hour = qFloor(hourAng);
     double foo = frac(hourAng) * 60;
     min = qFloor(foo);
@@ -111,7 +111,7 @@ void ac::hms2dms(const int hour,
                  int &degMin,
                  int &degSec)
 {
-    double rad = (hour + hourMin / 60 + hourSec / 3600) * __hour2rad;
+    double rad = (hour + hourMin / 60 + hourSec / 3600) * _hour2rad;
     rad2dms(rad, deg, degMin, degSec);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void ac::dms2hms(const int deg,
                  int &hourMin,
                  int &hourSec)
 {
-    double rad = (deg + degMin / 60 + degSec / 3600) * __deg2rad;
+    double rad = (deg + degMin / 60 + degSec / 3600) * _deg2rad;
     rad2hms( rad, hour, hourMin, hourSec );
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,8 +140,8 @@ void ac::axes2horiz(const double axesAzimuth,
                 double &horizAzimuth,
                 double &horizElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(orientAzimuth)) * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - orientElevation) * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(orientAzimuth)) * _rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - orientElevation) * _rad2deg);
     QQuaternion q = qz * qy;
     double x, y, z;
     spherical2cartesian(astro2math(axesAzimuth), axesElevation, x, y, z);
@@ -157,8 +157,8 @@ void ac::horiz2axes(const double horizAzimuth,
                 double &axesAzimuth,
                 double &axesElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(orientAzimuth) * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, orientElevation * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(orientAzimuth) * _rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, orientElevation * _rad2deg);
     QQuaternion q  = qy * qz;
     double x, y, z;
     spherical2cartesian(astro2math(horizAzimuth), horizElevation, x, y, z);
@@ -174,8 +174,8 @@ void ac::horiz2iieqt(const double horizAzimuth,
                  double &alpha,
                  double &delta)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, localSiderealTime * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (__pi2 - latitude) * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, localSiderealTime * _rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (_pi2 - latitude) * _rad2deg);
     QQuaternion q = qz * qy;
     double x, y, z;
     spherical2cartesian(astro2math(horizAzimuth), horizElevation, x, y, z);
@@ -191,8 +191,8 @@ void ac::iieqt2horiz(const double alpha,
                      double &horizAzimuth,
                      double &horizElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - localSiderealTime) * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (latitude - __pi2) * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - localSiderealTime) * _rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (latitude - _pi2) * _rad2deg);
     QQuaternion q = qy * qz;
     double x, y, z;
     spherical2cartesian(shiftMinus(alpha), delta, x, y, z);
@@ -208,8 +208,8 @@ void ac::screenAngles2horiz(const double screenCenterHorizAzimuth,
                             double &horizAzimuth,
                             double &horizElevation)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(screenCenterHorizAzimuth) * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - screenCenterHorizElevation) * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, astro2math(screenCenterHorizAzimuth) * _rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, (0 - screenCenterHorizElevation) * _rad2deg);
     QQuaternion q  = qz * qy;
     double x, y, z;
     spherical2cartesian(screenAngleX , screenAngleY, x, y, z);
@@ -225,8 +225,8 @@ void ac::horiz2screenAngles(const double screenCenterHorizAzimuth,
                             double &screenAngleX,
                             double &screenAngleY)
 {
-    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(screenCenterHorizAzimuth)) * __rad2deg);
-    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, screenCenterHorizElevation * __rad2deg);
+    QQuaternion qz = QQuaternion::fromAxisAndAngle(0, 0, 1, (0 - astro2math(screenCenterHorizAzimuth)) * _rad2deg);
+    QQuaternion qy = QQuaternion::fromAxisAndAngle(0, 1, 0, screenCenterHorizElevation * _rad2deg);
     QQuaternion q = qy * qz;
     double x, y, z;
     spherical2cartesian(astro2math(horizAzimuth), horizElevation, x, y, z);

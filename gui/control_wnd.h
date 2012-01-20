@@ -34,7 +34,7 @@ private slots:
     void updateSliderLabels();
     void setSimtriAstrometryMethod()  {emit setAstrometryMethod((int)astrometry::SIMTRI);}
     void setFreevecAstrometryMethod() {emit setAstrometryMethod((int)astrometry::FREEVEC);}
-    void convertCheckBoxDetectionModeSignal(int);
+    void convertCheckBoxDetectorBinSignal(int);
     void setStarDetectionMode()   {emit setDetectorMode((int)Detector::STAR_DETECTION);}
     void setTargetDetectionMode() {emit setDetectorMode((int)Detector::TARGET_DETECTION);}
 signals:

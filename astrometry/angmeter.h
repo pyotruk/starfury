@@ -51,8 +51,9 @@ private:
     static const double _defaultEqualEps     = 2.0;
     static const double _defaultSimilarEps   = 0.01;
     static const double _defaultNearStarDist = 20.0;
-    static const int _maxDelay = 20; //msec
     static const astrometry::METHOD _defaultMethod = astrometry::SIMTRI;
+    static const int _maxDelay = 100; //msec
+    static const int _maxQueueSize = 500;
     int                 _maxStarQuantity;
     int                 _minEquatedStarQuantity;
     double              _equalEps;
@@ -67,8 +68,9 @@ private:
     QSize               _screen;
     ArtifactBox         _cache_PicStars;
     ArtifactBox         _cache_CatStars;
-    ArtifactBox         _cache_Targets;
     QQueue<ArtifactBox> _queue_CatStars;
+    ArtifactBox         _cache_Targets;
+    QQueue<ArtifactBox> _queue_Targets;
     void loadSettings(QSettings*);
     void saveSettings(QSettings*);
     void proc();
@@ -80,6 +82,7 @@ private:
     void correctTarget(const LinCor&,
                        Artifact&);
     void cookTarget(const LinCor&);
+    bool refreshQueueAndCheckDelay();
 private slots:
     void inputTargets(ArtifactBox*);
     void inputPicStars(ArtifactBox*);

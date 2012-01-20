@@ -57,9 +57,26 @@ void Angmeter::setScreenSize(const int width,
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputTargets(ArtifactBox *targets)
 {
+    if(_queue_Targets.size() > _maxQueueSize)
+    {
+        _queue_Targets.clear();
+        qDebug() << "Angmeter: _queue_Targets OVERFLOW, was cleared";
+    }
     targets->lock().lockForRead();
-    _cache_Targets = *targets;
+    _queue_Targets.enqueue(*targets);
     targets->lock().unlock();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::inputCatStars(ArtifactBox *a)
+{
+    if(_queue_CatStars.size() > _maxQueueSize)
+    {
+        _queue_CatStars.clear();
+        qDebug() << "Angmeter: _queue_CatStars OVERFLOW, was cleared";
+    }
+    a->lock().lockForRead();
+    _queue_CatStars.enqueue(*a);
+    a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputPicStars(ArtifactBox *stars)
@@ -68,39 +85,60 @@ void Angmeter::inputPicStars(ArtifactBox *stars)
     _cache_PicStars = *stars;
     stars->lock().unlock();
 
-    if(_cache_Targets.data().empty())
-    {
-        qDebug() << "Angmeter says: [_cache_Targets] is EMPTY !";
-        return;
-    }
-
     if(_cache_PicStars.data().empty())
     {
-        qDebug() << "Angmeter says: [_cache_PicStars] is EMPTY !";
+        qDebug() << "Angmeter: [_cache_PicStars] is EMPTY !";
+        _queue_CatStars.clear();
+        _queue_Targets.clear();
         return;
     }
-
     if(_queue_CatStars.empty())
     {
-        qDebug() << "Angmeter says: [_queue_CatStars] is EMPTY !";
+        qDebug() << "Angmeter: [_queue_CatStars] is EMPTY !";
+        _queue_CatStars.clear();
+        _queue_Targets.clear();
         return;
     }
-    _cache_CatStars = _queue_CatStars.head();
-    _queue_CatStars.clear();
+    if(_queue_Targets.empty())
+    {
+        qDebug() << "Angmeter: [_queue_Targets] is EMPTY !";
+        _queue_CatStars.clear();
+        _queue_Targets.clear();
+        return;
+    }
 
-    QTime t;
-    t.start();
+    if(!this->refreshQueueAndCheckDelay())    return;
 
+    QTime t;    t.start();
     this->proc();
-
-    qDebug() << "Angmeter proc delay: " << t.elapsed();
+    qDebug() << "Angmeter: proc delay = " << t.elapsed();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::inputCatStars(ArtifactBox *a)
+bool Angmeter::refreshQueueAndCheckDelay()
 {
-    a->lock().lockForRead();
-    _queue_CatStars.enqueue(*a);
-    a->lock().unlock();
+    _cache_CatStars = _queue_CatStars.head();
+    _queue_CatStars.clear();
+    int delay = timeutils::msecBetween(_cache_PicStars.timeMarker(),
+                                       _cache_CatStars.timeMarker());
+    qDebug() << "Angmeter: [PicStars-CatStars] delay = " << delay;
+    if(delay > _maxDelay)
+    {
+        qDebug() << "Angmeter: too big time delay between [PicStars-CatStars]";
+        return false;
+    }
+
+    _cache_Targets = _queue_Targets.head();
+    _queue_Targets.clear();
+    delay = timeutils::msecBetween(_cache_PicStars.timeMarker(),
+                                   _cache_Targets.timeMarker());
+    qDebug() << "Angmeter: [PicStars-Targets] delay = " << delay;
+    if(delay > _maxDelay)
+    {
+        qDebug() << "Angmeter: too big time delay between [PicStars-Targets]";
+        return false;
+    }
+
+    return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::correctTarget(const LinCor &cor,
@@ -113,8 +151,7 @@ void Angmeter::correctTarget(const LinCor &cor,
                        xCat, yCat);
     double dx = xCat - target.center().x();
     double dy = yCat - target.center().y();
-    qDebug() << "dx = " << dx
-             << "    dy = " << dy;
+    qDebug() << "Angmeter: correctTarget(),  dx = " << dx << "  dy = " << dy;
     target.setCenter(QPoint(xCat, yCat));
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -136,11 +173,11 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
                            y);
         if(!art::isEqual(*itCat, Artifact(x, y), equalEps))
         {
-            qDebug() << "!!! check equation FAIL: " << "\n";
+            qDebug() << "Angmeter: check equation FAIL";
             return false;
         }
     }
-    qDebug() << "check equation SUCCESS";
+    qDebug() << "Angmeter: check equation SUCCESS";
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -154,14 +191,6 @@ void Angmeter::cookTarget(const LinCor &cor)
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::proc()
 {
-    if(!timeutils::checkTimeDelay(_cache_PicStars.timeMarker(),
-                                  _cache_CatStars.timeMarker(),
-                                  _maxDelay))
-    {
-        qDebug() << "Angmeter says: too big time delay between pic&cat stars";
-        return;
-    }
-
     art::deleteTargets(_cache_PicStars.data(), _cache_Targets.data());
 
     int ret = astrometry::equate(_cache_PicStars.data(),
@@ -214,6 +243,7 @@ void Angmeter::proc()
         _targets->lock().unlock();
         emit sendTargets(_targets);
     }
+    else    emit sendTargets(0);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

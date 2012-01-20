@@ -6,19 +6,19 @@ StarcatScreen::StarcatScreen(QSettings *s,
     _settings(s),
     _log(log),
     _starBox(a),
-    _starcatReader(new StarcatReader(_settings)),
+    _starcatReader(new StarcatReader(s)),
     _segment(new SkySegment(_starcatReader->segment().field().width(),
                             _starcatReader->segment().field().height(),
                             1, 0)),
-    _snServer(new SnUdpSrv(_settings))
+    _snServer(new SnUdpSrv(s))
 {
     this->moveToThread(this);
     _velocimeter.moveToThread(this);
-    qDebug() << "starcatScreen._starcatReader " << _starcatReader->thread();
-    qDebug() << "starcatScreen._snServer " << _snServer->thread();
+    qDebug() << "StarcatScreen: StarcatReader " << _starcatReader->thread();
+    qDebug() << "StarcatScreen: SnServer " << _snServer->thread();
     this->loadSettings(_settings);
 
-    QObject::connect(_snServer, SIGNAL(telescopeStatusReady(TelescopeBox*)),
+    QObject::connect(_snServer, SIGNAL(sendTelescopePos(TelescopeBox*)),
                      this, SLOT(inputTelescopePos(TelescopeBox*)),
                      Qt::QueuedConnection);
     QObject::connect(&_velocimeter, SIGNAL(velocityReady(double,double)),
@@ -53,11 +53,13 @@ void StarcatScreen::saveSettings(QSettings *s)
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatScreen::inputTelescopePos(TelescopeBox *t)
 {
-    if(_telescopeVec.size() > _maxTelescopeVectorSize)
-        _telescopeVec.clear();
-
+    if(_queue_TelescopePos.size() > _maxQueueSize)
+    {
+        _queue_TelescopePos.clear();
+        qDebug() << "StarcatScreen: _queue_TelescopePos OVERFLOW, was cleared";
+    }
     t->lock().lockForRead();
-    _telescopeVec.push_back(t->data());
+    _queue_TelescopePos.enqueue(*t);
     TelescopeBox telescopePos(*t);
     t->lock().unlock();
 
@@ -66,6 +68,7 @@ void StarcatScreen::inputTelescopePos(TelescopeBox *t)
                           telescopePos,
                           _starcatReader->segment().field(),
                           _screen);
+
     _starcatReader->refresh(telescopePos.data().alpha,
                             telescopePos.data().delta);
 
@@ -82,46 +85,66 @@ void StarcatScreen::inputTelescopePos(TelescopeBox *t)
     emit catStarsReady(_starBox);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::inputTarget(ArtifactBox *target)
+void StarcatScreen::inputTargets(ArtifactBox *targets)
 {
-    target->lock().lockForRead();
-    if(target->data().empty())
+    if(targets == 0) //это значит, что отождествление не прошло проверку
     {
-        target->lock().unlock();
-        qDebug() << "StarcatScreen says: input [target] is empty";
+        _queue_TelescopePos.clear();
+        qDebug() << "StarcatScreen: check equation FAIL";
         return;
     }
-    Artifact picTarget = target->data().front();
-    QDateTime t = target->timeMarker();
-    target->lock().unlock();
 
-    qint64 minDelay;
-    TelescopeStatus tscope = telescope::findNearestByTime(t,
-                                                          _telescopeVec,
-                                                          minDelay);
-    qDebug() << "min delay: " << minDelay;
+    targets->lock().lockForRead();
+    _cache_Targets = *targets;
+    targets->lock().unlock();
+
+    if(_cache_Targets.data().empty())
+    {
+        qDebug() << "StarcatScreen: [picTarget] is EMPTY !";
+        return;
+    }
+    if(_queue_TelescopePos.empty())
+    {
+        qDebug() << "StarcatScreen: [_queue_TelescopePos] is EMPTY !";
+        return;
+    }
+
+    if(!this->refreshQueueAndCheckDelay())    return;
 
     Star catTarget;
-    this->screenStar2catStar(tscope,
-                             picTarget,
+    this->screenStar2catStar(_cache_TelescopePos.data(),
+                             _cache_Targets.data().front(),
                              catTarget);
-    double errAlpha = tscope.alpha - catTarget.alpha();
-    double errDelta = tscope.delta - catTarget.delta();
+    double errAlpha = _cache_TelescopePos.data().alpha - catTarget.alpha();
+    double errDelta = _cache_TelescopePos.data().delta - catTarget.delta();
     emit sendMeasureError(errAlpha, errDelta);
-    double errAlphaMin = errAlpha * __rad2deg * 3600;
-    double errDeltaMin = errDelta * __rad2deg * 3600;
+    double errAlphaMin = errAlpha * ac::_rad2deg * 3600;
+    double errDeltaMin = errDelta * ac::_rad2deg * 3600;
     _log->write(QString::number(errAlphaMin) + " " +
                 QString::number(errDeltaMin) + " " +
                 QString::number(catTarget.alpha()) + " " +
                 QString::number(catTarget.delta()) + " " +
-                QString::number(tscope.alpha) + " " +
-                QString::number(tscope.delta) + " " +
-                QString::number(minDelay) + " ");
-    qDebug() << "errAlpha = " << errAlphaMin
-             << "    errDelta = " << errDeltaMin;
+                QString::number(_cache_TelescopePos.data().alpha) + " " +
+                QString::number(_cache_TelescopePos.data().delta) + " ");
+    qDebug() << "StarcatScreen: errAlpha = " << errAlphaMin << "  errDelta = " << errDeltaMin;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::cookStars(const TelescopeStatus &t,
+bool StarcatScreen::refreshQueueAndCheckDelay()
+{
+    _cache_TelescopePos = _queue_TelescopePos.head();
+    _queue_TelescopePos.clear();
+    int delay = timeutils::msecBetween(_cache_TelescopePos.timeMarker(),
+                                       _cache_Targets.timeMarker());
+    qDebug() << "StarcatScreen: [TelescopePos-Targets] delay = " << delay;
+    if(delay > _maxDelay)
+    {
+        qDebug() << "StarcatScreen: too big time delay between [TelescopePos-Targets]";
+        return false;
+    }
+    return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void StarcatScreen::cookStars(const TelescopePos &t,
                               const StarVector &s,
                               ArtifactVector &a,
                               SkySegment &seg)
@@ -145,7 +168,7 @@ void StarcatScreen::cookStars(const TelescopeStatus &t,
     qSort(a.begin(), a.end());
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::catStar2screenStar(const TelescopeStatus &t,
+void StarcatScreen::catStar2screenStar(const TelescopePos &t,
                                        const Star &s,
                                        Artifact &a)
 {
@@ -169,7 +192,7 @@ void StarcatScreen::catStar2screenStar(const TelescopeStatus &t,
     a.setMagnitude(s.magnitude());
 }
 ////////////////////////////////////////////////////////////////////////////////
-void StarcatScreen::screenStar2catStar(const TelescopeStatus &t,
+void StarcatScreen::screenStar2catStar(const TelescopePos &t,
                                        const Artifact &a,
                                        Star &s)
 {

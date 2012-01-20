@@ -9,7 +9,7 @@
 #include "utils/timeutils.h"
 #include "boxes/databox.h"
 /////////////////////////////////////////////////////////////////////////////////////
-struct TelescopeStatus
+struct TelescopePos
 {
     qint64 packID;
     qint64 timeUTC;
@@ -27,15 +27,15 @@ struct TelescopeStatus
     double latitude;
 };
 /////////////////////////////////////////////////////////////////////////////////////
-typedef DataBox<TelescopeStatus> TelescopeBox;
+typedef DataBox<TelescopePos> TelescopeBox;
 /////////////////////////////////////////////////////////////////////////////////////
-typedef QVector<TelescopeStatus> TelescopeVector;
+typedef QVector<TelescopePos> TelescopeVector;
 /////////////////////////////////////////////////////////////////////////////////////
 namespace telescope
 {
-    const TelescopeStatus& findNearestByTime(const QDateTime&,
-                                             const TelescopeVector&,
-                                             qint64 &minDelay);
+    const TelescopePos& findNearestByTime(const QDateTime&,
+                                          const TelescopeVector&,
+                                          qint64 &minDelay);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

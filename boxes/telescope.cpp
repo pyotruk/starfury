@@ -1,7 +1,7 @@
 #include "telescope.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
-const TelescopeStatus& telescope::findNearestByTime(const QDateTime &t,
+const TelescopePos& telescope::findNearestByTime(const QDateTime &t,
                                                     const TelescopeVector &v,
                                                     qint64 &minDelay)
 {

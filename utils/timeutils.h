@@ -10,9 +10,8 @@ void winfiletime2qdatetime(const qint64 &fileTime,
                            QDateTime &qtTime);
 int msecFromDayBegin();
 int msecFromDayBegin(QDateTime&);
-bool checkTimeDelay(const QDateTime &t1,
-                    const QDateTime &t2,
-                    const int maxDelay);
+int msecBetween(const QDateTime &t1, //разница между метками времени - не более суток
+                const QDateTime &t2);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,7 @@ void StrobWrapper::inputFrame(FrameBox *f)
 {
     f->lock().lockForWrite();
     Strob::RETURN_VALUES ret = _strob->proc(f->data());
+    QDateTime frameTime = f->timeMarker();
     f->lock().unlock();
     emit frameReady(f);
     emit sendPhotometry(timeutils::msecFromDayBegin() / 1000,
@@ -50,6 +51,7 @@ void StrobWrapper::inputFrame(FrameBox *f)
         Artifact a;
         _strob->toArtifact(a);
         _targets->data().push_back(a);
+        _targets->setTimeMarker(frameTime);
         _targets->lock().unlock();
         emit freshTargets(_targets);
 

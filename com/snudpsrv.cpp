@@ -28,17 +28,17 @@ void SnUdpSrv::saveSettings(QSettings *s)
 /////////////////////////////////////////////////////////////////////////////////////
 void SnUdpSrv::read()
 {
-    if(_socket.pendingDatagramSize() == sizeof(TelescopeStatus))
+    if(_socket.pendingDatagramSize() == sizeof(TelescopePos))
     {
         if(_telescope.lock().tryLockForWrite(_timeout))
         {
             _socket.readDatagram((char*)(&(_telescope.data())),
-                                  sizeof(TelescopeStatus));
+                                  sizeof(TelescopePos));
             QDateTime t;
             timeutils::winfiletime2qdatetime(_telescope.data().timeUTC, t);
             _telescope.setTimeMarker(t);
             _telescope.lock().unlock();
-            emit telescopeStatusReady(&_telescope);
+            emit sendTelescopePos(&_telescope);
         }
     }
 }
