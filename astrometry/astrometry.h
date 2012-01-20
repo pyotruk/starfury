@@ -2,8 +2,13 @@
 #define ASTROMETRY_H
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QSize>
+#include <QSizeF>
+#include <QPointF>
 /////////////////////////////////////////////////////////////////////////////////////
+#include "boxes/telescope.h"
 #include "boxes/artifact.h"
+#include "boxes/star.h"
+#include "math/astrocalc.h"
 #include "astrometry/simtri/triangle.h"
 #include "astrometry/freevec/freevec.h"
 /////////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +32,16 @@ int equate(ArtifactVector &picStars,
            const int       maxStarQuantity,
            const int       minEquatedStarQuantity,
            METHOD          method);
+void catStar2screenStar(const Star   &s,
+                        Artifact     &a,
+                        const TelPos &t,
+                        const QSizeF &field,
+                        const QSize  &screen);
+void screenStar2catStar(const Artifact &a,
+                        Star           &s,
+                        const TelPos   &t,
+                        const QSizeF   &field,
+                        const QSize    &screen);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -224,19 +224,14 @@ int simtri::equate(ArtifactVector &picStars,
     deleteEqual(catTriangles,
                 _equalEps);
 
-    qDebug() << "triangles TOTAL:  " << picTriangles.size()
-             << " (pic)    " << catTriangles.size() << " (cat)";
-
     findSimilarTriangles(picTriangles, catTriangles, similarEps);
-
-    qDebug() << "triangles SIMILAR:  " << picTriangles.size()
-             << " (pic)    " << catTriangles.size() << " (cat)";
-
     extractArtifacts(picTriangles,
                      catTriangles,
                      _equalEps,
                      picStars,
                      catStars);
+
+    qDebug() << "simtri: equate(): " << picStars.size() << " similar stars found";
 
     if(picStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;
     if(catStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;

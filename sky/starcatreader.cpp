@@ -7,6 +7,7 @@ StarcatReader::StarcatReader(QSettings *settings) :
     _mutex(new QMutex)
 {
     this->moveToThread(this);
+    qDebug() << "StarcatReader :" << this->thread();
     this->loadSettings(_settings);
     _file = new QFile(_path);
     if(!_file->open(QIODevice::ReadOnly))
@@ -31,8 +32,8 @@ void StarcatReader::loadSettings(QSettings *settings)
 {
     _path = settings->value(__skeyStarcatPath, __defaultStarcatPath).toString();
     _magnLim = settings->value(__skeyStarcatMagnLim, _defaultMagnLim).toDouble();
-    double fieldWidth = settings->value(__skeyFieldWidth, _defaultFieldWidth).toDouble() / 60 * __deg2rad;
-    double fieldHeight = settings->value(__skeyFieldHeight, _defaultFieldHeight).toDouble() / 60 * __deg2rad;
+    double fieldWidth = settings->value(__skeyFieldWidth, __defaultFieldWidth).toDouble() * ac::_dmin2rad;
+    double fieldHeight = settings->value(__skeyFieldHeight, __defaultFieldHeight).toDouble() * ac::_dmin2rad;
     double segmentSide = settings->value(__skeyStarcatSegmentSide, _defaultSegmentSide).toDouble();
     double segmentEdge = settings->value(__skeyStarcatSegmentEdge, _defaultSegmentEdge).toDouble();
     _segment.setField(QSizeF(fieldWidth, fieldHeight));
@@ -44,8 +45,8 @@ void StarcatReader::saveSettings(QSettings *settings)
 {
     settings->setValue(__skeyStarcatPath, _path);
     settings->setValue(__skeyStarcatMagnLim, _magnLim);
-    settings->setValue(__skeyFieldWidth, _segment.field().width() * __rad2deg * 60);
-    settings->setValue(__skeyFieldHeight, _segment.field().height() * __rad2deg * 60);
+    settings->setValue(__skeyFieldWidth, _segment.field().width() * ac::_rad2dmin);
+    settings->setValue(__skeyFieldHeight, _segment.field().height() * ac::_rad2dmin);
     settings->setValue(__skeyStarcatSegmentSide, _segment.side());
     settings->setValue(__skeyStarcatSegmentEdge, _segment.edge());
 }
@@ -65,12 +66,8 @@ void StarcatReader::run()
 
     Star star;
     if(!_starVec1->isEmpty())     star = _starVec1->at(0);
-    qDebug() << "starcat work: " << time.elapsed() << " msec" << endl
-             << "vec0: " << _starVec0->size() << endl
-             << "vec1: " << _starVec1->size() << endl
-             << "star: " << "a" << star.alpha()
-             << " d" << star.delta()
-             << " m" << star.magnitude() << endl;
+    qDebug() << "StarcatReader work: " << time.elapsed() << " msec" << "\n"
+             << "              vec0: " << _starVec0->size() << "    vec1: " << _starVec1->size();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void StarcatReader::refresh(const double alpha,

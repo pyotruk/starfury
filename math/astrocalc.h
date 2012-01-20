@@ -20,6 +20,10 @@ static const double _hour2deg = 15.0;
 static const double _deg2hour = 0.066666666666666666666666666666667;
 static const double _hour2rad = 0.26179938779914943653855361527329;
 static const double _rad2hour = 3.8197186342054880584532103209403;
+static const double _dmin2rad = _deg2rad / 60.0;
+static const double _rad2dmin = _rad2deg * 60.0;
+static const double _dsec2rad = _deg2rad / 3600.0;
+static const double _rad2dsec = _rad2deg * 3600.0;
 
     //UTILS
 ////////////////////////////////////////////////////////////////////////////////

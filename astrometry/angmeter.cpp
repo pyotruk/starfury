@@ -1,15 +1,15 @@
 #include "angmeter.h"
 /////////////////////////////////////////////////////////////////////////////////////
 Angmeter::Angmeter(QSettings *s,
-                   LogFile *log,
-                   ArtifactBox *picStars,
-                   ArtifactBox *catStars,
-                   ArtifactBox *targets) :
+                   LogFile *starsLog,
+                   LogFile *targetLog,
+                   ArtifactBox *shared_eqPicStars,
+                   ArtifactBox *shared_eqCatStars) :
     _settings(s),
-    _log(log),
-    _picStars(picStars),
-    _catStars(catStars),
-    _targets(targets)
+    _starsLog(starsLog),
+    _targetLog(targetLog),
+    _shared_EqPicStars(shared_eqPicStars),
+    _shared_EqCatStars(shared_eqCatStars)
 {
     this->moveToThread(this);
     this->loadSettings(_settings);
@@ -25,9 +25,14 @@ Angmeter::~Angmeter()
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::loadSettings(QSettings *s)
 {
-    int screenWidth = s->value(__skeyScreenWidth, _defaultScreenWidth).toInt();
-    int screenHeight = s->value(__skeyScreenHeight, _defaultScreenHeight).toInt();
+    int screenWidth = s->value(__skeyScreenWidth, __defaultScreenWidth).toInt();
+    int screenHeight = s->value(__skeyScreenHeight, __defaultScreenHeight).toInt();
     this->setScreenSize(screenWidth, screenHeight);
+
+    double fieldWidth = s->value(__skeyFieldWidth, __defaultFieldWidth).toDouble() * ac::_dmin2rad;
+    double fieldHeight = s->value(__skeyFieldHeight, __defaultFieldHeight).toDouble() * ac::_dmin2rad;
+    this->setFieldSize(fieldWidth, fieldHeight);
+
     _maxStarQuantity = s->value(__skeyMaxStarQuantity, _defaultMaxStarQuantity).toInt();
     _minEquatedStarQuantity = s->value(__skeyMinEquatedStarQuantity, _defaultMinEquatedStarQuantity).toInt();
     _equalEps = s->value(__skeyEqualEps, _defaultEqualEps).toDouble();
@@ -40,6 +45,8 @@ void Angmeter::saveSettings(QSettings *s)
 {
     s->setValue(__skeyScreenWidth, _screen.width());
     s->setValue(__skeyScreenHeight, _screen.height());
+    s->setValue(__skeyFieldWidth, _field.width() * ac::_rad2dmin);
+    s->setValue(__skeyFieldHeight, _field.height() * ac::_rad2dmin);
     s->setValue(__skeyMaxStarQuantity, _maxStarQuantity);
     s->setValue(__skeyMinEquatedStarQuantity, _minEquatedStarQuantity);
     s->setValue(__skeyEqualEps, _equalEps);
@@ -55,16 +62,79 @@ void Angmeter::setScreenSize(const int width,
     _screen.setHeight(height);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::inputTargets(ArtifactBox *targets)
+void Angmeter::setFieldSize(const double width,
+                            const double height)
 {
-    if(_queue_Targets.size() > _maxQueueSize)
+    _field.setWidth(width);
+    _field.setHeight(height);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+bool Angmeter::cacheIsEmpty()
+{
+    if(_cache_PicStars.data().empty())    return true;
+    if(_cache_CatStars.data().empty())    return true;
+    if(_cache_Targets.data().empty())     return true;
+    return false;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+bool Angmeter::queueIsEmpty()
+{
+    if(_queue_CatStars.empty())    return true;
+    if(_queue_Targets.empty())     return true;
+    if(_queue_TelPos.empty())      return true;
+    return false;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::refreshCache()
+{
+    _cache_CatStars = _queue_CatStars.head();
+    _queue_CatStars.clear();
+
+    _cache_Targets = _queue_Targets.head();
+    _queue_Targets.clear();
+
+    _cache_TelPos = _queue_TelPos.head();
+    _queue_TelPos.clear();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+bool Angmeter::checkQueueDelay()
+{
+    int delay = timeutils::msecBetween(_cache_PicStars.timeMarker(),
+                                       _cache_CatStars.timeMarker());
+    qDebug() << "Angmeter: queue delay = " << delay;
+    if(delay > _maxDelay)    return false;
+    else    return true;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::inputPicStars(ArtifactBox *a)
+{
+    a->lock().lockForRead();
+    _cache_PicStars = *a;
+    a->lock().unlock();
+
+    if(this->queueIsEmpty())
     {
-        _queue_Targets.clear();
-        qDebug() << "Angmeter: _queue_Targets OVERFLOW, was cleared";
+        qDebug() << "Angmeter: queue is empty";
+        return;
     }
-    targets->lock().lockForRead();
-    _queue_Targets.enqueue(*targets);
-    targets->lock().unlock();
+
+    this->refreshCache();
+
+    if(this->cacheIsEmpty())
+    {
+        qDebug() << "Angmeter: cache is empty";
+        return;
+    }
+
+    if(!this->checkQueueDelay())
+    {
+        qDebug() << "Angmeter: too big queue delay";
+        return;
+    }
+
+    QTime t;    t.start();
+    if(this->procStars())    this->procTargets();
+    qDebug() << "Angmeter: proc delay = " << t.elapsed();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Angmeter::inputCatStars(ArtifactBox *a)
@@ -72,87 +142,35 @@ void Angmeter::inputCatStars(ArtifactBox *a)
     if(_queue_CatStars.size() > _maxQueueSize)
     {
         _queue_CatStars.clear();
-        qDebug() << "Angmeter: _queue_CatStars OVERFLOW, was cleared";
+        qDebug() << "Angmeter: [_queue_CatStars] OVERFLOW, was cleared";
     }
     a->lock().lockForRead();
     _queue_CatStars.enqueue(*a);
     a->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::inputPicStars(ArtifactBox *stars)
+void Angmeter::inputTargets(ArtifactBox *t)
 {
-    stars->lock().lockForRead();
-    _cache_PicStars = *stars;
-    stars->lock().unlock();
-
-    if(_cache_PicStars.data().empty())
+    if(_queue_Targets.size() > _maxQueueSize)
     {
-        qDebug() << "Angmeter: [_cache_PicStars] is EMPTY !";
-        _queue_CatStars.clear();
         _queue_Targets.clear();
-        return;
+        qDebug() << "Angmeter: [_queue_Targets] OVERFLOW, was cleared";
     }
-    if(_queue_CatStars.empty())
-    {
-        qDebug() << "Angmeter: [_queue_CatStars] is EMPTY !";
-        _queue_CatStars.clear();
-        _queue_Targets.clear();
-        return;
-    }
-    if(_queue_Targets.empty())
-    {
-        qDebug() << "Angmeter: [_queue_Targets] is EMPTY !";
-        _queue_CatStars.clear();
-        _queue_Targets.clear();
-        return;
-    }
-
-    if(!this->refreshQueueAndCheckDelay())    return;
-
-    QTime t;    t.start();
-    this->proc();
-    qDebug() << "Angmeter: proc delay = " << t.elapsed();
+    t->lock().lockForRead();
+    _queue_Targets.enqueue(*t);
+    t->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-bool Angmeter::refreshQueueAndCheckDelay()
+void Angmeter::inputTelPos(TelBox *t)
 {
-    _cache_CatStars = _queue_CatStars.head();
-    _queue_CatStars.clear();
-    int delay = timeutils::msecBetween(_cache_PicStars.timeMarker(),
-                                       _cache_CatStars.timeMarker());
-    qDebug() << "Angmeter: [PicStars-CatStars] delay = " << delay;
-    if(delay > _maxDelay)
+    if(_queue_TelPos.size() > _maxQueueSize)
     {
-        qDebug() << "Angmeter: too big time delay between [PicStars-CatStars]";
-        return false;
+        _queue_TelPos.clear();
+        qDebug() << "Angmeter: [_queue_TelPos] OVERFLOW, was cleared";
     }
-
-    _cache_Targets = _queue_Targets.head();
-    _queue_Targets.clear();
-    delay = timeutils::msecBetween(_cache_PicStars.timeMarker(),
-                                   _cache_Targets.timeMarker());
-    qDebug() << "Angmeter: [PicStars-Targets] delay = " << delay;
-    if(delay > _maxDelay)
-    {
-        qDebug() << "Angmeter: too big time delay between [PicStars-Targets]";
-        return false;
-    }
-
-    return true;
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::correctTarget(const LinCor &cor,
-                             Artifact &target)
-{
-    double xCat, yCat;
-    lincor::conversion(cor,
-                       target.center().x(),
-                       target.center().y(),
-                       xCat, yCat);
-    double dx = xCat - target.center().x();
-    double dy = yCat - target.center().y();
-    qDebug() << "Angmeter: correctTarget(),  dx = " << dx << "  dy = " << dy;
-    target.setCenter(QPoint(xCat, yCat));
+    t->lock().lockForRead();
+    _queue_TelPos.enqueue(*t);
+    t->lock().unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 bool Angmeter::checkEquation(const ArtifactVector &picStars,
@@ -173,23 +191,13 @@ bool Angmeter::checkEquation(const ArtifactVector &picStars,
                            y);
         if(!art::isEqual(*itCat, Artifact(x, y), equalEps))
         {
-            qDebug() << "Angmeter: check equation FAIL";
             return false;
         }
     }
-    qDebug() << "Angmeter: check equation SUCCESS";
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::cookTarget(const LinCor &cor)
-{
-    Artifact target = _cache_Targets.data().front();
-    _cache_Targets.data().clear();
-    this->correctTarget(cor, target);
-    _cache_Targets.data().push_back(target);
-}
-/////////////////////////////////////////////////////////////////////////////////////
-void Angmeter::proc()
+bool Angmeter::procStars()
 {
     art::deleteTargets(_cache_PicStars.data(), _cache_Targets.data());
 
@@ -201,49 +209,86 @@ void Angmeter::proc()
                                  _maxStarQuantity,
                                  _minEquatedStarQuantity,
                                  _method);
-    if(ret != astrometry::SUCCESS)    return;
+    if(ret != astrometry::SUCCESS)    return false;
 
-    _log->write(QString::number(_cache_PicStars.data().front().center().x()) + " " + //pic refStar0
-                QString::number(_cache_PicStars.data().front().center().y()) + " " +
-                QString::number(_cache_PicStars.data().front().magnitude())  + " " +
+    _starsLog->write(QString::number(_cache_PicStars.data().front().center().x()) + " " + //pic refStar0
+                     QString::number(_cache_PicStars.data().front().center().y()) + " " +
 
-                QString::number(_cache_PicStars.data()[1].center().x()) + " " + //pic refStar1
-                QString::number(_cache_PicStars.data()[1].center().y()) + " " +
-                QString::number(_cache_PicStars.data()[1].magnitude())  + " " +
+                     QString::number(_cache_PicStars.data()[1].center().x()) + " " + //pic refStar1
+                     QString::number(_cache_PicStars.data()[1].center().y()) + " " +
 
-                QString::number(_cache_CatStars.data().front().center().x()) + " " + //cat refStar0
-                QString::number(_cache_CatStars.data().front().center().y()) + " " +
-                QString::number(_cache_CatStars.data().front().magnitude())  + " " +
+                     QString::number(_cache_CatStars.data().front().center().x()) + " " + //cat refStar0
+                     QString::number(_cache_CatStars.data().front().center().y()) + " " +
 
-                QString::number(_cache_CatStars.data()[1].center().x()) + " " + //cat refStar1
-                QString::number(_cache_CatStars.data()[1].center().y()) + " " +
-                QString::number(_cache_CatStars.data()[1].magnitude())  + " ");
+                     QString::number(_cache_CatStars.data()[1].center().x()) + " " + //cat refStar1
+                     QString::number(_cache_CatStars.data()[1].center().y()) + " ");
 
-    LinCor cor;
     lincor::cook(_cache_PicStars.data(),
                  _cache_CatStars.data(),
-                 cor);
+                 _lincor);
 
     if(this->checkEquation(_cache_PicStars.data(),
                            _cache_CatStars.data(),
-                           cor,
+                           _lincor,
                            _equalEps))
     {
-        _picStars->lock().lockForWrite();
-        _catStars->lock().lockForWrite();
-        *_picStars = _cache_PicStars;
-        *_catStars = _cache_CatStars;
-        _catStars->lock().unlock();
-        _picStars->lock().unlock();
-        emit sendEquatedStars(_picStars, _catStars);
-
-        this->cookTarget(cor);
-        _targets->lock().lockForWrite();
-        *_targets = _cache_Targets;
-        _targets->lock().unlock();
-        emit sendTargets(_targets);
+        _shared_EqPicStars->lock().lockForWrite();
+        _shared_EqCatStars->lock().lockForWrite();
+        *_shared_EqPicStars = _cache_PicStars;
+        *_shared_EqCatStars = _cache_CatStars;
+        _shared_EqCatStars->lock().unlock();
+        _shared_EqPicStars->lock().unlock();
+        emit sendEquatedStars(_shared_EqPicStars,
+                              _shared_EqCatStars);
+        qDebug() << "Angmeter: procStars(): check equation SUCCESS";
+        return true;
     }
-    else    emit sendTargets(0);
+    else
+    {
+        qDebug() << "Angmeter: procStars(): check equation FAIL";
+        return false;
+    }
+
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::procTargets()
+{
+    Artifact picTarget = _cache_Targets.data().front();
+    this->correctTarget(_lincor, picTarget);
+    Star catTarget;
+    astrometry::screenStar2catStar(picTarget,
+                                   catTarget,
+                                   _cache_TelPos.data(),
+                                   _field,
+                                   _screen);
+    double errAlpha /*rad*/ = _cache_TelPos.data().alpha - catTarget.alpha();
+    double errDelta /*rad*/ = _cache_TelPos.data().delta - catTarget.delta();
+
+    emit sendMeasureError(errAlpha, errDelta);
+
+    double errAlphaSec = errAlpha * ac::_rad2dsec;
+    double errDeltaSec = errDelta * ac::_rad2dsec;
+    _targetLog->write(QString::number(errAlphaSec) + " " +
+                      QString::number(errDeltaSec) + " " +
+                      QString::number(catTarget.alpha()) + " " +
+                      QString::number(catTarget.delta()) + " " +
+                      QString::number(_cache_TelPos.data().alpha) + " " +
+                      QString::number(_cache_TelPos.data().delta) + " ");
+    qDebug() << "Angmeter: errAlpha = " << errAlphaSec << "  errDelta = " << errDeltaSec;
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void Angmeter::correctTarget(const LinCor &cor,
+                             Artifact &target)
+{
+    double xCat, yCat;
+    lincor::conversion(cor,
+                       target.center().x(),
+                       target.center().y(),
+                       xCat, yCat);
+    double dx = xCat - target.center().x();
+    double dy = yCat - target.center().y();
+    qDebug() << "Angmeter: correctTarget(),  dx = " << dx << "  dy = " << dy;
+    target.setCenter(QPointF(xCat, yCat));
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

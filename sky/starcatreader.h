@@ -17,6 +17,7 @@
 #include "sky/skysegment.h"
 #include "boxes/star.h"
 #include "utils/guidecodec.h"
+#include "math/astrocalc.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyStarcatPath("/Starcat/Reader/Path");
@@ -43,12 +44,7 @@ protected:
 private:
     StarcatReader(const StarcatReader&) {}
     StarcatReader& operator =(const StarcatReader&) {return *this;}
-    static const double __pi = 3.1415926535897932384626433832795;
-    static const double __deg2rad = 0.017453292519943295769236907684886;
-    static const double __rad2deg = 57.295779513082320876798154814105;
     static const double _defaultMagnLim = 12.0;
-    static const double _defaultFieldWidth  = 40; //ang min
-    static const double _defaultFieldHeight = 30; //ang min
     static const int    _defaultSegmentSide = 4;
     static const double _defaultSegmentEdge = 0.75;
     static const unsigned long _termTimeout = 1000;

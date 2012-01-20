@@ -19,17 +19,8 @@ bool distEqualTest(const ArtifactPair &p1,
 {
     if(distDiffEps <= 0)    return false;
     double diff = qAbs(p1.dist() - p2.dist());
-    if(diff < distDiffEps)
-    {
-        return true;
-        qDebug() << "!!! equal distances:" << "\n"
-                 << "       " << p1.star() << "\n"
-                 << "       " << p2.star();
-    }
-    else
-    {
-        return false;
-    }
+    if(diff < distDiffEps)    return true;
+    else    return false;
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void cookPairVector(const ArtifactVector &av,
@@ -125,7 +116,7 @@ void findSimilarStars(ArtifactPairVector &picPairs,
 {
     double refRatio = ac::calcDistance(picRefStar0.center(), picRefStar1.center()) /
                       ac::calcDistance(catRefStar0.center(), catRefStar1.center());
-    qDebug() << "REF RATIO = " << refRatio;
+    qDebug() << "freevec: findSimilarStars(): ref ratio = " << refRatio;
 
     eqPicStars.clear();
     eqCatStars.clear();
@@ -147,8 +138,7 @@ void findSimilarStars(ArtifactPairVector &picPairs,
             double diff = qAbs(refRatio - ratio);
             if(diff < eps)
             {
-                qDebug() << "similar found: " << "diff = " << diff << "\n"
-                         << "   ratio: " << ratio << "\n";
+                //qDebug() << "freevec: findSimilarStars(): similar found, ratio = " << ratio;
                 eqPicStars.push_back(itPic->star());
                 eqCatStars.push_back(itCat->star());
                 itPic = picPairs.erase(itPic);
@@ -207,7 +197,7 @@ int freevec::equate(ArtifactVector &picStars,
                      picStars,
                      catStars);
 
-    qDebug() << "TOTAL  _" << picStars.size() << "_ similar stars";
+    qDebug() << "freevec: equate(): " << picStars.size() << " similar stars found";
 
     if(picStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;
     if(catStars.size() < minEquatedStarQuantity)    return astrometry::TOO_LESS_EQUATED_STARS;

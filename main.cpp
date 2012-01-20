@@ -12,10 +12,10 @@
 #include "boxes/frame.h"
 #include "detector/detector.h"
 #include "sky/starcatscreen.h"
-#include "com/snudpsrv.h"
 #include "astrometry/angmeter.h"
 #include "common/logfile.h"
 #include "strob/strob_wrapper.h"
+#include "boxes/telescope.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -32,31 +32,31 @@ int main(int argc, char *argv[])
 
     /* per-thread data */
     FrameBox       frame0, frame1, frame2;
-    ArtifactBox    rawPicStars;
-    ArtifactBox    rawCatStars;
-    ArtifactBox    equatedPicStars;
-    ArtifactBox    equatedCatStars;
-    ArtifactBox    targets;
+    ArtifactBox    shared_PicStars;
+    ArtifactBox    shared_CatStars;
+    ArtifactBox    shared_EqPicStars; //equated pic stars
+    ArtifactBox    shared_EqCatStars; //equated cat stars
+    ArtifactBox    shared_Targets;
 
     /* singletons */
     StrobWrapper  strobWrapper(&settings,
                                &strobLog,
-                               &targets);
+                               &shared_Targets);
     FrameReceiver frameReceiver(&settings,
                                 &frame0,
                                 &frame1);
     Detector      detector(&settings,
                            &frame2,
-                           &rawPicStars,
-                           &targets);
+                           &shared_PicStars,
+                           &shared_Targets);
     StarcatScreen starcatScreen(&settings,
-                                &targetLog,
-                                &rawCatStars);
+                                &shared_CatStars);
     Angmeter      angmeter(&settings,
                            &starsLog,
-                           &equatedPicStars,
-                           &equatedCatStars,
-                           &targets);
+                           &targetLog,
+                           &shared_EqPicStars,
+                           &shared_EqCatStars);
+    Telescope     telescope(&settings);
 
     /* gui */
     ControlWindow    controlWnd;
@@ -69,11 +69,13 @@ int main(int argc, char *argv[])
                         detector.accum().capacity(),
                         detector.mode());
 
-    qDebug() << "QApplication " << a.thread();
+    qDebug() << "QApplication :" << a.thread();
+    qDebug() << strobWrapper.thread();
     qDebug() << frameReceiver.thread();
     qDebug() << detector.thread();
     qDebug() << starcatScreen.thread();
     qDebug() << angmeter.thread();
+    qDebug() << "Telescope :" <<telescope.thread();
 
     /* object --> object connections */
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(FrameBox*)),
@@ -99,14 +101,17 @@ int main(int argc, char *argv[])
     QObject::connect(&frameReceiver, SIGNAL(frameSizeChanged(int,int)),
                      &angmeter, SLOT(setScreenSize(int,int)),
                      Qt::QueuedConnection);
-    QObject::connect(&angmeter, SIGNAL(sendTargets(ArtifactBox*)),
-                     &starcatScreen, SLOT(inputTargets(ArtifactBox*)),
-                     Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(sendScreenVelocity(double,double)),
                      &detector, SLOT(inputScreenVelocity(double,double)),
                      Qt::QueuedConnection);
     QObject::connect(&starcatScreen, SIGNAL(sendScreenVelocity(double,double)),
                      &strobWrapper, SLOT(setVelocity(double,double)),
+                     Qt::QueuedConnection);
+    QObject::connect(&telescope, SIGNAL(sendTelPos(TelBox*)),
+                     &starcatScreen, SLOT(inputTelPos(TelBox*)),
+                     Qt::QueuedConnection);
+    QObject::connect(&telescope, SIGNAL(sendTelPos(TelBox*)),
+                     &angmeter, SLOT(inputTelPos(TelBox*)),
                      Qt::QueuedConnection);
 
 
@@ -132,7 +137,7 @@ int main(int argc, char *argv[])
     QObject::connect(&strobWrapper, SIGNAL(sendPhotometry(double,double,double)),
                      &photometryWnd, SLOT(addPoint(double,double,double)),
                      Qt::QueuedConnection);
-    QObject::connect(&starcatScreen, SIGNAL(sendMeasureError(double,double)),
+    QObject::connect(&angmeter, SIGNAL(sendMeasureError(double,double)),
                      &controlWnd, SLOT(inputMeasureError(double,double)),
                      Qt::QueuedConnection);
     QObject::connect(&detector, SIGNAL(starsReady(ArtifactBox*)),

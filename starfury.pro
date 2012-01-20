@@ -15,7 +15,6 @@ SOURCES += main.cpp\
     boxes/frame.cpp \
     com/sharedmem.cpp \
     com/framerec.cpp \
-    com/snudpsrv.cpp \
     boxes/artifact.cpp \
     gui/drawing.cpp \
     sky/skysegment.cpp \
@@ -52,7 +51,6 @@ HEADERS  += \
     boxes/frame.h \
     com/sharedmem.h \
     com/framerec.h \
-    com/snudpsrv.h \
     boxes/artifact.h \
     gui/drawing.h \
     sky/skysegment.h \
@@ -106,6 +104,8 @@ LIBS += -L"C:/Qwt-6.0.1/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
 
 
 

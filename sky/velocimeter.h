@@ -23,10 +23,10 @@ class Velocimeter : public QObject
 public:
     explicit Velocimeter()
         : _open1(true), _open2(false), _samples(0), _alpha(0), _delta(0), _vel(0, 0) {}
-    void addPoint(const QPointF      &screenCenter,
-                  const TelescopeBox &telescopePos,
-                  const QSizeF       &field,
-                  const QSize        &screen);
+    void addPoint(const QPointF &screenCenter,
+                  const TelBox  &telPos,
+                  const QSizeF  &field,
+                  const QSize   &screen);
     const QPointF& vel() const {return _vel;}
 private:
     Velocimeter(const Velocimeter&) {}
@@ -42,13 +42,13 @@ private:
     double    _alpha;
     double    _delta;
     QPointF   _vel;
-    void addFirstPoint(const QPointF      &screenCenter, // _c1
-                       const TelescopeBox &telescopePos,
-                       const QSizeF       &field,
-                       const QSize        &screen);
-    void addSecondPoint(const TelescopeBox &telescopePos, // _c2
-                        const QSizeF       &field,
-                        const QSize        &screen);
+    void addFirstPoint(const QPointF &screenCenter, // _c1
+                       const TelBox  &telPos,
+                       const QSizeF  &field,
+                       const QSize   &screen);
+    void addSecondPoint(const TelBox &telPos, // _c2
+                        const QSizeF &field,
+                        const QSize  &screen);
     void calcVelocity();
 signals:
     void velocityReady(const double vx,

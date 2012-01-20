@@ -107,6 +107,64 @@ int astrometry::equate(ArtifactVector &picStars,
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void astrometry::catStar2screenStar(const Star   &s,
+                                    Artifact     &a,
+                                    const TelPos &t,
+                                    const QSizeF &field,
+                                    const QSize  &screen)
+{
+    double starAzimuth, starElevation;
+    double starAngleX, starAngleY;
+    ac::iieqt2horiz(s.alpha(), s.delta(),
+                    t.LST, t.latitude,
+                    starAzimuth, starElevation);
+    ac::horiz2screenAngles(t.azHoriz, t.elHoriz,
+                           starAzimuth, starElevation,
+                           starAngleX, starAngleY);
+    double x, y;
+    ac::screenAngles2screenPoint(starAngleX,
+                                 starAngleY,
+                                 s.delta(),
+                                 field,
+                                 screen,
+                                 x,
+                                 y);
+    a.setCenter(QPointF(x, y));
+    a.setMagnitude(s.magnitude());
+}
+////////////////////////////////////////////////////////////////////////////////
+void astrometry::screenStar2catStar(const Artifact &a,
+                                    Star           &s,
+                                    const TelPos   &t,
+                                    const QSizeF   &field,
+                                    const QSize    &screen)
+{
+    double xAng, yAng;
+    double azHoriz, elHoriz;
+    double alpha, delta;
+    ac::screenPoint2screenAngles(a.center().x(),
+                                 a.center().y(),
+                                 t.delta,
+                                 field,
+                                 screen,
+                                 xAng,
+                                 yAng);
+    ac::screenAngles2horiz(t.azHoriz,
+                           t.elHoriz,
+                           xAng,
+                           yAng,
+                           azHoriz,
+                           elHoriz);
+    ac::horiz2iieqt(azHoriz,
+                    elHoriz,
+                    t.LST,
+                    t.latitude,
+                    alpha,
+                    delta);
+    s.setAlpha(alpha);
+    s.setDelta(delta);
+}
+////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

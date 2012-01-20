@@ -1,9 +1,9 @@
 #include "velocimeter.h"
 /////////////////////////////////////////////////////////////////////////////////////
-void Velocimeter::addPoint(const QPointF      &screenCenter,
-                           const TelescopeBox &telescopePos,
-                           const QSizeF       &field,
-                           const QSize        &screen)
+void Velocimeter::addPoint(const QPointF &screenCenter,
+                           const TelBox  &telPos,
+                           const QSizeF  &field,
+                           const QSize   &screen)
 {
     ++_samples;
     if(_samples > _sampleStep)
@@ -16,7 +16,7 @@ void Velocimeter::addPoint(const QPointF      &screenCenter,
     {
         _open2 = false;
         _open1 = true;
-        this->addSecondPoint(telescopePos,
+        this->addSecondPoint(telPos,
                              field,
                              screen);
         this->calcVelocity();
@@ -27,60 +27,60 @@ void Velocimeter::addPoint(const QPointF      &screenCenter,
     {
         _open1 = false;
         this->addFirstPoint(screenCenter,
-                            telescopePos,
+                            telPos,
                             field,
                             screen);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Velocimeter::addFirstPoint(const QPointF      &screenCenter,
-                                const TelescopeBox &telescopePos,
-                                const QSizeF       &field,
-                                const QSize        &screen)
+void Velocimeter::addFirstPoint(const QPointF &screenCenter, // _c1
+                                const TelBox  &telPos,
+                                const QSizeF  &field,
+                                const QSize   &screen)
 {
     _c1 = screenCenter;
-    _t1 = telescopePos.timeMarker();
+    _t1 = telPos.timeMarker();
     double screenAngleX, screenAngleY;
     ac::screenPoint2screenAngles(screenCenter.x(),
                                  screenCenter.y(),
-                                 telescopePos.data().delta,
+                                 telPos.data().delta,
                                  field,
                                  screen,
                                  screenAngleX,
                                  screenAngleY);
     ac::screenAngles2iieqt(screenAngleX,
                            screenAngleY,
-                           telescopePos.data().azHoriz,
-                           telescopePos.data().elHoriz,
-                           telescopePos.data().LST,
-                           telescopePos.data().latitude,
+                           telPos.data().azHoriz,
+                           telPos.data().elHoriz,
+                           telPos.data().LST,
+                           telPos.data().latitude,
                            _alpha,
                            _delta);
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void Velocimeter::addSecondPoint(const TelescopeBox &telescopePos,
-                                 const QSizeF       &field,
-                                 const QSize        &screen)
+void Velocimeter::addSecondPoint(const TelBox &telPos, // _c2
+                                 const QSizeF &field,
+                                 const QSize  &screen)
 {
     double screenAngleX, screenAngleY;
     ac::iieqt2screenAngles(_alpha,
                            _delta,
-                           telescopePos.data().LST,
-                           telescopePos.data().latitude,
-                           telescopePos.data().azHoriz,
-                           telescopePos.data().elHoriz,
+                           telPos.data().LST,
+                           telPos.data().latitude,
+                           telPos.data().azHoriz,
+                           telPos.data().elHoriz,
                            screenAngleX,
                            screenAngleY);
     double x, y;
     ac::screenAngles2screenPoint(screenAngleX,
                                  screenAngleY,
-                                 telescopePos.data().delta,
+                                 telPos.data().delta,
                                  field,
                                  screen,
                                  x,
                                  y);
     _c2 = QPointF(x, y);
-    _t2 = telescopePos.timeMarker();
+    _t2 = telPos.timeMarker();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Velocimeter::calcVelocity()
