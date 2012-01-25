@@ -46,7 +46,7 @@ public:
 private:
     Telescope(const Telescope&) {}
     Telescope& operator =(const Telescope&) {return *this;}
-    static const quint16 _defaultPort = 4444;
+    static const quint16 _defaultPort = 44444;
     static const int  _timeout = 20;
     QSettings *_settings;
     TelBox     _telescope;
