@@ -42,22 +42,33 @@ void Detector::saveSettings(QSettings *s)
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::inputFrame(FrameBox *f)
 {
+    QTime t;
+    t.start();
+
     f->lock().lockForRead();
     _cache_Frame = *f;
-    f->lock().unlock();
+    f->lock().unlock();    
+    qDebug() << "Detector: RAW frame locking delay = " << t.restart();
 
     this->accumulate(_mode);
     if(_accum.isFull())    this->accumIsFull();
+    qDebug() << "Detector: proc delay = " << t.restart();
 
     _frame->lock().lockForWrite();
     *_frame = _cache_Frame;
     _frame->lock().unlock();
+    qDebug() << "Detector: GUI frame locking delay = " << t.elapsed();
+
     emit sendFrame(_frame);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::accumulate(const MODE mode)
 {
+    QTime t;
+    t.start();
+
     cvwrap::medianBlur(_cache_Frame.data().asCvMat(), _blurKernelSize);
+    qDebug() << "Detector: accumulate(): medianBlur() delay = " << t.restart();
 
     switch(mode)
     {
@@ -69,8 +80,10 @@ void Detector::accumulate(const MODE mode)
         _cache_Frame = _accum.add(_cache_Frame, _velocity);
         break;
     }
+    qDebug() << "Detector: accumulate(): _accum.add() delay = " << t.restart();
 
     if(_binEnabled)    cvwrap::otsuThreshold(_cache_Frame.data().asCvMat());
+    qDebug() << "Detector: accumulate(): otsuThreshold() delay = " << t.elapsed();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectStars()
@@ -91,7 +104,7 @@ void Detector::detectStars()
     *_stars = _cache_Stars;
     _stars->lock().unlock();
     emit starsReady(_stars);
-    qDebug() << "Detector says: emit starsReady(), N =" << _cache_Stars.data().size();
+    qDebug() << "Detector: emit starsReady(), N =" << _cache_Stars.data().size();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::detectTargets()
@@ -105,7 +118,7 @@ void Detector::detectTargets()
                              _oblongDiff);
     if(_cache_Targets.data().empty())
     {
-        qDebug() << "Detector says: [_cache_Targets] is empty!";
+        qDebug() << "Detector: [_cache_Targets] is empty!";
         return;
     }
     _cache_Targets.setTimeMarker(_cache_Frame.timeMarker());
@@ -113,7 +126,7 @@ void Detector::detectTargets()
     *_targets = _cache_Targets;
     _targets->lock().unlock();
     emit targetsReady(_targets);
-    qDebug() << "Detector says: emit targetsReady(), N =" << _cache_Targets.data().size();
+    qDebug() << "Detector: emit targetsReady(), N =" << _cache_Targets.data().size();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::inputScreenVelocity(const double vx,
@@ -125,6 +138,9 @@ void Detector::inputScreenVelocity(const double vx,
 /////////////////////////////////////////////////////////////////////////////////////
 void Detector::accumIsFull()
 {
+    QTime t;
+    t.start();
+
     _cache_Frame = _accum.frame();
     _accum.clear();
 
@@ -137,6 +153,8 @@ void Detector::accumIsFull()
         this->detectStars();
         break;
     }
+
+    qDebug() << "Detector: accumIsFull(): detection delay = " << t.elapsed();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
