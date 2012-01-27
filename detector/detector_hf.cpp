@@ -15,11 +15,12 @@ bool isOblong(const cv::Rect &rect,
 /////////////////////////////////////////////////////////////////////////////////////
 void detector_hf::findTargets(Frame &f,                 //input
                               ArtifactVector &av,       //output
-                              const int minSquare,
+                              const int minSquare,      /* нижний порог по площади найденного объекта */
                               const bool MTI,           /* Moving-Target Indication (селекция движущихся целей)
-                                                           только для накопленного кадра */
-                              const int oblongDiff)     /* распознавание вытянутых треков
-                                                           от движущихся целей */
+                                                            только для накопленного кадра */
+                              const int maxOblong)      /* верхний порог по коэффициенту вытянутости объекта;
+                                                           используется в режиме MTI для _отсечения_ движущихся целей,
+                                                           которые имеют вытянутую форму - трек (ибо накопление) */
 {
     av.clear();
     const quint32 floodColor = 0xFF - 1;
@@ -39,7 +40,7 @@ void detector_hf::findTargets(Frame &f,                 //input
 
                 if(MTI)
                 {
-                    if(isOblong(rect, oblongDiff))    continue;
+                    if(isOblong(rect, maxOblong))    continue;
                 }
 
                 cvwrap::calcRectCenter(rect, center);

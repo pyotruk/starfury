@@ -32,7 +32,6 @@ SOURCES += main.cpp\
     astrometry/simtri/triangle.cpp \
     astrometry/simtri/combo.cpp \
     astrometry/astrometry.cpp \
-    detector/detector.cpp \
     detector/accumulator.cpp \
     gui/detector_wnd.cpp \
     gui/photometry_wnd.cpp \
@@ -43,7 +42,9 @@ SOURCES += main.cpp\
     detector/detector_hf.cpp \
     utils/cvwrap.cpp \
     gui/control_wnd.cpp \
-    gui/image_wnd.cpp
+    gui/image_wnd.cpp \
+    detector/abstract_detector.cpp \
+    detector/detector_wrapper.cpp
 
 HEADERS  += \
     strob/strob.h \
@@ -69,7 +70,6 @@ HEADERS  += \
     astrometry/simtri/triangle.h \
     astrometry/simtri/combo.h \
     astrometry/astrometry.h \
-    detector/detector.h \
     detector/accumulator.h \
     gui/detector_wnd.h \
     gui/photometry_wnd.h \
@@ -81,7 +81,11 @@ HEADERS  += \
     gui/control_wnd.h \
     gui/image_wnd.h \
     gui/strob_wnd.h \
-    gui/rec_wnd.h
+    gui/rec_wnd.h \
+    detector/detector_wrapper.h \
+    detector/abstract_detector.h \
+    detector/target_detector.h \
+    detector/star_detector.h
 
 
 INCLUDEPATH += "C:/opencv231/include"
@@ -104,6 +108,18 @@ LIBS += -L"C:/Qwt-6.0.1/lib" \
 
 FORMS += \
     gui/controlwindow.ui
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 #include "accumulator.h"
 /////////////////////////////////////////////////////////////////////////////////////
 const FrameBox& Accumulator::add(FrameBox &f,
-                                 const QPointF &velocity)
+                                 const QVector2D& velocity)
 {
     //qDebug() << "Accumulator: add(),  num = " << _num << "  velocity = " << velocity;
     if(this->isFull())    return _frame;
@@ -74,7 +74,7 @@ void Accumulator::setFull()
 /////////////////////////////////////////////////////////////////////////////////////
 bool shifting::cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накопления
                                 const QDateTime &t2, //сдвинутый кадр
-                                const QPointF &velocity,
+                                const QVector2D &velocity,
                                 const double mean,
                                 Frame &f)
 {

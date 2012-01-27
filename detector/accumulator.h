@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 #include <QDebug>
 #include <QDateTime>
-#include <QPointF>
+#include <QVector2D>
 #include <QRect>
 #include <QSize>
 #include <qmath.h>
@@ -19,7 +19,7 @@ public:
         _capacity(capacity), _num(0), _full(false) {}
     ~Accumulator() {}
     const FrameBox& add(FrameBox&,
-                        const QPointF& velocity = QPointF(0, 0));
+                        const QVector2D& velocity = QVector2D(0, 0));
     void setCapacity(const int capacity) {_capacity = capacity;}
     inline const FrameBox& frame() const {return _frame;}
     inline int  capacity() const {return _capacity;}
@@ -44,7 +44,7 @@ namespace shifting
 /* returns true if success */
 bool cookShiftedFrame(const QDateTime &t1, //первый кадр в серии накопления
                       const QDateTime &t2, //сдвинутый кадр
-                      const QPointF &velocity,
+                      const QVector2D &velocity,
                       const double mean,
                       Frame &f);
 }

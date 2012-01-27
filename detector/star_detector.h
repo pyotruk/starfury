@@ -1,0 +1,34 @@
+#ifndef STAR_DETECTOR_H
+#define STAR_DETECTOR_H
+/////////////////////////////////////////////////////////////////////////////////////
+#include <QVector2D>
+/////////////////////////////////////////////////////////////////////////////////////
+#include "detector/abstract_detector.h"
+/////////////////////////////////////////////////////////////////////////////////////
+class StarDetector : public AbstractDetector
+{
+public:
+    explicit StarDetector(QSettings *s)
+        : AbstractDetector(s),
+          _vel(0, 0)
+    {}
+
+    void setVelocity(const double vx, const double vy)
+    {
+        _vel = QVector2D(vx, vy);
+    }
+
+protected:
+    virtual void accumulate()
+    {
+        cvwrap::medianBlur(_frame.data().asCvMat(), _blurKernelSize);
+        _frame = _accum.add(_frame, _vel);
+    }
+
+private:
+    QVector2D _vel;     //скорость в экранной СК
+};
+
+/////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+#endif // STAR_DETECTOR_H
