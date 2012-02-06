@@ -4,16 +4,17 @@ DetectorWrapper::DetectorWrapper(QSettings *s,
                                  FrameBox *shared_Frame,
                                  ArtifactBox *shared_Stars,
                                  ArtifactBox *shared_Targets)
-    : _shared_Frame(shared_Frame),
+    : _settings(s),
+      _shared_Frame(shared_Frame),
       _shared_Stars(shared_Stars),
       _shared_Targets(shared_Targets),
       _targetDetector(new TargetDetector(s)),
       _starDetector(new StarDetector(s)),
-      _binEnabled(false),
-      _cache_AccumCap(0),
+      _cache_AccumCap(_starDetector->accum().capacity()),
       _cache_Vel(0, 0)
 {
     this->moveToThread(this);
+    this->loadSettings(s);
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +22,7 @@ DetectorWrapper::~DetectorWrapper()
 {
     this->quit();
     this->wait();
+    this->saveSettings(_settings);
     delete _starDetector;
     delete _targetDetector;
 }
@@ -67,14 +69,14 @@ void DetectorWrapper::do_Target_Detection(FrameBox *f)
     if(_targetDetector->mutex().tryLock(_timeout))
     {
         _shared_Frame->lock().lockForWrite();
-        _shared_Frame = _targetDetector->frame();
+        *_shared_Frame = _targetDetector->frame();
         _shared_Frame->lock().unlock();
         emit sendFrame(_shared_Frame);
 
         if(_targetDetector->ready())
         {
             _shared_Targets->lock().lockForWrite();
-            _shared_Targets = _targetDetector->artifacts();
+            *_shared_Targets = _targetDetector->artifacts();
             _shared_Targets->lock().unlock();
             emit targetsReady(_shared_Targets);
         }
@@ -94,20 +96,21 @@ void DetectorWrapper::do_Star_Detection(FrameBox *f)
     if(_starDetector->mutex().tryLock(_timeout))
     {
         _shared_Frame->lock().lockForWrite();
-        _shared_Frame = _starDetector->frame();
+        *_shared_Frame = _starDetector->frame();
         _shared_Frame->lock().unlock();
         emit sendFrame(_shared_Frame);
 
         if(_starDetector->ready())
         {
             _shared_Stars->lock().lockForWrite();
-            _shared_Stars = _starDetector->artifacts();
+            *_shared_Stars = _starDetector->artifacts();
             _shared_Stars->lock().unlock();
             emit starsReady(_shared_Stars);
         }
 
         _starDetector->setAccumCapacity(_cache_AccumCap);
-        _starDetector->setVelocity(_cache_Vel);
+        _starDetector->setVelocity(_cache_Vel.x(),
+                                   _cache_Vel.y());
 
         f->lock().lockForRead();
         _starDetector->inputFrame(f);

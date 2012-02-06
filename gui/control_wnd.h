@@ -5,7 +5,7 @@
 #include <QDebug>
 /////////////////////////////////////////////////////////////////////////////////////
 #include "astrometry/astrometry.h"
-#include "detector/detector.h"
+#include "detector/detector_wrapper.h"
 /////////////////////////////////////////////////////////////////////////////////////
 namespace Ui {
     class ControlWindow;
@@ -18,9 +18,9 @@ public:
     explicit ControlWindow(QWidget *parent = 0);
     ~ControlWindow();
     void initFace(const int strobSize,
-                  const astrometry::METHOD,
+                  const int astrometryMethod,
                   const int accumCapacity,
-                  const Detector::MODE);
+                  const int detectorMode);
 protected:
     void closeEvent(QCloseEvent *);
 private:
@@ -34,14 +34,12 @@ private slots:
     void updateSliderLabels();
     void setSimtriAstrometryMethod()  {emit setAstrometryMethod((int)astrometry::SIMTRI);}
     void setFreevecAstrometryMethod() {emit setAstrometryMethod((int)astrometry::FREEVEC);}
-    void convertCheckBoxDetectorBinSignal(int);
-    void setStarDetectionMode()   {emit setDetectorMode((int)Detector::STAR_DETECTION);}
-    void setTargetDetectionMode() {emit setDetectorMode((int)Detector::TARGET_DETECTION);}
+    void setStarDetectionMode()   {emit setDetectorMode((int)DetectorWrapper::STAR_DETECTION);}
+    void setTargetDetectionMode() {emit setDetectorMode((int)DetectorWrapper::TARGET_DETECTION);}
 signals:
     void setStrobSize(const int);
     void setAstrometryMethod(int);
     void setAccumCapacity(const int);
-    void setBinEnabled(bool);
     void setDetectorMode(int);
     void closed();
 };

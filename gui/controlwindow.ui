@@ -387,16 +387,6 @@
                 </layout>
                </widget>
               </item>
-              <item>
-               <widget class="QCheckBox" name="checkBoxBin">
-                <property name="text">
-                 <string>thresholding</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
            </layout>

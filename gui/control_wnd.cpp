@@ -13,8 +13,6 @@ ControlWindow::ControlWindow(QWidget *parent) :
             this, SIGNAL(setStrobSize(int)));
     connect(ui->sliderAccum, SIGNAL(sliderMoved(int)),
             this, SIGNAL(setAccumCapacity(int)));
-    connect(ui->checkBoxBin, SIGNAL(stateChanged(int)),
-            this, SLOT(convertCheckBoxDetectorBinSignal(int)));
 
     connect(ui->radioBtnSimtri, SIGNAL(clicked()),
             this, SLOT(setSimtriAstrometryMethod()));
@@ -44,15 +42,15 @@ void ControlWindow::closeEvent(QCloseEvent *event)
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void ControlWindow::initFace(const int strobSize,
-                             const astrometry::METHOD method,
+                             const int astrometryMethod,
                              const int accumCapacity,
-                             const Detector::MODE mode)
+                             const int detectorMode)
 {
     ui->sliderStrobSize->setValue(strobSize);
     ui->sliderAccum->setValue(accumCapacity);
     this->updateSliderLabels();
 
-    switch(method)
+    switch(astrometryMethod)
     {
     case astrometry::SIMTRI:
         ui->radioBtnSimtri->setChecked(true);
@@ -62,12 +60,12 @@ void ControlWindow::initFace(const int strobSize,
         break;
     }
 
-    switch(mode)
+    switch(detectorMode)
     {
-    case Detector::STAR_DETECTION:
+    case DetectorWrapper::STAR_DETECTION:
         ui->radioBtnStars->setChecked(true);
         break;
-    case Detector::TARGET_DETECTION:
+    case DetectorWrapper::TARGET_DETECTION:
         ui->radioBtnTargets->setChecked(true);
         break;
     }
@@ -86,23 +84,11 @@ void ControlWindow::inputMeasureError(double errAlpha,  //rad
                                       double errDelta)  //rad
 {
     ui->labelAlpha->setText("alpha  " +
-                              QString::number(errAlpha * ac::_rad2deg * 3600));
+                            QString::number(errAlpha * ac::_rad2deg * 3600));
     ui->labelDelta->setText("delta  " +
                             QString::number(errDelta * ac::_rad2deg * 3600));
 }
 /////////////////////////////////////////////////////////////////////////////////////
-void ControlWindow::convertCheckBoxDetectorBinSignal(int state)
-{
-    switch(state)
-    {
-    case Qt::Checked:
-        emit setBinEnabled(true);
-        break;
-    case Qt::Unchecked:
-        emit setBinEnabled(false);
-        break;
-    }
-}
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

@@ -11,8 +11,7 @@ public:
 protected:
     virtual void accumulate()
     {
-        cvwrap::medianBlur(_frame.data().asCvMat(), _blurKernelSize);
-        _frame = _accum.add(_frame);
+        _accum.add(_cache_Frame);
     }
 };
 /////////////////////////////////////////////////////////////////////////////////////

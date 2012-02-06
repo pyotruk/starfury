@@ -23,9 +23,10 @@ class AbstractDetector : public QThread
 public:
     explicit AbstractDetector(QSettings*);
     ~AbstractDetector();
-    const FrameBox&    frame(bool binarize = false);
+    const FrameBox&    frame();
     const ArtifactBox& artifacts();
     inline QMutex& mutex()    {return _mutex;}
+    inline const Accumulator& accum() const {return _accum;}
     inline bool ready() const {return _ready;}
     inline void setAccumCapacity(int cap) {_accum.setCapacity(cap);}
     inline void clearAccum()              {_accum.clear();}
@@ -34,7 +35,7 @@ protected:
     static const int _blurKernelSize = 7;
     int          _minSquare;   /* нижний порог по площади найденного объекта */
     int          _maxOblong;   /* верхний порог по коэффициенту вытянутости объекта */
-    FrameBox     _frame;
+    FrameBox     _cache_Frame;
     ArtifactBox  _artifacts;   /* найденные объекты */
     Accumulator  _accum;
     virtual void run();

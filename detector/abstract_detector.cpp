@@ -31,15 +31,15 @@ void AbstractDetector::saveSettings(QSettings *s)
 /////////////////////////////////////////////////////////////////////////////////////
 void AbstractDetector::inputFrame(FrameBox *f)
 {
-    _frame = *f;
+    _cache_Frame = *f;
     this->start(QThread::NormalPriority);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void AbstractDetector::run()
 {
     _mutex.lock();
+    cvwrap::medianBlur(_cache_Frame.data().asCvMat(), _blurKernelSize);
     this->accumulate();
-    _frame = _accum.frame();
     if(_accum.isFull())
     {
         _accum.clear();
@@ -56,10 +56,9 @@ void AbstractDetector::run()
     _mutex.unlock();
 }
 /////////////////////////////////////////////////////////////////////////////////////
-const FrameBox& AbstractDetector::frame(bool binarize)
+const FrameBox& AbstractDetector::frame()
 {
-    if(binarize)    cvwrap::otsuThreshold(_frame.data().asCvMat());
-    return _frame;
+    return _accum.frame();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 const ArtifactBox& AbstractDetector::artifacts()
@@ -70,13 +69,14 @@ const ArtifactBox& AbstractDetector::artifacts()
 /////////////////////////////////////////////////////////////////////////////////////
 void AbstractDetector::detect()
 {
-    cvwrap::otsuThreshold(_frame.data().asCvMat());
-    detector_hf::findTargets(_frame.data(),
+    _cache_Frame = _accum.frame();
+    cvwrap::otsuThreshold(_cache_Frame.data().asCvMat());
+    detector_hf::findTargets(_cache_Frame.data(),
                              _artifacts.data(),
                              _minSquare,
                              true,
                              _maxOblong);
-    _artifacts.setTimeMarker(_frame.timeMarker());
+    _artifacts.setTimeMarker(_cache_Frame.timeMarker());
 }
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////

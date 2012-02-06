@@ -10,12 +10,12 @@
 #include "gui/photometry_wnd.h"
 #include "com/framerec.h"
 #include "boxes/frame.h"
-#include "detector/detector.h"
+#include "detector/detector_wrapper.h"
 #include "sky/starcatscreen.h"
 #include "astrometry/angmeter.h"
 #include "common/logfile.h"
 #include "strob/strob_wrapper.h"
-#include "boxes/telescope.h"
+#include "com/telescope.h"
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////
@@ -39,24 +39,24 @@ int main(int argc, char *argv[])
     ArtifactBox    shared_Targets;
 
     /* singletons */
-    StrobWrapper  strobWrapper(&settings,
-                               &strobLog,
-                               &shared_Targets);
-    FrameReceiver frameReceiver(&settings,
-                                &frame0,
-                                &frame1);
-    Detector      detector(&settings,
-                           &frame2,
-                           &shared_PicStars,
-                           &shared_Targets);
-    StarcatScreen starcatScreen(&settings,
-                                &shared_CatStars);
-    Angmeter      angmeter(&settings,
-                           &starsLog,
-                           &targetLog,
-                           &shared_EqPicStars,
-                           &shared_EqCatStars);
-    Telescope     telescope(&settings);
+    StrobWrapper    strobWrapper(&settings,
+                                 &strobLog,
+                                 &shared_Targets);
+    Angmeter        angmeter(&settings,
+                             &starsLog,
+                             &targetLog,
+                             &shared_EqPicStars,
+                             &shared_EqCatStars);
+    DetectorWrapper detector(&settings,
+                             &frame2,
+                             &shared_PicStars,
+                             &shared_Targets);
+    StarcatScreen   starcatScreen(&settings,
+                                  &shared_CatStars);
+    Telescope       telescope(&settings);
+    FrameReceiver   frameReceiver(&settings,
+                                  &frame0,
+                                  &frame1);
 
     /* gui */
     ControlWindow    controlWnd;
@@ -66,17 +66,17 @@ int main(int argc, char *argv[])
     /* gui init */
     controlWnd.initFace(strobWrapper.strob().geometry().side(),
                         angmeter.method(),
-                        detector.accum().capacity(),
+                        detector.accumCapacity(),
                         detector.mode());
     detectorWnd.setMode(detector.mode());
 
     qDebug() << "QApplication :" << a.thread();
     qDebug() << strobWrapper.thread();
-    qDebug() << frameReceiver.thread();
+    qDebug() << angmeter.thread();
     qDebug() << detector.thread();
     qDebug() << starcatScreen.thread();
-    qDebug() << angmeter.thread();
     qDebug() << "Telescope :" <<telescope.thread();
+    qDebug() << frameReceiver.thread();
 
     /* object --> object connections */
     QObject::connect(&frameReceiver, SIGNAL(frame0Ready(FrameBox*)),
@@ -158,9 +158,6 @@ int main(int argc, char *argv[])
                      Qt::QueuedConnection);
     QObject::connect(&controlWnd, SIGNAL(setAccumCapacity(int)),
                      &detector, SLOT(setAccumCapacity(int)),
-                     Qt::QueuedConnection);
-    QObject::connect(&controlWnd, SIGNAL(setBinEnabled(bool)),
-                     &detector, SLOT(setBinEnabled(bool)),
                      Qt::QueuedConnection);
 
 

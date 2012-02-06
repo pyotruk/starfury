@@ -27,7 +27,7 @@ SOURCES += main.cpp\
     math/lincor.cpp \
     common/logfile.cpp \
     utils/timeutils.cpp \
-    boxes/telescope.cpp \
+    com/telescope.cpp \
     astrometry/freevec/freevec.cpp \
     astrometry/simtri/triangle.cpp \
     astrometry/simtri/combo.cpp \
@@ -65,7 +65,7 @@ HEADERS  += \
     math/lincor.h \
     common/logfile.h \
     utils/timeutils.h \
-    boxes/telescope.h \
+    com/telescope.h \
     astrometry/freevec/freevec.h \
     astrometry/simtri/triangle.h \
     astrometry/simtri/combo.h \

@@ -5,7 +5,7 @@
 #include "image_wnd.h"
 #include "boxes/artifact.h"
 #include "drawing.h"
-#include "detector/detector.h"
+#include "detector/detector_wrapper.h"
 /////////////////////////////////////////////////////////////////////////////////////
 static const QColor __picStarsColor(Qt::green);
 static const QColor __catStarsColor(Qt::magenta);
@@ -25,15 +25,16 @@ public:
     explicit DetectorWindow(const QString &title,
                             QSettings *s)
         : ImageWindow(title, s) {}
+
 public slots:
-    void setMode(int); //Detector::MODE
+    void setMode(int); //DetectorWrapper::MODE
 private:
     ArtifactVector  _picStars;
     ArtifactVector  _catStars;
     ArtifactVector  _eqPicStars;
     ArtifactVector  _eqCatStars;
     ArtifactVector  _targets;
-    Detector::MODE  _mode;
+    DetectorWrapper::MODE  _mode;
     void drawAll();
     void clear();
 private slots:

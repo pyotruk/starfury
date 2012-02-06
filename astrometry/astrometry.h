@@ -5,7 +5,7 @@
 #include <QSizeF>
 #include <QPointF>
 /////////////////////////////////////////////////////////////////////////////////////
-#include "boxes/telescope.h"
+#include "com/telescope.h"
 #include "boxes/artifact.h"
 #include "boxes/star.h"
 #include "math/astrocalc.h"

@@ -22,10 +22,10 @@ public:
     ~DetectorWrapper();
 
     inline int mode() const {return (int)_mode;}
+    inline int accumCapacity() const {return _cache_AccumCap;}
 
 public slots:
     inline void setAccumCapacity(int cap) {_cache_AccumCap = cap;}
-    inline void setBinEnabled(bool b)     {_binEnabled = b;}
     void setMode(int m);
 
 private:
@@ -36,6 +36,7 @@ private:
     static const MODE _defaultMode = STAR_DETECTION;
 
     /* shared */
+    QSettings      *_settings;
     FrameBox       *_shared_Frame;
     ArtifactBox    *_shared_Stars;
     ArtifactBox    *_shared_Targets;
@@ -44,7 +45,6 @@ private:
     StarDetector   *_starDetector;
 
     MODE _mode;
-    bool _binEnabled;
 
     int       _cache_AccumCap;
     QVector2D _cache_Vel;

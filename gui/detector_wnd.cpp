@@ -6,7 +6,7 @@ void DetectorWindow::drawAll()
 
     switch(_mode)
     {
-    case Detector::STAR_DETECTION:
+    case DetectorWrapper::STAR_DETECTION:
         draw::picStarsMarks(_img, _picStars, __picStarsColor, __picStarsPen);
         draw::catStarsMarks(_img, _catStars, __catStarsColor, __catStarsPen);
         draw::starConfig(_img, _eqPicStars, __eqPicStarsColor, __eqPicStarsPen);
@@ -15,7 +15,7 @@ void DetectorWindow::drawAll()
         _eqCatStars.clear();
         break;
 
-    case Detector::TARGET_DETECTION:
+    case DetectorWrapper::TARGET_DETECTION:
         draw::targetMarks(this->_img, _targets, __targetsColor, __targetsPen);
         break;
     }
@@ -66,7 +66,7 @@ void DetectorWindow::clear()
 /////////////////////////////////////////////////////////////////////////////////////
 void DetectorWindow::setMode(int m)
 {
-    _mode = (Detector::MODE)m;
+    _mode = (DetectorWrapper::MODE)m;
     this->clear();
 }
 /////////////////////////////////////////////////////////////////////////////////////

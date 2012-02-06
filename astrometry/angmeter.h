@@ -15,7 +15,7 @@
 #include "math/lincor.h"
 #include "common/logfile.h"
 #include "astrometry/astrometry.h"
-#include "boxes/telescope.h"
+#include "com/telescope.h"
 /////////////////////////////////////////////////////////////////////////////////////
 //setting keys
 static const QString __skeyMaxStarQuantity("/Angmeter/MaxStarQuantity");
