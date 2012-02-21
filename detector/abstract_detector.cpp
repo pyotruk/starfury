@@ -42,6 +42,7 @@ void AbstractDetector::run()
     this->accumulate();
     if(_accum.isFull())
     {
+        _cache_Frame = _accum.frame();
         _accum.clear();
         this->detect();
         if(_artifacts.data().empty())
@@ -69,7 +70,6 @@ const ArtifactBox& AbstractDetector::artifacts()
 /////////////////////////////////////////////////////////////////////////////////////
 void AbstractDetector::detect()
 {
-    _cache_Frame = _accum.frame();
     cvwrap::otsuThreshold(_cache_Frame.data().asCvMat());
     detector_hf::findTargets(_cache_Frame.data(),
                              _artifacts.data(),
