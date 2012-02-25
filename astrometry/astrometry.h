@@ -1,3 +1,6 @@
+/* Интерфейсный модуль астрометрии.
+   Реализует отождествление звёздных конфигураций методами:
+   свободных векторов [FREEVEC], подобных треугольников [SIMTRI]. */
 #ifndef ASTROMETRY_H
 #define ASTROMETRY_H
 /////////////////////////////////////////////////////////////////////////////////////
@@ -24,19 +27,28 @@ enum METHOD {SIMTRI = 0, FREEVEC = 1};
 //
 static const int _minStarQuantity = 3;
 //
-int equate(ArtifactVector &picStars,
-           ArtifactVector &catStars,
-           const QSize    &screen,
-           const double    similarEps,
-           const double    nearStarDist,
-           const int       maxStarQuantity,
-           const int       minEquatedStarQuantity,
-           METHOD          method);
-void catStar2screenStar(const Star   &s,
-                        Artifact     &a,
-                        const TelPos &t,
-                        const QSizeF &field,
-                        const QSize  &screen);
+/* Отождествляет звёзды из двух массивов [picStars] [catStars].
+   После обработки входные массивы содержат только отождествлённые
+   звёзды в соответсвующем порядке.
+   Не забывай проверять return values. */
+int equate(ArtifactVector &picStars,    //звёзды с картинки
+           ArtifactVector &catStars,    //звёзды из каталога
+           const QSize    &screen,      //размер кадра
+           const double    similarEps,  //точность подобия конфигураций (точность равенства _отношений_ сторон)
+           const double    nearStarDist,    /* макс. расстояние (в экранной СК) между двумя звёздами,
+                                               при котором звёзды считаются близкими и выкидываются из обработки */
+           const int       maxStarQuantity,         //верхняя граница для кол-ва обрабатываемых звёзд
+           const int       minEquatedStarQuantity,  //нижняя граница для кол-ва отождествлённых звёзд
+           METHOD          method);                 //метод отождествления
+
+/* Следующие функции выполняют преобразование координат каталожной звезды [alpha, delta]
+   в координаты экранной звезды [x, y] и обратно.
+   В текущем варианте _не_ учитывается поворот поля. */
+void catStar2screenStar(const Star   &s,    //каталожная звезда
+                        Artifact     &a,    //экранная звезда
+                        const TelPos &t,    //вектор состояния телескопа
+                        const QSizeF &field,    //размер поля [рад]
+                        const QSize  &screen);  //размер кадра
 void screenStar2catStar(const Artifact &a,
                         Star           &s,
                         const TelPos   &t,

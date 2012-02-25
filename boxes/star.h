@@ -1,3 +1,4 @@
+/* Класс для хранения звезды, загруженной из каталога */
 #ifndef STAR_H
 #define STAR_H
 /////////////////////////////////////////////////////////////////////////////////////
@@ -20,9 +21,9 @@ public:
     const double delta() const {return _delta;} //rad
     const double magnitude() const {return _magnitude;}
 private:
-    double _alpha;
-    double _delta;
-    double _magnitude;
+    double _alpha;  //прямое восхождение
+    double _delta;  //склонение
+    double _magnitude;  //блеск в зв.в.
 };
 /////////////////////////////////////////////////////////////////////////////////////
 typedef QVector<Star> StarVector;

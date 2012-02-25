@@ -1,3 +1,6 @@
+/* Модуль реализует отождествление звёздных конфигураций
+   методом свободных векторов.
+   Основная функция: freevec::equate(...) */
 #ifndef IDENTIFIER_H
 #define IDENTIFIER_H
 /////////////////////////////////////////////////////////////////////////////////////
@@ -11,7 +14,7 @@
 #include "math/astrocalc.h"
 #include "astrometry/astrometry.h"
 /////////////////////////////////////////////////////////////////////////////////////
-class ArtifactPair
+class ArtifactPair  //вспомогательный класс
 {
 public:
     explicit ArtifactPair();

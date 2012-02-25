@@ -6,7 +6,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 namespace timeutils
 {
-void winfiletime2qdatetime(const qint64 &fileTime,
+void winfiletime2qdatetime(const qint64 &fileTime, // windows FILETIME to QDateTime
                            QDateTime &qtTime);
 int msecFromDayBegin();
 int msecFromDayBegin(QDateTime&);

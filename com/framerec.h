@@ -1,3 +1,7 @@
+/* Класс для ввода кадров в программу.
+   Реализует два канала выдачи кадров [frame0, frame1].
+   Передача указателей на готовые (принятые) кадры другим
+   блокам (объектам) программы через механизм сигналов/слотов */
 #ifndef FRAMEREC_H
 #define FRAMEREC_H
 /////////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +37,6 @@ private:
     QSize           _bufSize;
     void checkFrameSize(const int width,
                         const int height);
-    void fastProc(Frame&);
 signals:
     void frame0Ready(FrameBox*);
     void frame1Ready(FrameBox*);

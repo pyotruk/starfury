@@ -29,8 +29,8 @@ public:
     void setCenter(const QPointF &p) {_center = p;}
     void setMagnitude(const double m) {_magnitude = m;}
 private:
-    QPointF _center;
-    double  _magnitude; //размер в усл.ед.
+    QPointF _center;    //координаты центра масс в экранной СК
+    double  _magnitude; //параметр, пропорциональный размеру и яркости артефакта
 };
 /////////////////////////////////////////////////////////////////////////////////////
 QDebug operator<<(QDebug, const Artifact&);
@@ -47,13 +47,14 @@ void selectOnCircle(ArtifactVector&,       //удаление артефактов, которые не поп
                     const double radius);
 void cutoff(ArtifactVector&,               //обрезка вектора до нужной длины
             const int newLength);               //если newLenght больше текущей длины, то ничего не происходит
-bool isEqual(const Artifact &a1,           //проверка артефактов на равенство (совпадение центров масс)
+bool isEqual(const Artifact &a1,           //проверка артефактов на равенство (совпадение центров масс с точностью [eps])
              const Artifact &a2,
              const double eps);
-bool isContain(const ArtifactVector &v,
+bool isContain(const ArtifactVector &v,    //содержит ли массив [v] артифакт [a] (центры масс должны совпадать с точностью [eps])
                const Artifact &a,
                const double eps);
-void deleteTargets(ArtifactVector &stars,
+void deleteTargets(ArtifactVector &stars, /* удаляет из массива [stars] артифакты с центром масс,
+                                             совпадающим с центром масс артифактов из массива [targets] */
                    const ArtifactVector &targets);
 }
 /////////////////////////////////////////////////////////////////////////////////////
